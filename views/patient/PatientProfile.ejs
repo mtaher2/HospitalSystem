@@ -1,10 +1,6 @@
 <%- include('../partials/header', {title: 'Patient Profile', stylesheetName:
-'styles', headerTitle: 'Patient Profile' }) %> 
-
-<% if (user.Role === 2) { %>
-<%-include('../partials/searchBar') %>
-<% } %>
-
+'styles', headerTitle: 'Patient Profile' }) %> <% if (user.Role === 2) { %>
+<%-include('../partials/searchBar') %> <% } %>
 <%-include('../partials/patientNav') %>
 
 <div class="container-patient">
@@ -83,5 +79,16 @@
     </div>
   </div>
 </div>
+<script>
+  function openProfilePhotoModal() {
+    document.getElementById("profilePhotoModal").style.display = "block";
+  }
+
+  // Function to close the modal
+  function closeProfilePhotoModal() {
+    document.getElementById("profilePhotoModal").style.display = "none";
+  }
+</script>
+<script src="js/upload.js"></script>
 <script src="js/main.js"></script>
 <%- include('../partials/footer') %>

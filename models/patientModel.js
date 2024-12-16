@@ -18,8 +18,7 @@ async function insertInsurance(insurance) {
     const { Insurance_Provider, Coverage_Details, Expiry_Date } = insurance;
     const coverageJson = JSON.stringify(Coverage_Details);  // Convert Coverage_Details to JSON format
 
-    const insertInsuranceQuery = `INSERT INTO Insurance (Insurance_Provider, Coverage_Details, Expiry_Date) 
-                                  VALUES (?, ?, ?)`;
+    const insertInsuranceQuery = `INSERT INTO Insurance (Insurance_Provider, Coverage_Details, Expiry_Date) VALUES (?, ?, ?)`;
 
     try {
         const [insuranceResult] = await db.query(insertInsuranceQuery, [
@@ -121,9 +120,46 @@ async function selectInsuranceDetails(userID) {
     if (insuranceDetails.Expiry_Date) {
       insuranceDetails.Expiry_Date = formatDate(insuranceDetails.Expiry_Date);
     }
-};
+    return insuranceDetails; // Return the insurance details with extracted coverage percentage
+  } catch (err) {
+    console.error("Error selecting insurance details:", err);
+    throw err; // Rethrow the error for the caller to handle
+  }
+}
 
-module.exports = Patient;
+function parseCoverage(coverageData) {
+  if (!coverageData) {
+    return "N/A"; // If no coverage data exists, return 'N/A'
+  }
+
+  try {
+    // Parse the Coverage_Details JSON and extract the coverage percentage
+    const coverage = JSON.parse(coverageData);
+
+    // Check if the 'percentage' field exists in the parsed data
+    if (coverage && coverage.percentage) {
+      return coverage.percentage; // Return the coverage percentage
+    } else {
+      console.log("Coverage percentage not found in the data.");
+      return "N/A"; // Return 'N/A' if the percentage is missing
+    }
+  } catch (parseError) {
+    console.error("Error parsing Coverage_Details JSON:", parseError);
+    return "Invalid JSON"; // Return 'Invalid JSON' in case of an error during parsing
+  }
+}
+
+function formatDate(dateString) {
+  const date = new Date(dateString);
+  // Format the date to YYYY-MM-DD
+  const formattedDate = date.toISOString().split("T")[0];
+  return formattedDate;
+}
+
+function handleCoverageError() {
+  console.error("There was an issue with the coverage data.");
+  return "Invalid JSON"; // Return a default error message
+}
 
 //verify Patient Insurance
 async function verifyPatientInsurance(insuranceData) {
@@ -148,4 +184,4 @@ async function verifyPatientInsurance(insuranceData) {
     }
 };
 
-export { verifyPatientInsurance };
+export {selectInsuranceDetails, addPatient, verifyPatientInsurance };
