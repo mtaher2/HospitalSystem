@@ -1,0 +1,56 @@
+<%- include('../partials/header', {title: 'Reception Bills',
+stylesheetName:'styles', headerTitle: 'Reception Bills' }) %> <%-
+include('../partials/receptionNav') %>
+
+<div class="medication-container">
+  <div class="top-strip"></div>
+  <!-- White strip before tabs -->
+
+  <!-- Search Bar -->
+  <div class="search-container">
+    <input
+      type="text"
+      id="searchInput"
+      class="search-bar"
+      placeholder="Search Bills..."
+    />
+  </div>
+
+  <div class="content-body">
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>patient</th>
+            <th>stat</th>
+            <th>amount</th>
+            <th>date of payment</th>
+            <th>invoice</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>name</td>
+            <td>payed</td>
+            <td>name</td>
+            <td>22/9/18</td>
+            <td>view file</td>
+            <td class="pay-btn-cell">
+              <button class="pay-btn">ChangeState</button>
+            </td>
+          </tr>
+          <tr>
+            <td>name</td>
+            <td>unpayed</td>
+            <td>name</td>
+            <td>22/9/18</td>
+            <td>view file</td>
+            <td class="pay-btn-cell">
+              <button class="pay-btn">ChangeState</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

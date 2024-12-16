@@ -1,0 +1,1057 @@
+/* General Styles */
+html {
+  height: 100%; /* Ensure html takes up full height */
+  margin-bottom: 0;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  height: 100%; /* Ensure body takes up full height */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+hr {
+  border: 0;
+  height: 1px;
+  background-color: #ccc;
+  margin: 0;
+}
+
+/* Shared Header */
+.header {
+  display: flex;
+  justify-content: space-between; /* Corrected from 'align-items' to 'justify-content' */
+  align-items: center; /* Ensures vertical centering of items */
+  padding: 10px;
+  background-color: #fff;
+}
+
+.header-content-logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  width: 40px;
+  height: 40px;
+  margin-right: 10px;
+}
+
+.header-title {
+  font-size: 28px;
+  color: #2b3aa2;
+  margin: 0;
+}
+
+.logout-button {
+  background-color: #a1d55d; /* Green background matching your color scheme */
+  color: #fff; /* White text color */
+  padding: 10px 20px; /* Adjust padding to match your UI */
+  border-radius: 5px; /* Rounded corners */
+  text-decoration: none; /* Remove underline */
+  font-size: 16px; /* Set a readable font size */
+  cursor: pointer;
+  transition: background-color 0.3s ease, opacity 0.3s ease;
+}
+
+/* Hover Effect for Logout Button */
+.logout-button:hover {
+  background-color: #8dbf5a; /* Darker green on hover */
+  opacity: 0.9;
+}
+
+/* Patient Page Styles */
+.container-patient {
+  flex: 1;
+  padding: 20px;
+  box-sizing: border-box;
+  margin-bottom: 0;
+}
+
+.menu-icon {
+  display: none; /* Initially hidden, shown on smaller screens */
+  font-size: 24px;
+  color: #2b3aa2;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 10px;
+  margin-right: auto; /* Pushes the icon to the left */
+}
+
+.navigation {
+  background-color: #d4ecb6;
+  padding: 17px;
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 25px;
+}
+
+.navigation a {
+  text-decoration: none;
+  color: #2b3aa2;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.navigation a:hover {
+  text-decoration: underline;
+}
+
+/* Modal Styles */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed;
+  z-index: 1000; /* Sit on top of everything else */
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Fade-in effect */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Modal Content */
+.modal-content {
+  background-color: #fff;
+  border-radius: 12px;
+  width: 450px;
+  padding: 30px;
+  text-align: center;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  transform: scale(0.9);
+  animation: scaleIn 0.3s ease-in-out;
+}
+
+/* Scale-in effect */
+@keyframes scaleIn {
+  from {
+    transform: scale(0.9);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 30px;
+  color: #888;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.close-btn:hover {
+  color: #333;
+}
+
+/* File input styling */
+#profilePhotoInput {
+  margin-top: 20px;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  width: 100%;
+  background-color: #f9f9f9;
+}
+
+#profilePhotoInput:focus {
+  border-color: #a1d55d; /* Green focus border */
+  outline: none;
+}
+
+.btn-upload {
+  margin-top: 20px;
+  padding: 12px 25px;
+  border-radius: 5px;
+  background-color: #a1d55d; /* Green color */
+  color: #fff;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-upload:hover {
+  background-color: #8dbf5a; /* Darker green on hover */
+}
+
+.profile-info {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.avatar {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  border: 2px solid #d4ecb6;
+  object-fit: cover;
+}
+
+.profile-info-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 5px;
+}
+
+.profile-info-detail h2 {
+  font-size: 20px;
+  color: #000000;
+  margin: 0;
+}
+
+.appointment-btn {
+  background-color: #a1d55d;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.appointment-btn:hover {
+  opacity: 0.9;
+}
+
+.details {
+  display: flex;
+  justify-content: flex-start;
+  gap: 20px;
+  margin-top: 20px;
+  width: 90%;
+}
+
+.left-details,
+.right-details {
+  flex: 1;
+}
+
+.left-details {
+  margin-right: 120px;
+}
+
+.right-details {
+  margin-left: 120px;
+  margin-top: 45px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #2b3aa2;
+  text-transform: uppercase;
+}
+
+.info-item {
+  margin: 5px 0;
+  padding: 8px;
+  background-color: #f7f9fc;
+  border: 1px solid #212856;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.info-item strong {
+  color: #000000;
+  flex-shrink: 0;
+}
+
+.info-item i {
+  color: #a1d55d;
+}
+
+/* Footer */
+footer {
+  background-color: #212856;
+  color: white;
+  padding: 15px 35px;
+  text-align: left;
+  font-size: 14px;
+  margin-bottom: 0;
+  line-height: 1.8;
+}
+
+footer i {
+  margin-right: 5px;
+  color: #a1d55d;
+}
+
+footer p {
+  margin-bottom: 10px;
+}
+
+/* Login Page Styles */
+.container {
+  max-width: 400px;
+  margin: 50px auto 265px auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Align content to the top */
+  padding: 0;
+  align-items: center;
+  flex: 1;
+}
+
+.login-title {
+  color: #2b3aa2;
+  font-size: 30px;
+  margin-bottom: 20px;
+}
+
+.login-form label {
+  display: block;
+  margin-top: 15px;
+  font-size: 20px;
+  text-align: left;
+}
+.login-form {
+    align-items: center;
+    justify-content: center;
+  }
+
+.login-form input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.login-btn {
+  background-color: #a1d55d;
+  color: #fff;
+  border: none;
+  padding: 10px 100px;
+  margin: 20px auto 0px 80px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.login-btn:hover {
+  opacity: 0.9;
+}
+
+.info-text {
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.images-container {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  height: auto;
+}
+
+.left-image,
+.right-image {
+  position: absolute;
+  bottom: 0;
+  max-width: 50%;
+  height: auto;
+}
+
+.left-image {
+  left: 0;
+  opacity: 0.39;
+}
+
+.right-image {
+  right: 0;
+  opacity: 0.5;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+  .details {
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+  }
+
+  .right-details {
+    margin-left: 0;
+  }
+
+  .left-image,
+  .right-image {
+    max-width: 40%;
+  }
+
+  .container {
+    margin: 30px auto;
+    padding: 10px;
+  }
+
+  .login-title {
+    font-size: 24px;
+  }
+
+  .login-form label {
+    font-size: 18px;
+  }
+
+  .navigation {
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+    position: absolute;
+    top: 60px;
+    right: 15px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    width: 200px;
+  }
+
+  .navigation.open {
+    display: flex;
+  }
+
+  .menu-icon {
+    display: block;
+  }
+
+  .logout-button {
+    margin-top: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .left-details,
+  .right-details {
+    flex: none;
+    width: 100%;
+  }
+
+  .left-image,
+  .right-image {
+    max-width: 45%;
+  }
+
+  .login-form label {
+    font-size: 16px;
+  }
+
+  .login-btn {
+    padding: 8px 16px;
+  }
+
+  .profile-info h2 {
+    font-size: 16px;
+  }
+
+  .appointment-btn {
+    font-size: 12px;
+    padding: 8px 16px;
+  }
+
+  footer {
+    font-size: 12px;
+  }
+
+  .navigation a {
+    font-size: 12px;
+  }
+}
+
+/* Reception add patient page */
+.rec-container {
+  width: 90%;
+  margin: 0 auto;
+  color: #333;
+  padding: 10px;
+}
+
+/* Back Button */
+.rec-back-button {
+  background-color: #8bc34a;
+  color: white;
+  font-size: 0.9rem;
+  font-weight: bold;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
+.rec-back-button:hover {
+  opacity: 0.9;
+}
+
+/* Title */
+.rec-title {
+  color: #002f8c;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+.rec-divider {
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 20px;
+}
+
+/* Form */
+.rec-form-grid {
+  display: flex;
+  gap: 40px;
+  justify-content: space-between;
+}
+
+.rec-form-column {
+  flex: 1;
+}
+
+/* Labels */
+.rec-label {
+  display: block;
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 5px;
+}
+
+.rec-section-title {
+  font-weight: bold;
+  margin-bottom: 10px;
+  font-size: 1rem;
+  color: #333;
+  text-transform: lowercase;
+}
+
+.rec-optional {
+  font-weight: normal;
+  font-size: 0.9rem;
+  color: #888;
+}
+
+/* Inputs */
+.rec-input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.rec-textarea {
+  resize: none;
+  height: 60px;
+}
+
+/* Buttons */
+.rec-button-group {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.rec-btn-primary,
+.rec-btn-secondary {
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+  text-transform: lowercase;
+}
+
+.rec-btn-primary {
+  background-color: #002f8c;
+}
+
+.rec-btn-secondary {
+  background-color: #8bc34a;
+  margin-top: 20px;
+  display: inline-block;
+}
+
+.rec-btn-primary:hover,
+.rec-btn-secondary:hover {
+  opacity: 0.9;
+}
+
+/* Style the file input to be hidden */
+.rec-input-file {
+  display: none;
+}
+
+/* Style the label to look like the button */
+.rec-btn-primary {
+  display: inline-block;
+  cursor: pointer;
+}
+
+.rec-btn-primary:hover {
+  opacity: 0.9;
+}
+
+.rec-btn-secondary {
+  padding: 12px 350px;
+}
+
+.rec-required {
+  color: red;
+}
+
+/* Style the calendar picker button */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  background-color: #a1d55d;
+  color: white; /* Adjust text color */
+  border-radius: 50%;
+  padding: 8px;
+}
+
+/* For Firefox (works only with some versions) */
+input[type="date"]::-moz-calendar {
+  background-color: #a1d55d;
+}
+
+/* Basic styling for the alert */
+.alert {
+  padding: 15px;
+  margin: 10px;
+  border-radius: 5px;
+  font-size: 16px;
+  color: white;
+  display: inline-block;
+  position: fixed;
+  bottom: 10px; /* Start at the bottom of the page */
+  left: 50%;
+  transform: translateX(-50%);
+  animation: slideUp 6s ease forwards; /* Slide up animation */
+  opacity: 1;
+  margin-bottom: 70px;
+}
+
+/* Success alert style */
+.success {
+  background-color: green;
+}
+
+/* Error alert style */
+.error {
+  background-color: red;
+}
+
+/* Slide-up animation */
+@keyframes slideUp {
+  0% {
+    bottom: 10px;
+    opacity: 1;
+  }
+  90% {
+    bottom: 10px;
+    opacity: 1;
+  }
+  100% {
+    bottom: 50px; /* Move the alert up by 50px */
+    opacity: 0; /* Fade out the alert */
+  }
+}
+
+/* Medication Paient */
+/* Container for medication page */
+.medication-container {
+  padding: 10px 40px;
+  margin: 0 20px;
+  height: 80%;
+  margin-bottom: 20px;
+}
+
+.top-strip {
+  background-color: white;
+  height: 10px;
+  border-radius: 10px 10px 0 0;
+}
+
+.tabs-medical {
+  display: flex;
+  border-radius: 10px 10px 0 0;
+  overflow: hidden;
+  width: 35%;
+}
+
+.tabs {
+  display: flex;
+  border-radius: 10px 10px 0 0;
+  overflow: hidden;
+  width: 20%;
+}
+
+.tab {
+  flex: 1;
+  text-align: center;
+  padding: 10px 0;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 16px;
+  color: black;
+  border-top: 2px solid transparent; /* Default border */
+}
+
+.tab.active {
+  background-color: #d9d9d9;
+  border-top-right-radius: 10px;
+  border-top-left-radius: 10px;
+  border-bottom: none; /* Remove bottom border */
+}
+
+.content-body {
+  background-color: #d9d9d9;
+  border-top: none;
+  padding: 50px 150px 50px 18px;
+  min-height: 60%;
+  margin-bottom: 10px;
+}
+
+table {
+  width: 75%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 8px 12px;
+  text-align: left;
+  border: 1px solid #ccc;
+}
+
+th {
+  background-color: #b9db9d;
+  color: black;
+  font-weight: bold;
+}
+
+tr:nth-child(even) {
+  background-color: #f7f7f7;
+}
+
+.search-container {
+  margin: 20px 0;
+  text-align: center;
+}
+
+.search-bar {
+  padding: 10px;
+  font-size: 16px;
+  width: 50%;
+  max-width: 500px;
+  border: 2px solid #ccc;
+  border-radius: 5px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  outline: none;
+}
+
+.search-bar:focus {
+  border-color: #2b3aa2;
+}
+
+.table-wrapper {
+  max-height: 400px; /* Adjust height as needed (10 rows max) */
+  overflow-y: auto; /* Enable vertical scrolling */
+  position: relative; /* Required for fixed positioning */
+  margin: 0; /* Remove horizontal centering */
+  width: 70%; /* Set width of the container to 80% */
+}
+
+/* Table inside wrapper */
+.table-wrapper table {
+  width: 100%; /* Ensure the table occupies full width of the container */
+  border-collapse: collapse;
+}
+
+/* Table cell styling */
+.table-wrapper th,
+.table-wrapper td {
+  padding: 8px 12px;
+  text-align: left;
+  border: 1px solid #ccc;
+}
+
+/* Sticky table header */
+.table-wrapper th {
+  background-color: #b9db9d;
+  color: black;
+  font-weight: bold;
+  position: sticky; /* Sticky header */
+  top: 0; /* Stick to the top of the container */
+  z-index: 2; /* Ensure header stays above table rows */
+}
+
+/* Even row styling */
+.table-wrapper tr:nth-child(even) {
+  background-color: #f7f7f7;
+}
+
+/* Custom scrollbar styling */
+.table-wrapper::-webkit-scrollbar {
+  width: 8px; /* Customize scrollbar width */
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+  background: #b9db9d; /* Customize scrollbar color */
+  border-radius: 4px; /* Rounded corners */
+}
+
+.table-wrapper::-webkit-scrollbar-track {
+  background: #f7f7f7; /* Customize scrollbar track */
+}
+
+table {
+  width: 75%;
+  border-collapse: collapse; /* Ensures borders between cells are collapsed */
+  border: none;
+}
+
+/* Remove borders from the td and th cells */
+table th,
+table td {
+  padding: 8px 12px;
+  text-align: left;
+  border: none; /* Remove borders from all cells */
+  border-right: 1px;
+}
+
+/* Optional: Remove the border from the cell containing the pay button */
+.pay-btn-cell {
+  background-color: #d9d9d9; /* Background color for the button cell */
+  border: none !important; /* No border for the button cell */
+  border-right: 1px;
+  width: 15px;
+}
+
+/* Pay button styling */
+.pay-btn {
+  margin-left: auto; /* Push the button to the right */
+  background-color: #2b3aa2; /* Button background color */
+  color: white; /* Button text color */
+  border: none; /* No border for the button */
+  padding: 8px 16px;
+  cursor: pointer;
+  font-weight: bold;
+  border-radius: 5px; /* Button border radius */
+}
+
+.pay-btn:hover {
+  background-color: #1a2c74; /* Darker button color on hover */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .tabs {
+    flex-direction: column; /* Stack tabs vertically on smaller screens */
+    width: 100%; /* Adjust width for small screens */
+  }
+
+  .tab {
+    font-size: 14px; /* Adjust font size for tabs */
+  }
+
+  table {
+    font-size: 12px; /* Smaller table text for smaller screens */
+    width: 100%; /* Use full width */
+  }
+
+  .content-body {
+    padding: 20px 10px; /* Reduce padding on smaller screens */
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1200px) {
+  .medication-container {
+    padding: 10px 20px; /* Adjust padding for medium screens */
+  }
+
+  table {
+    font-size: 14px; /* Slightly smaller table text */
+  }
+}
+
+/* Smooth tab-switch animation */
+.content-body {
+  transition: opacity 0.4s ease, transform 0.4s ease; /* Smooth animation */
+}
+
+.content-body.hidden {
+  opacity: 0; /* Fade out */
+  transform: scale(0.95); /* Slight shrink effect */
+}
+
+/* Appointment Container */
+.appointment-container {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin: 50px auto;
+    width: 500px;
+    background-color: #f8f9fa;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    flex: 1;
+  }
+  
+  /* Dropdown Styling */
+  .dropdown {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+    appearance: none;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+  }
+  
+  .dropdown:focus {
+    border-color: #4CAF50;
+  }
+  
+  /* Custom Dropdown Styling */
+  .custom-dropdown {
+    position: relative;
+    width: 100%;
+    font-family: Arial, sans-serif;
+  }
+  
+  .dropdown-header {
+    padding: 12px;
+    border: 1px solid #ccc;
+    background: #fff;
+    cursor: pointer;
+    user-select: none;
+    font-size: 16px;
+    color: #333;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+  }
+  
+  .dropdown-header:hover {
+    background-color: #f0f0f0;
+  }
+  
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    width: 100%;
+    border: 1px solid #ccc;
+    background: white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    margin-top: 2px;
+    max-height: 200px;
+    overflow-y: auto;
+    border-radius: 5px;
+  }
+  
+  .doctor-option {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px;
+    cursor: pointer;
+    font-size: 14px;
+    border-bottom: 1px solid #f1f1f1;
+  }
+  
+  .doctor-option:hover {
+    background-color: #e9f5e9;
+  }
+  
+  .check-account {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .check-account:hover {
+    background-color: #45a049;
+  }
+  
+  .book-appointment-btn {
+    background-color: #99C65E;
+    color: white;
+    border: none;
+    padding: 7px 20px;
+    font-size: 18px;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 80%;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .book-appointment-btn:hover {
+    background-color: #7ea84d;
+    transform: translateY(-2px);
+  }
+  
+  .book-appointment-btn:active {
+    background-color: #5c8a39;
+    transform: translateY(2px);
+  }
+  
+  .book-appointment-btn:disabled {
+    background-color: #ddd;
+    cursor: not-allowed;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .appointment-container {
+      width: 90%;
+      padding: 15px;
+    }
+    
+    .dropdown, .dropdown-header, .book-appointment-btn {
+      font-size: 14px;
+      padding: 10px;
+    }
+  }
+  

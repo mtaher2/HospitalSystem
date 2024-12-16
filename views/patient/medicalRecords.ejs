@@ -1,0 +1,131 @@
+<%- include('../partials/header', {title: 'Medical Records', stylesheetName:
+'styles', headerTitle: 'Medical Records' }) %> <%- include('../partials/patientNav')
+%>
+
+<div class="medication-container">
+  <div class="top-strip"></div>
+  <div class="tabs-medical">
+    <div
+      class="tab <%= activeTab === 'Medical_history' ? 'active' : '' %>"
+      onclick="location.href='/medicalRecords?tab=Medical_history'"
+    >
+      Medical history
+    </div>
+    <div
+      class="tab <%= activeTab === 'lab_reports' ? 'active' : '' %>"
+      onclick="location.href='/medicalRecords?tab=lab_reports'"
+    >
+      lab reports
+    </div>
+
+    <div
+      class="tab <%= activeTab === 'radiology_reports' ? 'active' : '' %>"
+      onclick="location.href='/medicalRecords?tab=radiology_reports'"
+    >
+      radiology reports
+    </div>
+  </div>
+
+  <div class="content-body">
+    <% if (activeTab === 'Medical_history') { %>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>date</th>
+            <th>doctor</th>
+            <th>diagnoses</th>
+            <th>prescriptions</th>
+            <th>procedures</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>22/9/18</td>
+            <td>doctorname</td>
+            <td>name of the deases</td>
+            <td>medication name</td>
+            <td>lab or radiology requested</td>
+          </tr>
+          <tr>
+            <td>22/9/18</td>
+            <td>doctorname</td>
+            <td>name of the deases</td>
+            <td>medication name</td>
+            <td>lab or radiology requested</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <% } else if (activeTab === 'lab_reports') { %>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>date</th>
+            <th>doctor</th>
+            <th>Lab type</th>
+            <th>Results</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>22/9/18</td>
+            <td>doctor name</td>
+            <td>Lab type</td>
+            <td>file download</td>
+          </tr>
+          <tr>
+            <td>22/9/18</td>
+            <td>doctor name</td>
+            <td>Lab type</td>
+            <td>file download</td>
+          </tr>
+          <tr>
+            <td>22/9/18</td>
+            <td>doctor name</td>
+            <td>Lab type</td>
+            <td>file download</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <% } else if (activeTab === 'radiology_reports') { %>
+    <div class="table-wrapper">
+        <table>
+            <thead>
+              <tr>
+                <th>date</th>
+                <th>doctor</th>
+                <th>scan type</th>
+                <th>Results</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>22/9/18</td>
+                <td>doctor name</td>
+                <td>scan type</td>
+                <td>file download</td>
+              </tr>
+              <tr>
+                <td>22/9/18</td>
+                <td>doctor name</td>
+                <td>scan type</td>
+                <td>file download</td>
+              </tr>
+              <tr>
+                <td>22/9/18</td>
+                <td>doctor name</td>
+                <td>scan type</td>
+                <td>file download</td>
+              </tr>
+            </tbody>
+          </table>
+    </div>
+    <% } %>
+  </div>
+</div>
+
+<script src="js/main.js"></script>
+<%- include('../partials/footer') %>

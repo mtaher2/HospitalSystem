@@ -1,0 +1,87 @@
+<%- include('../partials/header', {title: 'Patient Profile', stylesheetName:
+'styles', headerTitle: 'Patient Profile' }) %> 
+
+<% if (user.Role === 2) { %>
+<%-include('../partials/searchBar') %>
+<% } %>
+
+<%-include('../partials/patientNav') %>
+
+<div class="container-patient">
+  <div class="profile-section">
+    <!-- profile-info section (updated to use profilePhoto from session) -->
+    <div class="profile-info">
+      <img
+        src="<%= user.profile_photo || '/images/placeholder-avatar.png' %>"
+        alt="Patient Avatar"
+        class="avatar"
+        onclick="openProfilePhotoModal()"
+      />
+      <!-- Trigger the modal when clicked -->
+      <div class="profile-info-detail">
+        <h2><%= user.FName %> <%= user.LName %></h2>
+        <p><%= age %> | <%= user.Gender %></p>
+        <button class="appointment-btn">
+          Make Appointment
+          <span
+            ><i class="fa-regular fa-square-plus" style="color: #ffffff"></i
+          ></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Profile Photo Change Modal -->
+    <div id="profilePhotoModal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn" onclick="closeProfilePhotoModal()"
+          >&times;</span
+        >
+        <h2>Change Profile Photo</h2>
+        <input type="file" id="profilePhotoInput" accept="image/*" />
+        <button onclick="uploadProfilePhoto()" class="btn-upload">
+          Upload
+        </button>
+      </div>
+    </div>
+
+    <div class="details">
+      <!-- Left Details Section -->
+      <div class="left-details">
+        <div class="info-item">
+          <strong>National ID:</strong> <%= user.National_ID %>
+        </div>
+        <p class="section-title">Contact Info</p>
+        <div class="info-item">
+          <i class="fas fa-phone"></i>
+          <strong>Phone:</strong> <%= user.Phone %>
+        </div>
+        <div class="info-item">
+          <i class="fas fa-envelope"></i>
+          <strong>Email:</strong> <%= user.Email %>
+        </div>
+        <div class="info-item">
+          <i class="fas fa-map-marker-alt"></i>
+          <strong>Address:</strong> <%= user.Address %>
+        </div>
+      </div>
+
+      <!-- Right Details Section -->
+      <% if (insurance !== null) { %>
+      <div class="right-details">
+        <p class="section-title">Insurance</p>
+        <div class="info-item">
+          <strong>Organization:</strong> <%= insurance.Insurance_Provider %>
+        </div>
+        <div class="info-item">
+          <strong>Coverage:</strong> <%= insurance.Insurance_Coverage %>%
+        </div>
+        <div class="info-item">
+          <strong>Expire Date:</strong> <%= insurance.Expiry_Date %>
+        </div>
+      </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+<script src="js/main.js"></script>
+<%- include('../partials/footer') %>

@@ -1,0 +1,25 @@
+<%- include('partials/header', {title: 'Login' ,stylesheetName: 'styles' , headerTitle: 'Galala hospital system' }) %>
+
+<div class="container">
+    <h1 class="login-title">user log in</h1>
+    <% if (errorMessage) { %>
+      <p class="error-message"><%= errorMessage %></p>
+  <% } %>
+    <form action="/login" method="POST" class="login-form">
+      <label for="national-id">national ID</label>
+      <input type="text" id="national-id" name="national-id" required class="text-input">
+  
+      <label for="password">password</label>
+      <input type="password" id="password" name="password" required class="text-input">
+  
+      <button type="submit" class="login-btn">log in</button>
+    </form>
+    <p class="info-text">to add new Patient call: ##########</p>
+  </div>
+  
+  <div class="images-container">
+    <img src="/images/headphones_login.svg" class="left-image" alt="Left Decorative Image">
+    <img src="/images/BlueMinimalist_login.png" class="right-image" alt="Right Decorative Image">
+  </div>  
+</body>
+</html>

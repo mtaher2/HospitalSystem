@@ -1,0 +1,82 @@
+<%- include('../partials/header', {title: 'Medication', stylesheetName: 'styles', headerTitle: 'Medication' }) %>
+<%- include('../partials/patientNav') %>
+
+<div class="medication-container">
+  <div class="top-strip"></div> <!-- White strip before tabs -->
+  <div class="tabs">
+    <div
+      class="tab <%= activeTab === 'current' ? 'active' : '' %>"
+      onclick="location.href='/medication?tab=current'"
+    >
+      current
+    </div>
+    <div
+      class="tab <%= activeTab === 'took_before' ? 'active' : '' %>"
+      onclick="location.href='/medication?tab=took_before'"
+    >
+      took before
+    </div>
+  </div>
+
+  <div class="content-body">
+    <% if (activeTab === 'current') { %>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>date prescribed</th>
+            <th>medication name</th>
+            <th>refill times left (count)</th>
+            <th>upcoming refill</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>22/9/18</td>
+            <td>yufuiguogihppg</td>
+            <td>5 times</td>
+            <td>22/10/18</td>
+          </tr>
+          <tr>
+            <td>22/9/18</td>
+            <td>yufuiguogihppg</td>
+            <td>5 times</td>
+            <td>22/10/18</td>
+          </tr>
+          <tr>
+            <td>22/9/18</td>
+            <td>yufuiguogihppg</td>
+            <td>5 times</td>
+            <td>22/10/18</td>
+          </tr>
+          
+          <!-- Add more rows here -->
+        </tbody>
+      </table>
+    </div>
+    <% } else if (activeTab === 'took_before') { %>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>date prescribed</th>
+            <th>medication name</th>
+            <th>duration took for</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>22/9/18</td>
+            <td>yufuiguogihppg</td>
+            <td>1 month</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <% } %>
+  </div>
+  
+</div>
+
+<script src="js/main.js"></script>
+<%- include('../partials/footer') %>

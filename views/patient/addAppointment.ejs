@@ -1,0 +1,83 @@
+<%- include('../partials/header', {title: 'Add Appointment', stylesheetName: 'styles', headerTitle: 'Add Appointment' }) %>
+<%- include('../partials/patientNav') %>
+
+<div class="appointment-container">
+    <!-- Department Dropdown -->
+    <select id="department" class="dropdown">
+      <option value="" disabled selected>Choose department</option>
+      <option value="cardiology">Cardiology</option>
+      <option value="neurology">Neurology</option>
+      <option value="orthopedics">Orthopedics</option>
+    </select>
+  
+    <!-- Date/Time Dropdown -->
+    <select id="datetime" class="dropdown">
+      <option value="" disabled selected>Choose date/time</option>
+      <option value="2024-01-01-10:00AM">Jan 1, 10:00 AM</option>
+      <option value="2024-01-02-11:00AM">Jan 2, 11:00 AM</option>
+    </select>
+  
+    <!-- Custom Doctor Dropdown -->
+<!-- Custom Doctor Dropdown -->
+<div class="custom-dropdown">
+    <div class="dropdown-header" onclick="toggleDropdown()">Choose doctor</div>
+    <div class="dropdown-content" id="doctor-dropdown">
+      <div class="doctor-option" onclick="selectDoctor('Dr. Smith')">
+        <span class="doctor-name">Dr. Smith</span>
+        <button class="check-account" onclick="checkProfile('Dr. Smith')">Check account</button>
+      </div>
+      <div class="doctor-option" onclick="selectDoctor('Dr. Johnson')">
+        <span class="doctor-name">Dr. Johnson</span>
+        <button class="check-account" onclick="checkProfile('Dr. Johnson')">Check account</button>
+      </div>
+      <div class="doctor-option" onclick="selectDoctor('Dr. Williams')">
+        <span class="doctor-name">Dr. Williams</span>
+        <button class="check-account" onclick="checkProfile('Dr. Williams')">Check account</button>
+      </div>
+    </div>
+  </div>
+  
+
+    <!-- Book Appointment Button -->
+    <button id="book-appointment" class="book-appointment-btn" onclick="bookAppointment()">Book Appointment <span
+        ><i
+          class="fa-regular fa-square-plus"
+          style="color: #ffffff"
+        ></i></span</button>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const doctorDropdown = document.getElementById("doctor-dropdown");
+  const dropdownHeader = document.querySelector(".dropdown-header");
+
+  // Toggle doctor dropdown visibility
+  function toggleDropdown() {
+    doctorDropdown.style.display =
+      doctorDropdown.style.display === "block" ? "none" : "block";
+  }
+
+  // Select a doctor and update the header text
+  window.selectDoctor = function (doctorName) {
+    dropdownHeader.textContent = doctorName; // Update header with selected doctor
+    doctorDropdown.style.display = "none"; // Hide the dropdown
+  };
+
+  // Check Account button functionality
+  window.checkProfile = function (doctorName) {
+    alert(`Checking profile for ${doctorName}`);
+  };
+
+  // Close dropdown if clicked outside
+  window.addEventListener("click", (e) => {
+    if (!e.target.closest(".custom-dropdown")) {
+      doctorDropdown.style.display = "none";
+    }
+  });
+
+  // Attach toggleDropdown to dropdown-header click
+  dropdownHeader.addEventListener("click", toggleDropdown);
+});
+
+  </script>
+  <%- include('../partials/footer') %>
