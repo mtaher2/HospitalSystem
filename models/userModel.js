@@ -36,4 +36,42 @@ async function selectUser(userID) {
     }
 }
 
-export { addUser, deleteUser, selectUser };
+async function getNotificationByUserID(userId) {
+    const sql = `
+        SELECT 
+            a.Announcement_ID, 
+            a.Title, 
+            a.Content, 
+            a.Start_Date, 
+            a.End_Date, 
+            a.Priority, 
+            a.Created_By, 
+            a.Timestamp
+        FROM 
+            Announcements a
+        LEFT JOIN 
+            User u ON a.Target_Role = u.Role OR a.Target_User = u.User_ID
+        WHERE 
+            (a.Target_User = ? OR a.Target_Role = u.Role)
+            AND a.Start_Date <= CURDATE()
+            AND a.End_Date >= CURDATE()
+            AND u.User_ID = ?
+        ORDER BY 
+            FIELD(a.Priority, 'High', 'Medium', 'Low'), 
+            a.Timestamp DESC;
+    `;
+
+    const connection = await db.getConnection();
+
+    try {
+        const [rows] = await connection.query(sql, [userId, userId]);
+        return rows;
+    } catch (error) {
+        await connection.rollback();
+        throw error;
+    } finally {
+        connection.release();
+    }
+};
+
+export { addUser, deleteUser, selectUser, getNotificationByUserID };
