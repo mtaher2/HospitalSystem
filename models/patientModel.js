@@ -182,6 +182,76 @@ async function verifyPatientInsurance(insuranceData) {
     } finally {
         connection.release();
     }
-};
+}
+async function downloadLabReport(patientId) {
+    const query = `
+        SELECT lo.Lab_Order_ID, lo.Patient_ID, lo.Doctor_ID, lo.Lab_ID, 
+               l.Lab_Name, l.Description, l.Category, lo.Status, 
+               lo.Results, lo.Created_At, lo.Updated_At
+        FROM Lab_Order lo
+        JOIN Lab l ON lo.Lab_ID = l.Lab_ID
+        WHERE lo.Patient_ID = ? AND lo.Status = 'Completed';
+    `;
+    try {
+        const [results] = await db.query(query, [patientId]);
+        return results; // Return completed lab reports
+    } catch (err) {
+        console.error('Error downloading lab report:', err);
+        throw err;
+    }
+}
+async function downloadRadiologyReport(patientId) {
+    const query = `
+        SELECT ro.Radiology_Order_ID, ro.Patient_ID, ro.Doctor_ID, ro.Radiology_ID, 
+               r.Scan_Name, r.Description, r.Radiology_Room, r.Preparation_Requirements, 
+               r.Cost, r.Duration, ro.Results, ro.Status, 
+               ro.Created_At, ro.Updated_At
+        FROM Radiology_Order ro
+        JOIN Radiology r ON ro.Radiology_ID = r.Radiology_ID
+        WHERE ro.Patient_ID = ? AND ro.Status = 'Completed';
+    `;
+    try {
+        const [results] = await db.query(query, [patientId]);
+        return results; // Return completed radiology reports
+    } catch (err) {
+        console.error('Error downloading radiology report:', err);
+        throw err;
+    }
+}
+async function cancelAppointment(appointmentId) {
+    const query = `
+        UPDATE Appointment
+        SET Status = 'Canceled'
+        WHERE Appointment_ID = ?;
+    `;
+    try {
+        const [result] = await db.query(query, [appointmentId]);
+        return result; // Return affected rows or update status
+    } catch (err) {
+        console.error('Error canceling appointment:', err);
+        throw err;
+    }
+}
+async function getLabReports(patientId) {
+    const query = `
+        SELECT lo.Lab_Order_ID, lo.Patient_ID, lo.Doctor_ID, lo.Lab_ID, 
+               l.Lab_Name, l.Description, l.Category, lo.Status, 
+               lo.Results, lo.Created_At, lo.Updated_At
+        FROM Lab_Order lo
+        JOIN Lab l ON lo.Lab_ID = l.Lab_ID
+        WHERE lo.Patient_ID = ?;
+    `;
+    try {
+        const [results] = await db.query(query, [patientId]);
+        return results; // Return all lab reports for the patient
+    } catch (err) {
+        console.error('Error retrieving lab reports:', err);
+        throw err;
+    }
+}
+
+
+;
+
 
 export {selectInsuranceDetails, addPatient, verifyPatientInsurance };
