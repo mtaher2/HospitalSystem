@@ -1,3 +1,48 @@
+// Get billing details
+async function getBillingDetails(billingId) {
+    const sql = `
+        SELECT 
+            b.Billing_ID, b.Patient_ID, b.Amount, b.Payment_Status, b.Payment_Method
+        FROM 
+            Bill b
+        WHERE 
+            b.Billing_ID = ?;
+    `;
+
+    const connection = await db.getConnection();
+    try {
+        const [rows] = await connection.query(sql, [billingId]);
+        return rows;
+    } catch (error) {
+        throw error;
+    } finally {
+        connection.release();
+    }
+}
+
+// Create an invoice
+async function createInvoice(patientId, amount, insuranceId) {
+    const sql = `
+        INSERT INTO Billing (Patient_ID, Amount, Payment_Status, Insurance_ID)
+        VALUES (?, ?, 'Pending', ?);
+    `;
+    const values = [patientId, amount, insuranceId];
+
+    const connection = await db.getConnection();
+    try {
+        await connection.beginTransaction();
+        await connection.query(sql, values);
+        await connection.commit();
+        return { message: 'Invoice created successfully' };
+    } catch (error) {
+        await connection.rollback();
+        throw error;
+    } finally {
+        connection.release();
+    }
+}
+
+export { getBillingDetails, createInvoice };
 
 async function getPendingBills() {
     const connection = await db.getConnection();

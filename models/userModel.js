@@ -199,6 +199,27 @@ async function getAllInsuranceProviders() {
         throw err;
     }
 }
+// Get all departments
+async function getAllDepartments() {
+    const sql = `
+        SELECT 
+            Department_ID, Department_Name, Department_Head
+        FROM 
+            Department;
+    `;
+
+    const connection = await db.getConnection();
+    try {
+        const [rows] = await connection.query(sql);
+        return rows;
+    } catch (error) {
+        throw error;
+    } finally {
+        connection.release();
+    }
+}
+
+export { getAllDepartments };
 
 
 export {generateRandomPassword , getRoleId, addUser, deleteUser, selectUser, authenticateUser, selectUserByNationalID , getDOBFromNationalID ,  calculateAgeFromDOB, updateProfilePhoto};

@@ -1,5 +1,124 @@
 import { db } from "../db.js";
 import { addUser, getRoleId } from './userModel.js';
+// Get patient medical records
+async function getPatientMedicalRecords(patientId) {
+  const sql = `
+      SELECT 
+          m.Record_ID, m.Description, m.Date_Of_Entry, m.Notes
+      FROM 
+          Medical_Record m
+      WHERE 
+          m.Patient_ID = ?;
+  `;
+
+  const connection = await db.getConnection();
+  try {
+      const [rows] = await connection.query(sql, [patientId]);
+      return rows;
+  } catch (error) {
+      throw error;
+  } finally {
+      connection.release();
+  }
+}
+
+// Get patient medications
+async function getPatientMedications(patientId) {
+  const sql = `
+      SELECT 
+          p.Prescription_ID, p.Medication_Name, p.Dosage, p.Frequency, p.Date_Prescribed
+      FROM 
+          Prescription p
+      WHERE 
+          p.Patient_ID = ?;
+  `;
+
+  const connection = await db.getConnection();
+  try {
+      const [rows] = await connection.query(sql, [patientId]);
+      return rows;
+  } catch (error) {
+      throw error;
+  } finally {
+      connection.release();
+  }
+}
+
+// Get allergies
+async function getAllergies(patientId) {
+  const sql = `
+      SELECT 
+          a.Allergy_ID, a.Allergy_Name, a.Reaction
+      FROM 
+          Allergy a
+      WHERE 
+          a.Patient_ID = ?;
+  `;
+
+  const connection = await db.getConnection();
+  try {
+      const [rows] = await connection.query(sql, [patientId]);
+      return rows;
+  } catch (error) {
+      throw error;
+  } finally {
+      connection.release();
+  }
+}
+
+// Get medical history
+async function getMedicalHistory(patientId) {
+  const sql = `
+      SELECT 
+          mh.Record_ID, mh.Description, mh.Date_Of_Entry, mh.Notes
+      FROM 
+          Medical_History mh
+      WHERE 
+          mh.Patient_ID = ?;
+  `;
+
+  const connection = await db.getConnection();
+  try {
+      const [rows] = await connection.query(sql, [patientId]);
+      return rows;
+  } catch (error) {
+      throw error;
+  } finally {
+      connection.release();
+  }
+}
+
+// Update patient details
+async function updatePatientDetails(patientId, patientData) {
+  const { FName, LName, Email, Phone, Address } = patientData;
+  const sql = `
+      UPDATE Patient
+      SET 
+          FName = ?, 
+          LName = ?, 
+          Email = ?, 
+          Phone = ?, 
+          Address = ?
+      WHERE Patient_ID = ?;
+  `;
+  const values = [FName, LName, Email, Phone, Address, patientId];
+
+  const connection = await db.getConnection();
+  try {
+      await connection.beginTransaction();
+      await connection.query(sql, values);
+      await connection.commit();
+      return { message: 'Patient details updated successfully' };
+  } catch (error) {
+      await connection.rollback();
+      throw error;
+  } finally {
+      connection.release();
+  }
+}
+
+export { getPatientMedicalRecords, getPatientMedications, getAllergies, getMedicalHistory, updatePatientDetails };
+
 
 
 async function insertPatient(userId) {
