@@ -1,83 +1,307 @@
-<%- include('../partials/header', {title: 'Add Appointment', stylesheetName: 'styles', headerTitle: 'Add Appointment' }) %>
-<%- include('../partials/patientNav') %>
-
-<div class="appointment-container">
+<%- include('../partials/header', { title: 'Add Appointment', stylesheetName:
+'styles', headerTitle: 'Add Appointment' }) %> <%-
+include('../partials/patientNav') %>
+<!-- Include jQuery -->
+<form action="/book-appointment" method="POST" class="appointment-form">
+  <div class="appointment-container">
     <!-- Department Dropdown -->
-    <select id="department" class="dropdown">
-      <option value="" disabled selected>Choose department</option>
-      <option value="cardiology">Cardiology</option>
-      <option value="neurology">Neurology</option>
-      <option value="orthopedics">Orthopedics</option>
+    <select
+      id="Specialty"
+      name="Specialty"
+      class="dropdown"
+      required
+      style="width: 100%"
+    >
+      <option value="Choose Specialty" disabled selected>
+        Choose Specialty
+      </option>
+      <% specialties.forEach(specialty => { %>
+      <option value="<%= specialty %>"><%= specialty %></option>
+      <% }) %>
     </select>
-  
-    <!-- Date/Time Dropdown -->
-    <select id="datetime" class="dropdown">
-      <option value="" disabled selected>Choose date/time</option>
-      <option value="2024-01-01-10:00AM">Jan 1, 10:00 AM</option>
-      <option value="2024-01-02-11:00AM">Jan 2, 11:00 AM</option>
+
+    <!-- Date Picker -->
+    <input
+      type="text"
+      id="Appointment_Date"
+      name="Appointment_Date"
+      class="dropdown"
+      placeholder="Choose a date"
+      required
+      autocomplete="off"
+    />
+    <input type="hidden" id="selected-doctor-id" name="Doctor_ID" />
+    <input type="hidden" id="selected-Room-id" name="Room_ID" />
+    <input type="hidden" id="patient-id" name="Patient_ID" value="<%= user.User_ID %>" />
+    <input type="hidden" id="Amount" name="Amount"/>
+
+    <!-- Available Times -->
+    <select id="Appointment_Time" name="Appointment_Time" class="dropdown" required>
+      <option value="" disabled selected>Select time</option>
+      <!-- Dynamically populated -->
     </select>
-  
+
     <!-- Custom Doctor Dropdown -->
-<!-- Custom Doctor Dropdown -->
-<div class="custom-dropdown">
-    <div class="dropdown-header" onclick="toggleDropdown()">Choose doctor</div>
-    <div class="dropdown-content" id="doctor-dropdown">
-      <div class="doctor-option" onclick="selectDoctor('Dr. Smith')">
-        <span class="doctor-name">Dr. Smith</span>
-        <button class="check-account" onclick="checkProfile('Dr. Smith')">Check account</button>
-      </div>
-      <div class="doctor-option" onclick="selectDoctor('Dr. Johnson')">
-        <span class="doctor-name">Dr. Johnson</span>
-        <button class="check-account" onclick="checkProfile('Dr. Johnson')">Check account</button>
-      </div>
-      <div class="doctor-option" onclick="selectDoctor('Dr. Williams')">
-        <span class="doctor-name">Dr. Williams</span>
-        <button class="check-account" onclick="checkProfile('Dr. Williams')">Check account</button>
+    <div class="custom-dropdown">
+      <div class="dropdown-header">Choose doctor</div>
+      <div class="dropdown-content" id="doctor-dropdown">
+        <!-- Doctor options will be dynamically inserted here -->
       </div>
     </div>
-  </div>
-  
-
+    <p id="doctor-amount"></p>
     <!-- Book Appointment Button -->
-    <button id="book-appointment" class="book-appointment-btn" onclick="bookAppointment()">Book Appointment <span
-        ><i
-          class="fa-regular fa-square-plus"
-          style="color: #ffffff"
-        ></i></span</button>
-</div>
+    <button type="submit" id="book-appointment" class="book-appointment-btn">
+      Book Appointment
+      <span>
+        <i class="fa-regular fa-square-plus" style="color: #ffffff"></i>
+      </span>
+    </button>
+  </div>
+</form>
+<% if (typeof alertMessage !== 'undefined' && alertMessage) { %>
+  <div class="alert <%= alertType %>">
+    <%= alertMessage %>
+  </div>
+<% } %>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-  const doctorDropdown = document.getElementById("doctor-dropdown");
-  const dropdownHeader = document.querySelector(".dropdown-header");
+  $(document).ready(function () {
+    // Fetch available days based on selected specialty
+    $("#Specialty").on("change", function () {
+      const selectedSpecialty = $(this).val();
+      fetch("/availability/days?specialty=" + selectedSpecialty)
+        .then((response) => response.json())
+        .then((data) => {
+          // Convert days to actual dates for the next two months
+          const availableDates = data.flatMap((day) =>
+            getWeekdaysForTwoMonths(day)
+          );
+          // Initialize Flatpickr with available dates
+          flatpickr("#Appointment_Date", {
+            dateFormat: "Y-m-d", // Ensure the date format is YYYY-MM-DD
+            minDate: "today", // Disable past dates
+            disableMobile: true, // Disable mobile datepicker (use full calendar)
+            allowInput: true, // Allow manual input
+            enable: availableDates.map((date) => new Date(date)), // Convert strings to Date objects
+            onDayCreate: function (dObj, dStr, fp, dayElem) {
+              // Format the date for comparison
+              const date = fp.formatDate(dayElem.dateObj, "Y-m-d");
 
-  // Toggle doctor dropdown visibility
-  function toggleDropdown() {
-    doctorDropdown.style.display =
-      doctorDropdown.style.display === "block" ? "none" : "block";
-  }
+              if (availableDates.includes(date)) {
+                dayElem.classList.add("available"); // Highlight as available
+              } else {
+                dayElem.classList.add("unavailable"); // Highlight as unavailable
+              }
+            },
+          });
+        })
+        .catch((err) => console.error("Error fetching days:", err));
+    });
 
-  // Select a doctor and update the header text
-  window.selectDoctor = function (doctorName) {
-    dropdownHeader.textContent = doctorName; // Update header with selected doctor
-    doctorDropdown.style.display = "none"; // Hide the dropdown
-  };
+    // Helper function to get all occurrences of a specific weekday for the next two months
+    function getWeekdaysForTwoMonths(weekday) {
+      const today = new Date();
+      // Map weekdays to their respective numeric values
+      const daysOfWeek = {
+        Sunday: 0,
+        Monday: 1,
+        Tuesday: 2,
+        Wednesday: 3,
+        Thursday: 4,
+        Friday: 5,
+        Saturday: 6,
+      };
 
-  // Check Account button functionality
-  window.checkProfile = function (doctorName) {
-    alert(`Checking profile for ${doctorName}`);
-  };
+      // Ensure the input weekday exists in the mapping
+      if (!(weekday in daysOfWeek)) {
+        console.error(`Invalid weekday: ${weekday}`);
+        return []; // Invalid weekday input
+      }
 
-  // Close dropdown if clicked outside
-  window.addEventListener("click", (e) => {
-    if (!e.target.closest(".custom-dropdown")) {
-      doctorDropdown.style.display = "none";
+      const targetDay = daysOfWeek[weekday]; // Get the corresponding number
+      const dates = [];
+      const twoMonthsFromToday = new Date();
+      twoMonthsFromToday.setMonth(today.getMonth() + 1);
+
+      let currentDate = new Date(today);
+
+      // Loop through days until we reach the two-month limit
+      while (currentDate <= twoMonthsFromToday) {
+        const currentDay = currentDate.getDay();
+
+        // Check if the current day matches the target day
+        if (currentDay === targetDay) {
+          dates.push(currentDate.toISOString().split("T")[0]);
+        }
+
+        // Move to the next day
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+
+      return dates;
     }
+
+    // Handle date change to fetch available times
+    $("#Appointment_Date").on("change", function () {
+      const selectedDate = $(this).val(); // Get the selected date
+      const selectedSpecialty = $("#Specialty").val(); // Get the selected specialty
+
+      // Ensure a specialty and date are selected before fetching times
+      if (selectedSpecialty && selectedDate) {
+        const timesDropdown = document.getElementById("Appointment_Time");
+        timesDropdown.innerHTML =
+          '<option value="" disabled selected>Select time</option>'; // Clear previous options
+
+        // Convert selectedDate to day name
+        const dateObj = new Date(selectedDate);
+        const daysOfWeek = [
+          "Sunday",
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
+        ];
+        const dayName = daysOfWeek[dateObj.getUTCDay()]; // Get the day name
+
+        // Fetch available times for the selected day name and specialty
+        fetch(
+          `/availability/times?specialty=${selectedSpecialty}&day=${dayName}`
+        )
+          .then((response) => response.json())
+          .then((data) => {
+            data.forEach((time) => {
+              const option = document.createElement("option");
+              option.value = `${selectedDate} ${time}`;
+              option.textContent = time;
+              timesDropdown.appendChild(option);
+            });
+          })
+          .catch((err) => console.error("Error fetching times:", err));
+      }
+    });
+
+    // --- Doctor dropdown functionality ---
+    const doctorDropdown = document.getElementById("doctor-dropdown");
+    const dropdownHeader = document.querySelector(".dropdown-header");
+
+    // Toggle doctor dropdown visibility
+    function toggleDropdown() {
+      doctorDropdown.style.display =
+        doctorDropdown.style.display === "block" ? "none" : "block";
+    }
+
+    // Select a doctor and update the header text
+    window.selectDoctor = function (doctorName) {
+      dropdownHeader.textContent = doctorName; // Update header with selected doctor
+      doctorDropdown.style.display = "none"; // Hide the dropdown
+    };
+
+    // Check Account button functionality
+    window.checkProfile = function (doctorName) {
+      alert(`Checking profile for ${doctorName}`);
+    };
+
+    // Close dropdown if clicked outside
+    window.addEventListener("click", (e) => {
+      if (!e.target.closest(".custom-dropdown")) {
+        doctorDropdown.style.display = "none";
+      }
+    });
+
+    // Attach toggleDropdown to dropdown-header click
+    dropdownHeader.addEventListener("click", toggleDropdown);
+
+    // Function to fetch and display available doctors
+    $("#Appointment_Time").on("change", function () {
+      const selectedSpecialty = $("#Specialty").val();
+      const selectedDate = $("#Appointment_Date").val();
+      const selectedTime = $("#Appointment_Time").val();
+      const timeOnly =
+        selectedTime.split(" ")[1] + " " + selectedTime.split(" ")[2];
+
+      if (selectedSpecialty && selectedDate && selectedTime) {
+        const dateObj = new Date(selectedDate);
+        const daysOfWeek = [
+          "Sunday",
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
+        ];
+        const dayName = daysOfWeek[dateObj.getUTCDay()];
+
+        fetch(
+          `/doctors/availability?specialty=${selectedSpecialty}&day=${dayName}&time=${timeOnly}`
+        )
+          .then((response) => response.json())
+          .then((data) => {
+            console.log("Doctors Data:", data);
+
+            doctorDropdown.innerHTML = ""; // Clear previous doctor options
+
+            if (data.length === 0) {
+              const noDoctors = document.createElement("div");
+              noDoctors.classList.add("dropdown-item");
+              noDoctors.textContent = "No doctors available.";
+              doctorDropdown.appendChild(noDoctors);
+            } else {
+              data.forEach((doctor) => {
+                const doctorOption = document.createElement("div");
+                doctorOption.classList.add("doctor-option");
+
+                const doctorName = document.createElement("span");
+                doctorName.classList.add("doctor-name");
+                doctorName.textContent = `${doctor.FName} ${doctor.LName}`;
+
+                const checkAccountButton = document.createElement("button");
+                checkAccountButton.classList.add("check-account");
+                checkAccountButton.textContent = "Check account";
+                checkAccountButton.type = "button"; // Prevent form submission
+                checkAccountButton.onclick = function (event) {
+                  event.preventDefault(); // Prevent form submission
+                  const doctorID = doctor.Doctor_ID;
+                  window.location.href = `/doctor-${doctorID}`;
+                };
+
+                doctorOption.appendChild(doctorName);
+                doctorOption.appendChild(checkAccountButton);
+                doctorOption.onclick = function () {
+                  selectDoctor(`${doctor.FName} ${doctor.LName}`);
+                  // Update hidden inputs with selected doctor's information
+                  document.getElementById("selected-doctor-id").value =
+                    doctor.Doctor_ID;
+                  document.getElementById("selected-Room-id").value =
+                    doctor.Room_ID;
+
+                    document.getElementById("Amount").value =
+                    doctor.Amount_P;
+                  // Display the amount of medical examination after selecting a doctor
+                  const amountParagraph =
+                    document.getElementById("doctor-amount");
+                  amountParagraph.textContent = `Amount: $${doctor.Amount_P}`;
+                };
+
+                doctorDropdown.appendChild(doctorOption);
+              });
+            }
+          })
+          .catch((err) => {
+            console.error("Error fetching doctors:", err);
+            doctorDropdown.innerHTML = ""; // Clear previous doctor options
+            const errorItem = document.createElement("div");
+            errorItem.classList.add("dropdown-item");
+            errorItem.textContent = "Error fetching doctors.";
+            doctorDropdown.appendChild(errorItem);
+          });
+      }
+    });
   });
-
-  // Attach toggleDropdown to dropdown-header click
-  dropdownHeader.addEventListener("click", toggleDropdown);
-});
-
-  </script>
-  <%- include('../partials/footer') %>
+</script>
+<script src="js/main.js"></script>
+<%- include('../partials/footer') %>

@@ -116,7 +116,6 @@ async function renderPatientProfile(req, res) {
     // Get the Date of Birth from the National ID and calculate the age
     const dob = getDOBFromNationalID(user.National_ID); // Get DOB from the National ID
     const age = calculateAgeFromDOB(dob); // Calculate the age
-
     // Render the patient profile page and pass the user data and calculated age
     res.render("patient/PatientProfile", {
       user: user,

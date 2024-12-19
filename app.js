@@ -39,10 +39,13 @@ app.use((req, res, next) => {
 
 // Route for login page
 app.get('/', (req, res) => {
+  const { alertMessage, alertType } = req.query;
   res.render('login', { 
     stylesheetName: 'styles', 
     headerTitle: 'Galala Hospital System', 
-    errorMessage: null 
+    errorMessage: null,
+    alertMessage: alertMessage,
+    alertType: alertType
   });
 });
 
@@ -58,10 +61,7 @@ app.use(receptionistRoutes);  // Register receptionist routes
 
 
 
-app.get('/appointments-patient-reception', (req, res) => {
-  const activeTab = req.query.tab || 'upcoming'; // Default tab is 'current'
-  res.render('reception/receptionAppointments', { activeTab });
-});
+
 
 app.get('/bills-patient-reception', (req, res) => {
   res.render('reception/receptionBills');

@@ -6,13 +6,13 @@
   <div class="tabs">
     <div
       class="tab <%= activeTab === 'upcoming' ? 'active' : '' %>"
-      onclick="location.href='/appointments-patient?tab=upcoming'"
+      onclick="location.href='/appointments?tab=upcoming'"
     >
     upcoming
     </div>
     <div
       class="tab <%= activeTab === 'missed' ? 'active' : '' %>"
-      onclick="location.href='/appointments-patient?tab=missed'"
+      onclick="location.href='/appointments?tab=missed'"
     >
     missed
     </div>
@@ -20,41 +20,56 @@
 
   <div class="content-body">
     <% if (activeTab === 'upcoming') { %>
-    <div class="table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th>date</th>
-            <th>time</th>
-            <th>doctor</th>
-            <th>room</th>
-            <th>floor</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>22/9/18</td>
-            <td>17:00</td>
-            <td>name</td>
-            <td>c204</td>
-            <td>second</td>
-            <td class="pay-btn-cell"><button class="pay-btn">cancel</button></td>
-            <td class="pay-btn-cell"><button class="pay-btn">reschedual</button></td>
-          </tr>
-          <tr>
-            <td>22/9/18</td>
-            <td>17:00</td>
-            <td>name</td>
-            <td>c204</td>
-            <td>second</td>
-            <td class="pay-btn-cell"><button class="pay-btn">cancel</button></td>
-            <td class="pay-btn-cell"><button class="pay-btn">reschedual</button></td>
-          </tr>
-          
-          <!-- Add more rows here -->
-        </tbody>
-      </table>
+      <div class="table-wrapper">
+        <table>
+          <% if (appointments && appointments.length > 0) { %>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Doctor</th>
+                <th>Room</th>
+                <th>Floor</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% appointments.forEach(appointment => { %>
+                <tr>
+                  <td><%= appointment.date %></td>
+                  <td><%= appointment.time %></td>
+                  <td><%= appointment.doctorName %></td>
+                  <td><%= appointment.roomID %></td>
+                  <td><%= appointment.floorNumber %></td>
+                  <td class="pay-btn-cell"><button class="pay-btn cancel" data-id="<%= appointment.appointmentID %>">Cancel</button></td>
+                  <td class="pay-btn-cell"><button class="pay-btn">Reschedule</button></td>
+                </tr>
+              <% }); %>
+            </tbody>
+          <% } else { %>
+            <thead>
+              <tr>
+                <th colspan="7">No upcoming appointments found</th>
+              </tr>
+            </thead>
+            <tbody style="display: none;">
+              <!-- Empty body as it's hidden when there are no appointments -->
+            </tbody>
+          <% } %>
+        </table>
+      </div>
+      
+      <!-- Confirmation Modal -->
+<div id="confirmation-modal" class="modal">
+  <div class="modal-content">
+    <h2>Are you sure you want to cancel this appointment?</h2>
+    <div class="modal-buttons">
+      <button id="confirm-cancel" class="modal-btn confirm">Yes</button>
+      <button id="cancel-cancel" class="modal-btn cancel">Cancel</button>
     </div>
+  </div>
+</div>
+
+          
     <% } else if (activeTab === 'missed') { %>
     <div class="table-wrapper">
       <table>
@@ -73,7 +88,7 @@
             <td>name</td>
             <td>c204</td>
             <td>second</td>
-            <td class="pay-btn-cell"><button class="pay-btn">reschedual</button></td>
+            <td class="pay-btn-cell"><button class="pay-btn cancel">reschedual</button></td>
           </tr>
         </tbody>
       </table>
@@ -82,6 +97,65 @@
   </div>
   
 </div>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+  // Variable to store the appointment ID to cancel
+  let appointmentIdToCancel = null;
+
+  // Show the confirmation modal
+  function showCancelModal(appointmentId) {
+    appointmentIdToCancel = appointmentId; // Store the appointment ID to cancel
+    const modal = document.getElementById("confirmation-modal");
+    modal.style.display = "flex"; // Show the modal
+  }
+
+  // Close the modal
+  function closeModal() {
+    const modal = document.getElementById("confirmation-modal");
+    modal.style.display = "none"; // Hide the modal
+  }
+
+  // Handle the confirmation (Yes) button click
+  document.getElementById("confirm-cancel").addEventListener("click", async () => {
+    if (appointmentIdToCancel) {
+      try {
+        const response = await fetch(`/appointments/${appointmentIdToCancel}/cancel`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        });
+
+        if (response.ok) {
+          // Remove the canceled appointment row from the table
+          document.querySelector(`[data-id='${appointmentIdToCancel}']`).closest("tr").remove();
+          closeModal(); // Close the modal
+        } else {
+          alert("Failed to cancel the appointment. Please try again.");
+          closeModal(); // Close the modal
+        }
+      } catch (error) {
+        console.error("Error canceling appointment:", error);
+        alert("An error occurred. Please try again later.");
+        closeModal(); // Close the modal
+      }
+    }
+  });
+
+  // Handle the Cancel (No) button click
+  document.getElementById("cancel-cancel").addEventListener("click", closeModal);
+
+  // Event listener for cancel buttons in the table
+  document.querySelector("table").addEventListener("click", (event) => {
+    if (event.target.classList.contains("cancel")) {
+      console.log("Cancel button clicked");
+      const appointmentId = event.target.dataset.id; // Get the appointment ID
+      showCancelModal(appointmentId); // Show the confirmation modal
+    }
+  });
+});
+
+
+</script>
+
 
 <script src="js/main.js"></script>
 <%- include('../partials/footer') %>

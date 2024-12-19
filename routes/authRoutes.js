@@ -1,5 +1,6 @@
 import express from 'express';
 import { login } from '../controllers/authController.js';
+import { handleUpdatePassword } from '../controllers/authController.js';
 const router = express.Router();
 
 // Login route
@@ -15,5 +16,15 @@ router.get('/logout', (req, res) => {
         res.redirect('/'); // Redirect to login page after logout
     });
 });
+
+router.get('/update-password', (req, res) => {
+    res.render('login/updatePassword', {
+        errorMessage: null,
+        stylesheetName: 'styles',
+        headerTitle: 'Galala Hospital System',
+    });
+});
+
+router.post('/update-password', handleUpdatePassword);
 
 export default router;

@@ -1,25 +1,34 @@
 <%- include('partials/header', {title: 'Login' ,stylesheetName: 'styles' , headerTitle: 'Galala hospital system' }) %>
 
 <div class="container">
-    <h1 class="login-title">user log in</h1>
-    <% if (errorMessage) { %>
+    <h1 class="login-title">User Log In</h1>
+    <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
       <p class="error-message"><%= errorMessage %></p>
-  <% } %>
+    <% } else { %>
+      <p class="error-message no-error"></p>
+    <% } %>
+
     <form action="/login" method="POST" class="login-form">
-      <label for="national-id">national ID</label>
+      <label for="national-id">National ID</label>
       <input type="text" id="national-id" name="national-id" required class="text-input">
   
-      <label for="password">password</label>
+      <label for="password">Password</label>
       <input type="password" id="password" name="password" required class="text-input">
   
-      <button type="submit" class="login-btn">log in</button>
+      <button type="submit" class="login-btn">Log In</button>
     </form>
-    <p class="info-text">to add new Patient call: ##########</p>
+    <p class="info-text">To add a new patient, call: ##########</p>
+</div>
+<% if (typeof alertMessage !== 'undefined') { %>
+  <div class="alert <%= alertType === 'success' ? 'alert-success' : 'alert-error' %>">
+    <%= alertMessage %>
   </div>
-  
-  <div class="images-container">
+<% } %>
+
+<div class="images-container">
     <img src="/images/headphones_login.svg" class="left-image" alt="Left Decorative Image">
     <img src="/images/BlueMinimalist_login.png" class="right-image" alt="Right Decorative Image">
-  </div>  
+</div>
+
 </body>
 </html>

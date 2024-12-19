@@ -11,28 +11,33 @@
           class="avatar"
         />
         <div class="profile-info-detail">
-          <h2>Doctor Name</h2>
-          <p>age | gender</p>
+          <h2><%= doctor.FName %> <%= doctor.LName %></h2>
+          <p><%= doctor.Age %> | <%= doctor.Gender %></p>
         </div>
       </div>
       <div class="details">
         <!-- Left Details Section -->
         <div class="left-details">
           <div class="info-item">
-            <strong>Department:</strong> --------------------
+            <strong>Department:</strong> <%= doctor.DepartmentName %>
           </div>
           <p class="section-title">study</p>
           <div class="info-item">
-            <i class="fas fa-phone"></i>
-            <strong>degree:</strong> ############
+            <i class="fa-solid fa-graduation-cap"></i>
+            <strong>degree:</strong> <%= doctor.Degree %>
           </div>
           <div class="info-item">
-            <i class="fas fa-envelope"></i>
-            <strong>university:</strong> -----@----.----
+            <i class="fa fa-building"></i>
+            <strong>university:</strong><%= doctor.University %>
           </div>
           <div class="info-item">
-            <i class="fas fa-map-marker-alt"></i>
-            <strong>experiences:</strong> -----, --------------------
+            <i class="fa-solid fa-briefcase"></i>
+            <strong>experiences:&nbsp;&nbsp;&nbsp;</strong>
+            <ul>
+              <% doctor.Experiences.forEach(experience => { %>
+                <li><%= experience %></li>
+              <% }) %>
+            </ul>
           </div>
         </div>
       </div>
