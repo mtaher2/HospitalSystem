@@ -157,6 +157,70 @@ async function updateProfilePhoto(userId, imagePath) {
 function generateRandomPassword(length) {
   return randomBytes(length).toString("base64").slice(0, length);
 }
+async function markNotificationAsRead(notificationId) {
+    const query = `
+        UPDATE Announcements
+        SET priority = 'Low'
+        WHERE announcement_id = ?;
+    `;
+    try {
+        const [result] = await db.query(query, [notificationId]);
+        return result; // Return affected rows or update status
+    } catch (err) {
+        console.error('Error marking notification as read:', err);
+        throw err;
+    }
+}
+async function payBill(billingId) {
+    const query = `
+        UPDATE Billing
+        SET Payment_Status = 'Paid'
+        WHERE Billing_ID = ?;
+    `;
+    try {
+        const [result] = await db.query(query, [billingId]);
+        return result; // Return affected rows or update status
+    } catch (err) {
+        console.error('Error paying bill:', err);
+        throw err;
+    }
+}
+async function getAllInsuranceProviders() {
+    const query = `
+        SELECT Insurance_ID, Insurance_Provider, Policy_Number, 
+               Coverage_Details, Expiry_Date
+        FROM Insurance;
+    `;
+    try {
+        const [results] = await db.query(query);
+        return results; // Return all insurance providers
+    } catch (err) {
+        console.error('Error retrieving insurance providers:', err);
+        throw err;
+    }
+}
+// Get all departments
+async function getAllDepartments() {
+    const sql = `
+        SELECT 
+            Department_ID, Department_Name, Department_Head
+        FROM 
+            Department;
+    `;
+
+    const connection = await db.getConnection();
+    try {
+        const [rows] = await connection.query(sql);
+        return rows;
+    } catch (error) {
+        throw error;
+    } finally {
+        connection.release();
+    }
+}
+
+export { getAllDepartments };
+
 
 async function updateUserPasswordPlainText(
   nationalID,

@@ -1,5 +1,124 @@
 import { db } from "../db.js";
 import { addUser, getRoleId } from './userModel.js';
+// Get patient medical records
+async function getPatientMedicalRecords(patientId) {
+  const sql = `
+      SELECT 
+          m.Record_ID, m.Description, m.Date_Of_Entry, m.Notes
+      FROM 
+          Medical_Record m
+      WHERE 
+          m.Patient_ID = ?;
+  `;
+
+  const connection = await db.getConnection();
+  try {
+      const [rows] = await connection.query(sql, [patientId]);
+      return rows;
+  } catch (error) {
+      throw error;
+  } finally {
+      connection.release();
+  }
+}
+
+// Get patient medications
+async function getPatientMedications(patientId) {
+  const sql = `
+      SELECT 
+          p.Prescription_ID, p.Medication_Name, p.Dosage, p.Frequency, p.Date_Prescribed
+      FROM 
+          Prescription p
+      WHERE 
+          p.Patient_ID = ?;
+  `;
+
+  const connection = await db.getConnection();
+  try {
+      const [rows] = await connection.query(sql, [patientId]);
+      return rows;
+  } catch (error) {
+      throw error;
+  } finally {
+      connection.release();
+  }
+}
+
+// Get allergies
+async function getAllergies(patientId) {
+  const sql = `
+      SELECT 
+          a.Allergy_ID, a.Allergy_Name, a.Reaction
+      FROM 
+          Allergy a
+      WHERE 
+          a.Patient_ID = ?;
+  `;
+
+  const connection = await db.getConnection();
+  try {
+      const [rows] = await connection.query(sql, [patientId]);
+      return rows;
+  } catch (error) {
+      throw error;
+  } finally {
+      connection.release();
+  }
+}
+
+// Get medical history
+async function getMedicalHistory(patientId) {
+  const sql = `
+      SELECT 
+          mh.Record_ID, mh.Description, mh.Date_Of_Entry, mh.Notes
+      FROM 
+          Medical_History mh
+      WHERE 
+          mh.Patient_ID = ?;
+  `;
+
+  const connection = await db.getConnection();
+  try {
+      const [rows] = await connection.query(sql, [patientId]);
+      return rows;
+  } catch (error) {
+      throw error;
+  } finally {
+      connection.release();
+  }
+}
+
+// Update patient details
+async function updatePatientDetails(patientId, patientData) {
+  const { FName, LName, Email, Phone, Address } = patientData;
+  const sql = `
+      UPDATE Patient
+      SET 
+          FName = ?, 
+          LName = ?, 
+          Email = ?, 
+          Phone = ?, 
+          Address = ?
+      WHERE Patient_ID = ?;
+  `;
+  const values = [FName, LName, Email, Phone, Address, patientId];
+
+  const connection = await db.getConnection();
+  try {
+      await connection.beginTransaction();
+      await connection.query(sql, values);
+      await connection.commit();
+      return { message: 'Patient details updated successfully' };
+  } catch (error) {
+      await connection.rollback();
+      throw error;
+  } finally {
+      connection.release();
+  }
+}
+
+export { getPatientMedicalRecords, getPatientMedications, getAllergies, getMedicalHistory, updatePatientDetails };
+
 
 
 async function insertPatient(userId) {
@@ -182,6 +301,76 @@ async function verifyPatientInsurance(insuranceData) {
     } finally {
         connection.release();
     }
-};
+}
+async function downloadLabReport(patientId) {
+    const query = `
+        SELECT lo.Lab_Order_ID, lo.Patient_ID, lo.Doctor_ID, lo.Lab_ID, 
+               l.Lab_Name, l.Description, l.Category, lo.Status, 
+               lo.Results, lo.Created_At, lo.Updated_At
+        FROM Lab_Order lo
+        JOIN Lab l ON lo.Lab_ID = l.Lab_ID
+        WHERE lo.Patient_ID = ? AND lo.Status = 'Completed';
+    `;
+    try {
+        const [results] = await db.query(query, [patientId]);
+        return results; // Return completed lab reports
+    } catch (err) {
+        console.error('Error downloading lab report:', err);
+        throw err;
+    }
+}
+async function downloadRadiologyReport(patientId) {
+    const query = `
+        SELECT ro.Radiology_Order_ID, ro.Patient_ID, ro.Doctor_ID, ro.Radiology_ID, 
+               r.Scan_Name, r.Description, r.Radiology_Room, r.Preparation_Requirements, 
+               r.Cost, r.Duration, ro.Results, ro.Status, 
+               ro.Created_At, ro.Updated_At
+        FROM Radiology_Order ro
+        JOIN Radiology r ON ro.Radiology_ID = r.Radiology_ID
+        WHERE ro.Patient_ID = ? AND ro.Status = 'Completed';
+    `;
+    try {
+        const [results] = await db.query(query, [patientId]);
+        return results; // Return completed radiology reports
+    } catch (err) {
+        console.error('Error downloading radiology report:', err);
+        throw err;
+    }
+}
+async function cancelAppointment(appointmentId) {
+    const query = `
+        UPDATE Appointment
+        SET Status = 'Canceled'
+        WHERE Appointment_ID = ?;
+    `;
+    try {
+        const [result] = await db.query(query, [appointmentId]);
+        return result; // Return affected rows or update status
+    } catch (err) {
+        console.error('Error canceling appointment:', err);
+        throw err;
+    }
+}
+async function getLabReports(patientId) {
+    const query = `
+        SELECT lo.Lab_Order_ID, lo.Patient_ID, lo.Doctor_ID, lo.Lab_ID, 
+               l.Lab_Name, l.Description, l.Category, lo.Status, 
+               lo.Results, lo.Created_At, lo.Updated_At
+        FROM Lab_Order lo
+        JOIN Lab l ON lo.Lab_ID = l.Lab_ID
+        WHERE lo.Patient_ID = ?;
+    `;
+    try {
+        const [results] = await db.query(query, [patientId]);
+        return results; // Return all lab reports for the patient
+    } catch (err) {
+        console.error('Error retrieving lab reports:', err);
+        throw err;
+    }
+}
+
+
+;
+
 
 export {selectInsuranceDetails, addPatient, verifyPatientInsurance };
