@@ -1,0 +1,14 @@
+<button class="menu-icon" onclick="toggleMenu()" style="align-items: start">
+  <i class="fas fa-bars"></i>
+</button>
+
+<nav class="navigation" id="navigation-menu">
+  <a href="#">Profile</a>
+  <a href="#">Appointments</a>
+  <a href="#">Medical records</a>
+  <a href="#">Health statistics</a>
+  <a href="#">Medication</a>
+  <% if (user.Role === 1) { %>
+  <a href="#">Your Bills</a>
+  <% } %>
+</nav>

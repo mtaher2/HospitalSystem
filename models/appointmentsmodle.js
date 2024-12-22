@@ -1,3 +1,56 @@
+// Get upcoming appointments
+async function getUpcomingAppointments() {
+    const sql = `
+        SELECT 
+            a.Appointment_ID, a.Patient_ID, a.Doctor_ID, a.Appointment_Date, 
+            a.Appointment_Time, a.Status, a.Notes, a.Room_ID, r.Floor_Number
+        FROM 
+            Appointment a
+        JOIN 
+            Room r ON a.Room_ID = r.Room_ID
+        WHERE 
+            a.Appointment_Date > CURDATE() 
+        ORDER BY a.Appointment_Date ASC;
+    `;
+
+    const connection = await db.getConnection();
+    try {
+        const [rows] = await connection.query(sql);
+        return rows;
+    } catch (error) {
+        throw error;
+    } finally {
+        connection.release();
+    }
+}
+
+// Get past appointments
+async function getPastAppointments() {
+    const sql = `
+        SELECT 
+            a.Appointment_ID, a.Patient_ID, a.Doctor_ID, a.Appointment_Date, 
+            a.Appointment_Time, a.Status, a.Notes, a.Room_ID, r.Floor_Number
+        FROM 
+            Appointment a
+        JOIN 
+            Room r ON a.Room_ID = r.Room_ID
+        WHERE 
+            a.Appointment_Date < CURDATE() 
+        ORDER BY a.Appointment_Date DESC;
+    `;
+
+    const connection = await db.getConnection();
+    try {
+        const [rows] = await connection.query(sql);
+        return rows;
+    } catch (error) {
+        throw error;
+    } finally {
+        connection.release();
+    }
+}
+
+
 async function getAllAppointmentsForDay(date) {
     const connection = await db.getConnection();
     try {
@@ -234,4 +287,5 @@ async function rescheduleAppointment(appointmentData) {
         connection.release();
     }
 };
+export { getUpcomingAppointments, getPastAppointments };
 export {getAllAppointmentsForDay, filterAppointmentsByRoom, filterAppointmentsByPatient, filterAppointmentsByTime, filterAppointmentsByDoctor, scheduleAppointment, rescheduleAppointment};

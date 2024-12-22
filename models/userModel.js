@@ -1,16 +1,50 @@
 import { db } from '../db.js';
-
+import { randomBytes } from 'crypto';
 // Add a new user
-async function addUser(user) {
-    const query = `INSERT INTO User (National_ID, Password, FName, MidName, LName, Email, Phone, Address, Role, Gender) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+// Function to get the Role_ID based on the role name
+async function getRoleId(roleName) {
+    const getRoleIdQuery = `SELECT Role_ID FROM Roles WHERE Role_Name = ?`;
+
     try {
-        const [results] = await db.query(query, [user.National_ID, user.Password, user.FName, user.MidName, user.LName, user.Email, user.Phone, user.Address, user.Role, user.Gender]);
-        return results;
+        const [roleResults] = await db.query(getRoleIdQuery, [roleName]);
+
+        if (roleResults.length === 0) {
+            throw new Error('Role not found');
+        }
+
+        return roleResults[0].Role_ID;
+    } catch (err) {
+        console.error('Error retrieving role:', err);
+        throw err;
+    }
+}
+
+async function addUser(user, roleId) {
+    const insertUserQuery = `INSERT INTO User (National_ID, Password, FName, MidName, LName, Email, Phone, Address, Role, Gender) 
+                             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+    try {
+        const [results] = await db.query(insertUserQuery, [
+            user.National_ID,
+            user.Password,
+            user.FName,
+            user.MidName,
+            user.LName,
+            user.Email,
+            user.Phone,
+            user.Address,
+            roleId, 
+            user.Gender
+        ]);
+
+        return results.insertId;  // Return the inserted User_ID
     } catch (err) {
         console.error('Error adding user:', err);
         throw err;
     }
 }
+
+
 
 // Delete a user by User_ID
 async function deleteUser(userID) {
@@ -29,6 +63,9 @@ async function selectUser(userID) {
     const query = `SELECT * FROM User WHERE User_ID = ?`;
     try {
         const [results] = await db.query(query, [userID]);
+        if (results.length === 0) {
+            console.log('User not found.');
+        }
         return results;
     } catch (err) {
         console.error('Error selecting user:', err);
@@ -36,42 +73,153 @@ async function selectUser(userID) {
     }
 }
 
-async function getNotificationByUserID(userId) {
+function getDOBFromNationalID(nationalID) {
+    const firstDigit = nationalID.charAt(0);  // Get the first digit to check the century
+    const year = nationalID.substring(1, 3);  // Year is 2nd and 3rd digit
+    const month = nationalID.substring(3, 5); // Month is 4th and 5th digit
+    const day = nationalID.substring(5, 7);   // Day is 6th and 7th digit
+
+    let century = '';
+    if (firstDigit === '3') {
+        century = '20';  // Born in the 21st century
+    } else if (firstDigit === '2') {
+        century = '19';  // Born in the 20th century
+    } else {
+        throw new Error('Invalid National ID');
+    }
+
+    const fullYear = century + year; 
+    const dob = new Date(fullYear, month - 1, day);
+
+    return dob;
+}
+
+// Function to calculate the age from DOB
+function calculateAgeFromDOB(dob) {
+    const today = new Date();
+    let age = today.getFullYear() - dob.getFullYear();
+    const monthDifference = today.getMonth() - dob.getMonth();
+    const dayDifference = today.getDate() - dob.getDate();
+
+    // Adjust age if the birthday hasn't occurred yet this year
+    if (monthDifference < 0 || (monthDifference === 0 && dayDifference < 0)) {
+        age--;
+    }
+
+    return age;
+}
+
+// Select a user by National ID
+async function selectUserByNationalID(nationalID) {
+    const query = `
+        SELECT User.*, Roles.Role_Name
+        FROM User
+        JOIN Roles ON User.Role = Roles.Role_ID
+        WHERE User.National_ID = ?
+    `;
+    try {
+        const [results] = await db.query(query, [nationalID]);
+        return results;  // Return the user data with the role
+    } catch (err) {
+        console.error('Error selecting user by National ID:', err);
+        throw err;
+    }
+}
+
+// Authenticate a user by National_ID and Password
+async function authenticateUser(nationalId, password) {
+    const query = `SELECT * FROM User WHERE National_ID = ? AND Password = ?`;
+    try {
+        const [results] = await db.query(query, [nationalId, password]);
+        if (results.length === 0) {
+            console.log(`No user found with National ID: ${nationalId} and provided password`);
+            return null;
+        }
+        console.log("User authenticated successfully:", results[0]);
+        return results[0];  // Return the first user if found, otherwise `null`
+    } catch (err) {
+        console.error('Error authenticating user:', err);
+        throw err;
+    }
+}
+
+async function updateProfilePhoto(userId, imagePath) {
+    const query = `UPDATE User SET profile_photo = ? WHERE User_ID = ?`;
+    try {
+        const [results] = await db.query(query, [imagePath, userId]);
+        return results;
+    } catch (err) {
+        console.error('Error updating user profile photo:', err);
+        throw err;
+    }
+}
+
+function generateRandomPassword(length) {
+    return randomBytes(length).toString('base64').slice(0, length);
+}
+async function markNotificationAsRead(notificationId) {
+    const query = `
+        UPDATE Announcements
+        SET priority = 'Low'
+        WHERE announcement_id = ?;
+    `;
+    try {
+        const [result] = await db.query(query, [notificationId]);
+        return result; // Return affected rows or update status
+    } catch (err) {
+        console.error('Error marking notification as read:', err);
+        throw err;
+    }
+}
+async function payBill(billingId) {
+    const query = `
+        UPDATE Billing
+        SET Payment_Status = 'Paid'
+        WHERE Billing_ID = ?;
+    `;
+    try {
+        const [result] = await db.query(query, [billingId]);
+        return result; // Return affected rows or update status
+    } catch (err) {
+        console.error('Error paying bill:', err);
+        throw err;
+    }
+}
+async function getAllInsuranceProviders() {
+    const query = `
+        SELECT Insurance_ID, Insurance_Provider, Policy_Number, 
+               Coverage_Details, Expiry_Date
+        FROM Insurance;
+    `;
+    try {
+        const [results] = await db.query(query);
+        return results; // Return all insurance providers
+    } catch (err) {
+        console.error('Error retrieving insurance providers:', err);
+        throw err;
+    }
+}
+// Get all departments
+async function getAllDepartments() {
     const sql = `
         SELECT 
-            a.Announcement_ID, 
-            a.Title, 
-            a.Content, 
-            a.Start_Date, 
-            a.End_Date, 
-            a.Priority, 
-            a.Created_By, 
-            a.Timestamp
+            Department_ID, Department_Name, Department_Head
         FROM 
-            Announcements a
-        LEFT JOIN 
-            User u ON a.Target_Role = u.Role OR a.Target_User = u.User_ID
-        WHERE 
-            (a.Target_User = ? OR a.Target_Role = u.Role)
-            AND a.Start_Date <= CURDATE()
-            AND a.End_Date >= CURDATE()
-            AND u.User_ID = ?
-        ORDER BY 
-            FIELD(a.Priority, 'High', 'Medium', 'Low'), 
-            a.Timestamp DESC;
+            Department;
     `;
 
     const connection = await db.getConnection();
-
     try {
-        const [rows] = await connection.query(sql, [userId, userId]);
+        const [rows] = await connection.query(sql);
         return rows;
     } catch (error) {
-        await connection.rollback();
         throw error;
     } finally {
         connection.release();
     }
-};
+}
 
-export { addUser, deleteUser, selectUser, getNotificationByUserID };
+export { getAllDepartments };
+
+
+export {generateRandomPassword , getRoleId, addUser, deleteUser, selectUser, authenticateUser, selectUserByNationalID , getDOBFromNationalID ,  calculateAgeFromDOB, updateProfilePhoto};

@@ -1,0 +1,91 @@
+<%- include('../partials/header', {title: 'Reception Appointments', stylesheetName:'styles', headerTitle: 'Appointments' }) %>
+
+<%- include('../partials/receptionNav') %>
+
+<div class="medication-container">
+    <div class="top-strip"></div> <!-- White strip before tabs -->
+
+    <!-- Search Bar -->
+    <div class="search-container">
+        <input type="text" id="searchInput" class="search-bar" placeholder="Search appointments...">
+    </div>
+
+    <div class="tabs">
+      <div
+        class="tab <%= activeTab === 'upcoming' ? 'active' : '' %>"
+        onclick="location.href='/appointments-patient-reception?tab=upcoming'"
+      >
+      upcoming
+      </div>
+      <div
+        class="tab <%= activeTab === 'missed' ? 'active' : '' %>"
+        onclick="location.href='/appointments-patient-reception?tab=missed'"
+      >
+      missed
+      </div>
+    </div>
+  
+    <div class="content-body">
+      <% if (activeTab === 'upcoming') { %>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>date</th>
+              <th>time</th>
+              <th>doctor</th>
+              <th>room</th>
+              <th>floor</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>22/9/18</td>
+              <td>17:00</td>
+              <td>name</td>
+              <td>c204</td>
+              <td>second</td>
+              <td class="pay-btn-cell"><button class="pay-btn">cancel</button></td>
+              <td class="pay-btn-cell"><button class="pay-btn">reschedual</button></td>
+            </tr>
+            <tr>
+              <td>22/9/18</td>
+              <td>17:00</td>
+              <td>name</td>
+              <td>c204</td>
+              <td>second</td>
+              <td class="pay-btn-cell"><button class="pay-btn">cancel</button></td>
+              <td class="pay-btn-cell"><button class="pay-btn">reschedual</button></td>
+            </tr>
+            
+            <!-- Add more rows here -->
+          </tbody>
+        </table>
+      </div>
+      <% } else if (activeTab === 'missed') { %>
+      <div class="table-wrapper">
+        <table>
+          <tr>
+              <th>date</th>
+              <th>time</th>
+              <th>doctor</th>
+              <th>room</th>
+              <th>floor</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>22/9/18</td>
+              <td>17:00</td>
+              <td>name</td>
+              <td>c204</td>
+              <td>second</td>
+              <td class="pay-btn-cell"><button class="pay-btn">reschedual</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <% } %>
+    </div>
+    
+  </div>

@@ -1,0 +1,42 @@
+<%- include('../partials/header', {title: 'Doctor Profile', stylesheetName:
+'styles', headerTitle: 'Doctor Profile' }) %>
+<%- include('../partials/patientNav') %>
+
+<div class="container-patient">
+    <div class="profile-section">
+      <div class="profile-info">
+        <img
+          src="../images/placeholder-avatar.png"
+          alt="Patient Avatar"
+          class="avatar"
+        />
+        <div class="profile-info-detail">
+          <h2>Doctor Name</h2>
+          <p>age | gender</p>
+        </div>
+      </div>
+      <div class="details">
+        <!-- Left Details Section -->
+        <div class="left-details">
+          <div class="info-item">
+            <strong>Department:</strong> --------------------
+          </div>
+          <p class="section-title">study</p>
+          <div class="info-item">
+            <i class="fas fa-phone"></i>
+            <strong>degree:</strong> ############
+          </div>
+          <div class="info-item">
+            <i class="fas fa-envelope"></i>
+            <strong>university:</strong> -----@----.----
+          </div>
+          <div class="info-item">
+            <i class="fas fa-map-marker-alt"></i>
+            <strong>experiences:</strong> -----, --------------------
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%- include('../partials/footer') %>
