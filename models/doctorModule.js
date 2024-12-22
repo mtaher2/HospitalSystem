@@ -29,3 +29,4 @@ async function getAllDoctorsByDepartment(departmentId) {
         connection.release();
     }
 };
+export { getAllDoctorsByDepartment };
