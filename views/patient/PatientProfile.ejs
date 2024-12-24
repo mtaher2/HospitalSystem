@@ -1,11 +1,9 @@
-<%- include('../partials/header', {title: 'Patient Profile', stylesheetName:
-'styles', headerTitle: 'Patient Profile' }) %> <% if (user.Role === 2) { %>
-<%-include('../partials/searchBar') %> <% } %>
+<%- include('../partials/header', { title: 'Patient Profile', stylesheetName: 'styles', headerTitle: 'Patient Profile' }) %>
 <%-include('../partials/patientNav') %>
+
 
 <div class="container-patient">
   <div class="profile-section">
-    <!-- profile-info section (updated to use profilePhoto from session) -->
     <div class="profile-info">
       <img
         src="<%= user.profile_photo || '/images/placeholder-avatar.png' %>"
@@ -13,10 +11,17 @@
         class="avatar"
         onclick="openProfilePhotoModal()"
       />
-      <!-- Trigger the modal when clicked -->
       <div class="profile-info-detail">
         <h2><%= user.FName %> <%= user.LName %></h2>
         <p><%= age %> | <%= user.Gender %></p>
+        <% if (user.Role === 6) { %>
+          <a href="/update-patient" class="appointment-btn">
+            Update Profile
+            <span
+              ><i class="fa-solid fa-edit" style="color: #ffffff"></i>
+            </span>
+          </a>
+        <% } %>
         <a href="/addAppointment" class="appointment-btn">
           Make Appointment
           <span
@@ -26,7 +31,6 @@
       </div>
     </div>
 
-    <!-- Profile Photo Change Modal -->
     <div id="profilePhotoModal" class="modal">
       <div class="modal-content">
         <span class="close-btn" onclick="closeProfilePhotoModal()"
@@ -41,7 +45,6 @@
     </div>
 
     <div class="details">
-      <!-- Left Details Section -->
       <div class="left-details">
         <div class="info-item">
           <strong>National ID:</strong> <%= user.National_ID %>
@@ -61,7 +64,6 @@
         </div>
       </div>
 
-      <!-- Right Details Section -->
       <% if (insurance !== null) { %>
       <div class="right-details">
         <p class="section-title">Insurance</p>
@@ -79,12 +81,13 @@
     </div>
   </div>
 </div>
+
+
 <script>
   function openProfilePhotoModal() {
     document.getElementById("profilePhotoModal").style.display = "block";
   }
 
-  // Function to close the modal
   function closeProfilePhotoModal() {
     document.getElementById("profilePhotoModal").style.display = "none";
   }

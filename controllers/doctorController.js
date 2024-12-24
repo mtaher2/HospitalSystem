@@ -1,18 +1,6 @@
-import {
-  getAllDoctorsByDepartment,
-  getSpecialties,
-  getAvailableDays,
-  getAvailableTimes,
-  getDoctorsByTime,
-  getDoctorProfile,
-} from "../models/doctorModel.js";
+import * as docModel from "../models/doctorModel.js";
+import * as userModel from "../models/userModel.js";
 
-import {
-  getDOBFromNationalID,
-  calculateAgeFromDOB,
-} from "../models/userModel.js";
-
-// Get all doctors by department
 export async function fetchDoctorsByDepartment(req, res) {
   const { departmentId } = req.params;
 
@@ -21,7 +9,7 @@ export async function fetchDoctorsByDepartment(req, res) {
       return res.status(400).json({ error: "Department ID is required" });
     }
 
-    const doctors = await getAllDoctorsByDepartment(departmentId);
+    const doctors = await docModel.getAllDoctorsByDepartment(departmentId);
     res.status(200).json(doctors);
   } catch (error) {
     console.error("Error fetching doctors by department:", error.message);
@@ -29,10 +17,9 @@ export async function fetchDoctorsByDepartment(req, res) {
   }
 }
 
-// Get unique specialties
 export async function fetchSpecialties(req, res) {
   try {
-    const specialties = await getSpecialties();
+    const specialties = await docModel.getSpecialties();
     res.status(200).json(specialties);
   } catch (error) {
     console.error("Error fetching specialties:", error.message);
@@ -40,24 +27,36 @@ export async function fetchSpecialties(req, res) {
   }
 }
 
-// Get available days for a given specialty
 export async function fetchAvailableDays(req, res) {
-  const { specialty } = req.query; // Fetch from query params
+  const { specialty } = req.query;
 
   try {
     if (!specialty) {
       return res.status(400).json({ error: "Specialty is required" });
     }
 
-    const availableDays = await getAvailableDays(specialty);
-    res.status(200).json(availableDays);
+    // Get all the available days for the selected specialty
+    const availableDays = await docModel.getAvailableDays(specialty);
+
+    // Fetch booked appointments to compare and filter out unavailable days
+    const bookedAppointments = await docModel.getTimeBookedBefore();
+    const bookedDates = bookedAppointments.map((appointment) =>
+      appointment.Appointment_Date
+    );
+
+    // Filter out booked days
+    const availableDates = availableDays.filter(
+      (day) => !bookedDates.includes(day)
+    );
+
+    res.status(200).json(availableDates);
   } catch (error) {
     console.error("Error fetching available days:", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 }
 
-// Get available times for a given specialty and day
+
 export async function fetchAvailableTimes(req, res) {
   const { specialty, day } = req.query;
 
@@ -66,7 +65,7 @@ export async function fetchAvailableTimes(req, res) {
       return res.status(400).json({ error: "Specialty and day are required" });
     }
 
-    const availableTimes = await getAvailableTimes(specialty, day);
+    const availableTimes = await docModel.getAvailableTimes(specialty, day);
     res.status(200).json(availableTimes);
   } catch (error) {
     console.error("Error fetching available times:", error.message);
@@ -84,10 +83,10 @@ export async function fetchDoctorsByTime(req, res) {
         .json({ error: "Specialty, day, and time are required" });
     }
 
-    const doctors = await getDoctorsByTime(specialty, day, time);
+    const doctors = await docModel.getDoctorsByTime(specialty, day, time);
 
     if (doctors.length === 0) {
-      return res.status(200).json([]); // No doctors found
+      return res.status(200).json([]);
     }
 
     res.status(200).json(doctors);
@@ -97,19 +96,17 @@ export async function fetchDoctorsByTime(req, res) {
   }
 }
 
-// Show appointment form and fetch specialties
+
 export async function showAppointmentForm(req, res) {
   try {
-    // Fetch specialties from the database
-    const specialties = await getSpecialties();
-
-    // Fetch available days and times for a specialty (this can be dynamic or predefined)
-    const availableSlots = []; // Array for dynamic available slots (optional)
+    
+    const specialties = await docModel.getSpecialties();
+    const availableSlots = []; 
 
     res.render("patient/addAppointment", {
       title: "Add Appointment",
-      specialties, // Pass specialties to EJS
-      availableSlots, // Pass available slots data (if needed)
+      specialties, 
+      availableSlots,
     });
   } catch (error) {
     console.error(error);
@@ -119,23 +116,19 @@ export async function showAppointmentForm(req, res) {
 
 export async function viewDoctorProfile(req, res) {
   try {
-    const doctorID = req.params.doctorID; // Get doctor ID from URL parameter
-    const doctorData = await getDoctorProfile(doctorID);
+    const doctorID = req.params.doctorID; 
+    const doctorData = await docModel.getDoctorProfile(doctorID);
 
     if (!doctorData) {
       return res.status(404).send("Doctor not found");
     }
 
-    // Extract date of birth from National ID
-    const dob = getDOBFromNationalID(doctorData.National_ID);
+    const dob = userModel.getDOBFromNationalID(doctorData.National_ID);
+    doctorData.Age = userModel.calculateAgeFromDOB(dob);
 
-    // Calculate age from date of birth
-    doctorData.Age = calculateAgeFromDOB(dob);
-
-    // Render doctor profile page and pass doctor data, including age
     res.render("patient/doctorProfile", {
       title: "Doctor Profile",
-      doctor: doctorData, // Pass doctor data with age to the EJS template
+      doctor: doctorData,
     });
   } catch (error) {
     console.error("Error in viewDoctorProfile controller:", error);

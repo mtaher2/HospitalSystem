@@ -1,19 +1,48 @@
-<%- include('../partials/header', {title: 'Reception Bills',
-stylesheetName:'styles', headerTitle: 'Reception Bills' }) %> <%-
-include('../partials/receptionNav') %>
+<%- include('../partials/header', {title: 'Reception Bills', stylesheetName:'styles', headerTitle: 'Reception Bills' }) %> 
+<%- include('../partials/receptionNav') %>
+
+
+  <!-- Modal for payment method selection -->
+  <div id="confirmation-modal" class="modal" aria-hidden="true" style="display: none; justify-content: center;">
+    <div class="modal-content">
+      <h3>Select Payment Method</h3>
+      <label for="paymentMethod">Payment Method</label>
+      <select id="paymentMethod" name="paymentMethod">
+        <option value="Cash">Cash</option>
+        <option value="Card">Card</option>
+      </select>
+      <div class="modal-buttons">
+        <button id="confirm-cancel" class="modal-btn confirm">Confirm</button>
+        <button id="cancel-cancel" class="modal-btn cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
 
 <div class="medication-container">
   <div class="top-strip"></div>
-  <!-- White strip before tabs -->
 
-  <!-- Search Bar -->
+  <!-- Form for filtering bills -->
   <div class="search-container">
-    <input
-      type="text"
-      id="searchInput"
-      class="search-bar"
-      placeholder="Search Bills..."
-    />
+    <form id="filterForm" method="GET" action="/receptionBills" class="filter-form">
+      <div class="filter-group">
+        <label for="filterDate">Date</label>
+        <input type="date" id="filterDate" name="date" class="filter-input" value="<%= filters.date || '' %>" onchange="document.getElementById('filterForm').submit()" />
+      </div>
+
+      <div class="filter-group">
+        <label for="filterPatient">Patient</label>
+        <input type="text" id="filterPatient" name="patient" class="filter-input" placeholder="Patient's name" value="<%= filters.patient || '' %>" onchange="document.getElementById('filterForm').submit()" />
+      </div>
+
+      <div class="filter-group">
+        <label for="filterState">State</label>
+        <select name="status" id="filterState" class="filter-input" onchange="document.getElementById('filterForm').submit()">
+          <option value="" <%= !filters.status ? 'selected' : '' %>>All States</option>
+          <option value="Paid" <%= filters.status === 'Paid' ? 'selected' : '' %>>Paid</option>
+          <option value="Unpaid" <%= filters.status === 'Unpaid' ? 'selected' : '' %>>Unpaid</option>
+        </select>
+      </div>
+    </form>
   </div>
 
   <div class="content-body">
@@ -21,36 +50,103 @@ include('../partials/receptionNav') %>
       <table>
         <thead>
           <tr>
-            <th>patient</th>
-            <th>stat</th>
-            <th>amount</th>
-            <th>date of payment</th>
-            <th>invoice</th>
+            <th>Patient</th>
+            <th>Status</th>
+            <th>Amount</th>
+            <th>Date of Payment</th>
+            <th>Invoice</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>name</td>
-            <td>payed</td>
-            <td>name</td>
-            <td>22/9/18</td>
-            <td>view file</td>
-            <td class="pay-btn-cell">
-              <button class="pay-btn">ChangeState</button>
-            </td>
-          </tr>
-          <tr>
-            <td>name</td>
-            <td>unpayed</td>
-            <td>name</td>
-            <td>22/9/18</td>
-            <td>view file</td>
-            <td class="pay-btn-cell">
-              <button class="pay-btn">ChangeState</button>
-            </td>
-          </tr>
+          <% if (bills && bills.length > 0) { %>
+            <% bills.forEach((bill) => { %>
+              <tr data-patient-id="<%= bill.Patient_ID %>">
+                <td><%= bill.Patient_FName + ' ' + bill.Patient_LName %></td>
+                <td><%= bill.Payment_Status %></td>
+                <td><%= bill.Amount %></td>
+                <td><%= bill.Date_payment %></td>
+                <td>
+                  <a href="/invoices/invoice_<%= bill.Billing_ID %>.pdf" target="_blank">View Invoice</a>
+                </td>
+                <td class="pay-btn-cell">
+                  <button class="pay-btn" data-id="<%= bill.Billing_ID %>" 
+                    <%= bill.Payment_Status === 'Paid' ? 'disabled' : '' %>><% if (bill.Payment_Status === 'Paid'){ %>Paid<% }else { %>ChangeState <% }%></button>
+                </td>
+              </tr>
+            <% }); %>
+          <% } else { %>
+            <tr>
+              <td colspan="6">No bills found</td>
+            </tr>
+          <% } %>
         </tbody>
       </table>
     </div>
   </div>
 </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+  document.querySelector(".content-body").addEventListener("click", async (event) => {
+    if (event.target.classList.contains("pay-btn")) {
+      const billingId = event.target.dataset.id;
+      const row = event.target.closest('tr'); // Get the closest <tr> element
+      const patientId = row.dataset.patientId; // Retrieve Patient_ID from the data-patient-id attribute
+
+      // Show the modal
+      document.getElementById('confirmation-modal').style.display = 'block';
+      const confirmButton = document.getElementById('confirm-cancel');
+      const cancelButton = document.getElementById('cancel-cancel');
+
+      confirmButton.onclick = async () => {
+        const paymentMethod = document.getElementById('paymentMethod').value;
+
+        if (!paymentMethod) {
+          alert("Please select a payment method.");
+          return;
+        }
+
+        try {
+          const response = await fetch(`/receptionBills/${billingId}/changeState`, {
+            method: "POST",
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ paymentMethod, patientId }) // Send both paymentMethod and patientId
+          });
+
+          if (response.ok) {
+            // Update the button text and disable it
+            event.target.disabled = true;
+            event.target.textContent = 'Paid';
+
+            // Update the Payment Status cell in the table
+            const paymentStatusCell = event.target.closest('tr').querySelector('td:nth-child(2)');
+            paymentStatusCell.textContent = 'Paid';
+
+            // Update the Date_payment cell with the current date
+            const datePaymentCell = event.target.closest('tr').querySelector('td:nth-child(4)');
+            const currentDate = new Date();
+            const formattedDate = currentDate.toISOString().split('T')[0];  // Format as yyyy-mm-dd
+            datePaymentCell.textContent = formattedDate;
+
+            // Hide the modal
+            document.getElementById('confirmation-modal').style.display = 'none';
+          } else {
+            const errorData = await response.json();
+            alert(errorData.error || "Failed to update payment status. Please try again.");
+          }
+        } catch (error) {
+          console.error("Error updating payment status:", error);
+          alert("An error occurred. Please try again later.");
+        }
+      };
+
+      cancelButton.onclick = () => {
+        document.getElementById('confirmation-modal').style.display = 'none';
+      };
+    }
+  });
+});
+
+</script>

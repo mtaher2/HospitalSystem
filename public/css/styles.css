@@ -59,7 +59,7 @@ hr {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.no-error{
+.no-error {
   background-color: white;
   border: none;
   box-shadow: none;
@@ -492,7 +492,6 @@ footer p {
   .appointment-btn {
     font-size: 12px;
     padding: 8px 16px;
-    
   }
 
   footer {
@@ -693,9 +692,9 @@ input[type="date"]::-moz-calendar {
 
 /* Medication Paient */
 .medication-container {
+  flex: 1;
   padding: 10px 40px;
   margin: 0 20px;
-  height: 80%;
   margin-bottom: 20px;
 }
 
@@ -741,7 +740,7 @@ input[type="date"]::-moz-calendar {
   background-color: #d9d9d9;
   border-top: none;
   padding: 50px 150px 50px 18px;
-  min-height: 60%;
+  min-height: 70%;
   margin-bottom: 10px;
 }
 
@@ -789,8 +788,7 @@ tr:nth-child(even) {
 }
 
 .table-wrapper {
-  max-height: 400px;
-  /* overflow-y: auto; */
+  /* max-height: 400px; */
   position: relative;
   margin: 0;
   width: 70%;
@@ -979,7 +977,6 @@ table td {
   border-radius: 5px;
 }
 
-/* Apply general dropdown styles */
 .select2-container--default .select2-selection--single {
   width: 100%;
   padding: 20px 1px;
@@ -991,21 +988,21 @@ table td {
   transition: border-color 0.3s ease;
 }
 
-/* Change hover background and text color for dropdown options */
-.select2-container--default .select2-results__option--highlighted[aria-selected] {
-  background-color: #d4ecb6 !important; /* Hover background color */
-  color: #212856 !important;              /* Hover text color */
+.select2-container--default
+  .select2-results__option--highlighted[aria-selected] {
+  background-color: #d4ecb6 !important; 
+  color: #212856 !important; 
 }
 
-.select2-container--default .select2-selection--single .select2-selection__arrow {
-  display: none; 
+.select2-container--default
+  .select2-selection--single
+  .select2-selection__arrow {
+  display: none;
 }
 
 .select2-container--default .select2-selection--single:hover {
   border-color: black;
 }
-
-
 
 .select2-container--default .select2-selection--single {
   display: flex;
@@ -1016,12 +1013,12 @@ table td {
 }
 
 .flatpickr-calendar {
-  background-color: #EDF2E7; /* Calendar background */
-  border: none;             /* Optional: Remove border */
-  border-radius: 8px;       /* Optional: Rounded corners */
+  background-color: #edf2e7;
+  border: none; 
+  border-radius: 8px;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
   width: 332px;
- padding: 10px;
+  padding: 10px;
 }
 
 .flatpickr-day {
@@ -1029,20 +1026,19 @@ table td {
   font-size: 12px;
   color: #333;
   transition: background-color 0.3s ease, color 0.3s ease;
-  
 }
 
 .flatpickr-day:hover {
-  background-color: #c9e2b3; /* Hover background */
-  color: #000;              /* Hover text color */
+  background-color: #c9e2b3;
+  color: #000; 
 }
 
 .flatpickr-day.today {
-  background-color: #A1D55D !important; /* Highlight "today" if available */
+  background-color: #a1d55d !important;
   color: #fff !important;
 }
 
-#date{
+#date {
   width: 95%;
 }
 
@@ -1075,13 +1071,13 @@ table td {
 }
 
 .flatpickr-day.available {
-  background-color: #A1D55D !important;
+  background-color: #a1d55d !important;
   color: black !important;
   border-radius: 50%;
 }
 
 .flatpickr-day.unavailable {
-  background-color: #EDF2E7 !important;
+  background-color: #edf2e7 !important;
   color: #888 !important;
 }
 
@@ -1128,15 +1124,14 @@ table td {
   }
 }
 
-/* Modal background */
 .modal {
-  display: none; 
+  display: none;
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); 
+  background-color: rgba(0, 0, 0, 0.5);
   justify-content: center;
   align-items: center;
   z-index: 9999;
@@ -1166,7 +1161,7 @@ table td {
 }
 
 .modal-btn.confirm {
-  background-color: #4CAF50; /* Green */
+  background-color: #4caf50; /* Green */
   color: white;
 }
 
@@ -1175,10 +1170,307 @@ table td {
 }
 
 .modal-btn.cancel {
-  background-color: #f44336; 
+  background-color: #f44336;
   color: white;
 }
 
 .modal-btn.cancel:hover {
   background-color: #e53935;
 }
+
+.table-wrapper a {
+  text-decoration: none; 
+  color: #7ea84d; 
+  font-weight: bold; 
+  padding: 8px 15px; 
+  border: 1px solid #7ea84d; 
+  border-radius: 5px; 
+  background-color: #f8f9fa; 
+  display: inline-block;
+  transition: background-color 0.3s, color 0.3s; 
+}
+
+.table-wrapper a:hover {
+  background-color: #7ea84d; 
+  color: white; 
+}
+
+.container-stat {
+  position: relative;
+  width: 1440px;
+  height: 800px;
+  margin: auto;
+  background: #f9fdf1;
+  border: 1px solid #a1d55d;
+  box-sizing: border-box;
+  font-family: "Inter", sans-serif;
+}
+
+.blood-pressure {
+  position: absolute;
+  width: 213px;
+  height: 35px;
+  left: 87px;
+  top: 216px;
+  font-weight: 700;
+  font-size: 29px;
+  line-height: 35px;
+  color: #000000;
+}
+
+.last-measurement {
+  position: absolute;
+  width: 434px;
+  height: 35px;
+  left: 326px;
+  top: 214px;
+  font-weight: 400;
+  font-size: 29px;
+  line-height: 35px;
+  color: #000000;
+}
+
+.weight {
+  position: absolute;
+  width: 98px;
+  height: 35px;
+  left: 87px;
+  top: 259px;
+  font-weight: 700;
+  font-size: 29px;
+  line-height: 35px;
+  color: #000000;
+}
+
+.weight-value {
+  position: absolute;
+  width: 76px;
+  height: 35px;
+  left: 326px;
+  top: 259px;
+  font-weight: 400;
+  font-size: 29px;
+  line-height: 35px;
+  color: #000000;
+}
+
+.height {
+  position: absolute;
+  width: 74px;
+  height: 35px;
+  left: 87px;
+  top: 304px;
+  font-weight: 700;
+  font-size: 29px;
+  line-height: 35px;
+  color: #000000;
+}
+
+.height-value {
+  position: absolute;
+  width: 105px;
+  height: 35px;
+  left: 323px;
+  top: 304px;
+  font-weight: 400;
+  font-size: 29px;
+  line-height: 35px;
+  color: #000000;
+}
+
+.vaccination-history {
+  position: absolute;
+  width: 287px;
+  height: 35px;
+  left: 87px;
+  top: 393px;
+  font-weight: 700;
+  font-size: 29px;
+  line-height: 35px;
+  color: #000000;
+}
+
+.vaccination-item {
+  position: absolute;
+  width: 234px;
+  height: 35px;
+}
+
+.vaccination-item:nth-child(2) {
+  left: 124px;
+  top: 438px;
+}
+
+.vaccination-item:nth-child(3) {
+  left: 124px;
+  top: 473px;
+}
+
+.chronic-diseases {
+  position: absolute;
+  width: 255px;
+  height: 35px;
+  left: 690px;
+  top: 398px;
+  font-weight: 700;
+  font-size: 29px;
+  line-height: 35px;
+  color: #000000;
+}
+
+.chronic-item {
+  position: absolute;
+  width: 667px;
+  height: 35px;
+  left: 690px;
+  top: 443px;
+  font-weight: 400;
+  font-size: 29px;
+  line-height: 35px;
+  color: #000000;
+}
+
+.allergies {
+  position: absolute;
+  width: 126px;
+  height: 35px;
+  left: 87px;
+  top: 557px;
+  font-weight: 700;
+  font-size: 29px;
+  line-height: 35px;
+  color: #000000;
+}
+
+.allergy-item {
+  position: absolute;
+  width: 111px;
+  height: 35px;
+}
+
+.allergy-item:nth-child(2) {
+  left: 124px;
+  top: 602px;
+}
+
+.allergy-item:nth-child(3) {
+  left: 124px;
+  top: 637px;
+}
+
+.load-more-link {
+  color: #2b3aa2;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.load-more-link:hover {
+  text-decoration: underline;
+  opacity: 0.8;
+}
+
+.search-container {
+  margin: 20px 0px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+
+.filter-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 15px;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+.filter-group label {
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 5px;
+  align-self: start;
+}
+
+.filter-input {
+  padding: 6px 10px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 150px;
+}
+
+.filter-input:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.filter-form .filter-group {
+  flex: 1 1 auto; 
+  min-width: 150px;
+}
+
+#paymentMethod {
+  width: 200px; 
+  padding: 10px; 
+  border: 2px solid #ccc; 
+  border-radius: 5px;
+  font-size: 16px; 
+  background-color: #f9f9f9; 
+  color: #333; 
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
+  cursor: pointer;
+}
+
+#paymentMethod:focus {
+  border-color: #3058a6; 
+  outline: none;
+  box-shadow: 0 0 5px rgba(48, 88, 166, 0.5);
+}
+
+#paymentMethod option {
+  padding: 10px; 
+  background-color: white;
+  color: #333; 
+}
+
+#paymentMethod option:hover {
+  background-color: #f0f0f0;
+}
+
+#paymentMethod:disabled {
+  background-color: #e0e0e0; 
+  color: #999; 
+  cursor: not-allowed; 
+}
+
+.no-data {
+  text-align: center;
+  margin: 20px auto;
+  padding: 15px;
+  border: 1px solid #ddd;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+}
+
+.no-data p {
+  font-size: 16px;
+  color: #555;
+  margin: 0;
+}
+
+.no-data-item {
+  font-size: 14px;
+  color: #888;
+  margin: 10px 0;
+  font-style: italic;
+}
+

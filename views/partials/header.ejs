@@ -9,20 +9,13 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
     />
     <link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet">
-    <!-- Include Select2 CSS -->
     <link
       href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css"
       rel="stylesheet"
     />
-
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-
-    <!-- Include jQuery (required for Select2) -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-    <!-- Include Select2 JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-
     <link rel="stylesheet" href="/css/<%= stylesheetName %>.css" />
   </head>
   <body>
@@ -32,7 +25,7 @@
         <h1 class="header-title"><%= headerTitle %></h1>
       </div>
       <div>
-        <% if (title === 'Reception Appointments' || title === 'Reception Bills') { %>
+        <% if (title === 'Reception Appointments' || title === 'Reception Bills' || title === 'Patient Profile Reception') { %>
         <a href="/reception-add-patient" class="logout-button"
           >add patient
           <span
@@ -42,7 +35,8 @@
             ></i></span
         ></a>
         <% } %>
-        <!-- Conditional Logout Button -->
+
+        <% if ((headerTitle === 'Patient Profile' || headerTitle === 'Appointments' || headerTitle === 'Medical Records' || headerTitle === 'Medication' || headerTitle === 'Health statistics') && user.Role === 6) { %> <a href="/patient-profile-reception" class="logout-button">Back</a> <% } %>
         <% if (typeof user !== 'undefined' && user) { %>
         <a href="/logout" class="logout-button">Logout</a>
         <% } %>

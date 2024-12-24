@@ -1,18 +1,18 @@
-<%- include('../partials/header', {title: 'Medication', stylesheetName: 'styles', headerTitle: 'Medication' }) %>
+<%- include('../partials/header', { title: 'Medication', stylesheetName: 'styles', headerTitle: 'Medication' }) %>
 <%- include('../partials/patientNav') %>
 
 <div class="medication-container">
-  <div class="top-strip"></div> <!-- White strip before tabs -->
+  <div class="top-strip"></div>
   <div class="tabs">
     <div
       class="tab <%= activeTab === 'current' ? 'active' : '' %>"
-      onclick="location.href='/medication?tab=current'"
+      onclick="location.href='/medication?tab=current'"  
     >
       current
     </div>
     <div
       class="tab <%= activeTab === 'took_before' ? 'active' : '' %>"
-      onclick="location.href='/medication?tab=took_before'"
+      onclick="location.href='/medication?tab=took_before'"  
     >
       took before
     </div>
@@ -22,6 +22,7 @@
     <% if (activeTab === 'current') { %>
     <div class="table-wrapper">
       <table>
+        <% if (currentMedications && currentMedications.length > 0) { %>
         <thead>
           <tr>
             <th>date prescribed</th>
@@ -31,32 +32,32 @@
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>22/9/18</td>
-            <td>yufuiguogihppg</td>
-            <td>5 times</td>
-            <td>22/10/18</td>
-          </tr>
-          <tr>
-            <td>22/9/18</td>
-            <td>yufuiguogihppg</td>
-            <td>5 times</td>
-            <td>22/10/18</td>
-          </tr>
-          <tr>
-            <td>22/9/18</td>
-            <td>yufuiguogihppg</td>
-            <td>5 times</td>
-            <td>22/10/18</td>
-          </tr>
-          
-          <!-- Add more rows here -->
+          <% currentMedications.forEach(function(med) { %>
+            <tr>
+              <td><%= med.Date_Prescribed ? new Date(med.Date_Prescribed).toLocaleDateString() : 'N/A' %></td>
+              <td><%= med.Medication_Name %></td>
+              <td><%= med.Refill_Times ? med.Refill_Times : 'N/A' %> times</td>
+              <td>
+                <%= med.Upcoming_Refill ? new Date(med.Upcoming_Refill).toLocaleDateString() : 'N/A' %>
+              </td>
+            </tr>
+          <% }); %>
         </tbody>
+        <% } else { %>
+        <thead>
+          <tr>
+            <th colspan="4">No current medications found.</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+        <% } %>
       </table>
     </div>
     <% } else if (activeTab === 'took_before') { %>
     <div class="table-wrapper">
       <table>
+        <% if (pastMedications && pastMedications.length > 0) { %>
         <thead>
           <tr>
             <th>date prescribed</th>
@@ -65,17 +66,27 @@
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>22/9/18</td>
-            <td>yufuiguogihppg</td>
-            <td>1 month</td>
-          </tr>
+          <% pastMedications.forEach(function(med) { %>
+            <tr>
+              <td><%= med.Date_Prescribed ? new Date(med.Date_Prescribed).toLocaleDateString() : 'N/A' %></td>
+              <td><%= med.Medication_Name %></td>
+              <td><%= med.Duration_Took_For ? med.Duration_Took_For : 'N/A' %> days</td>
+            </tr>
+          <% }); %>
         </tbody>
+        <% } else { %>
+        <thead>
+          <tr>
+            <th colspan="3">No previous medications found.</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+        <% } %>
       </table>
     </div>
     <% } %>
   </div>
-  
 </div>
 
 <script src="js/main.js"></script>

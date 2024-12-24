@@ -1,10 +1,8 @@
 <%- include('../partials/header', {title: 'Add Patient', stylesheetName:'styles', headerTitle: 'Add Patient Profile' }) %>
-
+<%- include('../partials/receptionNav') %>
 <div class="rec-container">
   <form method="post" class="rec-form" id="addPatientForm" action="/reception-add-patient" enctype="multipart/form-data">
-    <!-- Form Grid -->
     <div class="rec-form-grid">
-      <!-- Left Column -->
       <div class="rec-form-column">
         <label class="rec-label" for="nationalId">National ID<span class="rec-required">*</span></label>
         <input
@@ -34,7 +32,6 @@
         </select>
       </div>
 
-      <!-- Right Column -->
       <div class="rec-form-column">
         <h2 class="rec-section-title">Contact Info</h2>
 
@@ -65,7 +62,6 @@
       </div>
     </div>
 
-    <!-- Buttons -->
     <div class="rec-button-group">
       <button type="submit" class="rec-btn-secondary">
         Add Patient

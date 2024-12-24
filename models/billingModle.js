@@ -1,6 +1,7 @@
-// Get billing details
-async function getBillingDetails(billingId) {
-    const sql = `
+import { db } from "../db.js";
+
+export async function getBillingDetails(billingId) {
+  const sql = `
         SELECT 
             b.Billing_ID, b.Patient_ID, b.Amount, b.Payment_Status, b.Payment_Method
         FROM 
@@ -9,261 +10,237 @@ async function getBillingDetails(billingId) {
             b.Billing_ID = ?;
     `;
 
-    const connection = await db.getConnection();
-    try {
-        const [rows] = await connection.query(sql, [billingId]);
-        return rows;
-    } catch (error) {
-        throw error;
-    } finally {
-        connection.release();
-    }
+  const connection = await db.getConnection();
+  try {
+    const [rows] = await connection.query(sql, [billingId]);
+    return rows;
+  } catch (error) {
+    throw error;
+  } finally {
+    connection.release();
+  }
 }
 
-// Create an invoice
-async function createInvoice(patientId, amount, insuranceId) {
-    const sql = `
+export async function createInvoice(patientId, amount, insuranceId) {
+  const sql = `
         INSERT INTO Billing (Patient_ID, Amount, Payment_Status, Insurance_ID)
         VALUES (?, ?, 'Pending', ?);
     `;
-    const values = [patientId, amount, insuranceId];
+  const values = [patientId, amount, insuranceId];
 
-    const connection = await db.getConnection();
-    try {
-        await connection.beginTransaction();
-        await connection.query(sql, values);
-        await connection.commit();
-        return { message: 'Invoice created successfully' };
-    } catch (error) {
-        await connection.rollback();
-        throw error;
-    } finally {
-        connection.release();
-    }
+  const connection = await db.getConnection();
+  try {
+    await connection.beginTransaction();
+    await connection.query(sql, values);
+    await connection.commit();
+    return { message: "Invoice created successfully" };
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
 }
 
-export { getBillingDetails, createInvoice };
-
-async function getPendingBills() {
-    const connection = await db.getConnection();
-    try {
-        const sql = 'SELECT * FROM Bill WHERE Payment_Status = "Pending"';
-        const [rows] = await connection.query(sql);
-        return rows;
-    } catch (error) {
-        await connection.rollback();
-        throw error;
-    } finally {
-        connection.release();
-    }
+export async function getPendingBills() {
+  const connection = await db.getConnection();
+  try {
+    const sql = 'SELECT * FROM Bill WHERE Payment_Status = "Pending"';
+    const [rows] = await connection.query(sql);
+    return rows;
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
 }
 
-async function processPayment(billingId, paymentMethod) {
-    const connection = await db.getConnection();
-    try {
-        const updateSql = 'UPDATE Bill SET Payment_Status = "Paid", Payment_Method = ? WHERE Billing_ID = ?';
-        const [result] = await connection.query(updateSql, [paymentMethod, billingId]);
-        return result;
-    } catch (error) {
-        await connection.rollback();
-        throw error;
-    } finally {
-        connection.release();
+export async function processPayment(billingId, paymentMethod) {
+  const connection = await db.getConnection();
+  try {
+    const updateSql =
+      'UPDATE Bill SET Payment_Status = "Paid", Payment_Method = ? WHERE Billing_ID = ?';
+    const [result] = await connection.query(updateSql, [
+      paymentMethod,
+      billingId,
+    ]);
+    return result;
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
+}
+
+export async function verifyInsuranceCoverage(insuranceId, amount) {
+  const connection = await db.getConnection();
+  try {
+    await connection.beginTransaction();
+
+    const sql = "SELECT Coverage_Details FROM Insurance WHERE Insurance_ID = ?";
+    const [rows] = await connection.query(sql, [insuranceId]);
+
+    if (rows.length === 0) {
+      throw new Error("Insurance record not found");
     }
-};
 
-async function verifyInsuranceCoverage(insuranceId, amount) {
-    const connection = await db.getConnection();
-    try {
-        await connection.beginTransaction();
+    const coverageDetails = JSON.parse(rows[0].Coverage_Details);
+    const coveragePercentage = parseFloat(coverageDetails.percentage);
 
-        const sql = 'SELECT Coverage_Details FROM Insurance WHERE Insurance_ID = ?';
-        const [rows] = await connection.query(sql, [insuranceId]);
-
-        if (rows.length === 0) {
-            throw new Error('Insurance record not found');
-        }
-
-        const coverageDetails = JSON.parse(rows[0].Coverage_Details);
-        const coveragePercentage = parseFloat(coverageDetails.percentage);
-
-        if (isNaN(coveragePercentage)) {
-            throw new Error('Invalid coverage details');
-        }
-        const coveredAmount = (coveragePercentage / 100) * amount;
-        const remainingAmount = amount - coveredAmount;
-
-        await connection.commit();
-        return { coveredAmount, remainingAmount };
-    } catch (error) {
-        await connection.rollback();
-        throw error;
-    } finally {
-        connection.release();
+    if (isNaN(coveragePercentage)) {
+      throw new Error("Invalid coverage details");
     }
-};
-async function generateBillingSummary(billingId) {
-    const connection = await db.getConnection();
-    try {
-        await connection.beginTransaction();
+    const coveredAmount = (coveragePercentage / 100) * amount;
+    const remainingAmount = amount - coveredAmount;
 
-        // Fetch Billing Details from the Billing table
-        const sqlBilling = `
-            SELECT Billing_ID, Invoice_Date, Payment_Status, Patient_ID, Insurance_ID, Amount
-            FROM Billing
-            WHERE Billing_ID = ?
-        `;
-        const [billingDetails] = await connection.query(sqlBilling, [billingId]);
+    await connection.commit();
+    return { coveredAmount, remainingAmount };
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
+}
 
-        if (billingDetails.length === 0) {
-            throw new Error('No billing information found for the given Billing ID');
-        }
+export async function fetchBillingDetails(patientId, paymentStatus) {
+  try {
+    let query = `
+        SELECT 
+          Billing.Billing_ID, 
+          Billing.Amount, 
+          Billing.Invoice_Date, 
+          Billing.Payment_Status, 
+          Billing.Payment_Method, 
+          Insurance.Coverage_Details
+        FROM Billing
+        LEFT JOIN Insurance ON Billing.Insurance_ID = Insurance.Insurance_ID
+        WHERE Billing.Patient_ID = ?
+      `;
 
-        const bill = billingDetails[0];
+    const queryParams = [patientId];
 
-        // Fetch Patient Information
-        const sqlPatient = `
-            SELECT Patient_ID, FName, LName, Phone
-            FROM Patient
-            WHERE Patient_ID = ?
-        `;
-        const [patientDetails] = await connection.query(sqlPatient, [bill.Patient_ID]);
-
-        if (patientDetails.length === 0) {
-            throw new Error('No patient information found for the given Patient ID');
-        }
-
-        const patient = patientDetails[0];
-
-        // Start the Invoice Text
-        let invoiceText = `===================== INVOICE =====================\n`;
-        invoiceText += `Billing ID: ${bill.Billing_ID}\n`;
-        invoiceText += `Invoice Date: ${bill.Invoice_Date}\n`;
-        invoiceText += `Payment Status: ${bill.Payment_Status}\n\n`;
-
-        // Patient Details
-        invoiceText += `Patient Details:\n`;
-        invoiceText += `Name: ${patient.FName} ${patient.LName}\n`;
-        invoiceText += `Phone: ${patient.Phone}\n\n`;
-
-        // Services Provided Section
-        invoiceText += `Services Provided:\n`;
-        invoiceText += `-----------------------------------------------------\n`;
-
-        let totalAmount = bill.Amount; // Start with the initial amount
-
-        // Fetch Appointment Services
-        const sqlAppointments = `
-            SELECT Appointment_ID, Patient_ID, Doctor_ID, Appointment_Date
-            FROM Appointment
-            WHERE Billing_ID = ?
-        `;
-        const [appointments] = await connection.query(sqlAppointments, [billingId]);
-
-        if (appointments.length > 0) {
-            appointments.forEach(appointment => {
-                invoiceText += `Appointment ID: ${appointment.Appointment_ID}, Date: ${appointment.Appointment_Date}, Doctor ID: ${appointment.Doctor_ID}\n`;
-                invoiceText += `Price: $${totalAmount}\n`;
-                invoiceText += `-----------------------------------------------------\n`;
-            });
-        }
-
-        // Fetch Pharmacy Services
-        const sqlPrescription = `
-            SELECT Prescription_ID, Medication_Name, Dosage, Frequency
-            FROM Prescription
-            WHERE Billing_ID = ?
-        `;
-        const [prescriptions] = await connection.query(sqlPrescription, [billingId]);
-
-        if (prescriptions.length > 0) {
-            prescriptions.forEach(item => {
-                invoiceText += `Medication: ${item.Medication_Name}, Dosage: ${item.Dosage}, Frequency: ${item.Frequency}\n`;
-                invoiceText += `Price: $${totalAmount}\n`;
-                invoiceText += `-----------------------------------------------------\n`;
-            });
-        }
-
-        // Fetch Lab Order Services
-        const sqlLabOrders = `
-            SELECT Lab_Order_ID, Lab_ID
-            FROM Lab_Order
-            WHERE Billing_ID = ?
-        `;
-        const [labOrders] = await connection.query(sqlLabOrders, [billingId]);
-
-        if (labOrders.length > 0) {
-            for (const lab of labOrders) {
-                // Fetch Lab Name from the Lab table
-                const sqlLabName = `
-                    SELECT Lab_Name
-                    FROM Lab
-                    WHERE Lab_ID = ?
-                `;
-                const [labTest] = await connection.query(sqlLabName, [lab.Lab_ID]);
-
-                if (labTest.length > 0) {
-                    const labName = labTest[0].Lab_Name;
-                    invoiceText += `Lab Item: ${labName}\n`;
-                    invoiceText += `Price: $${totalAmount}\n`;
-                    invoiceText += `-----------------------------------------------------\n`;
-                }
-            }
-        }
-
-        // Fetch Radiology Order Services
-        const sqlRadiologyOrders = `
-            SELECT Radiology_Order_ID, Radiology_ID
-            FROM Radiology_Order
-            WHERE Billing_ID = ?
-        `;
-        const [radiologyOrders] = await connection.query(sqlRadiologyOrders, [billingId]);
-
-        if (radiologyOrders.length > 0) {
-            for (const radiology of radiologyOrders) {
-                // Fetch Scan Name from the Radiology table
-                const sqlScanName = `
-                    SELECT Scan_Name
-                    FROM Radiology
-                    WHERE Radiology_ID = ?
-                `;
-                const [scan] = await connection.query(sqlScanName, [radiology.Radiology_ID]);
-
-                if (scan.length > 0) {
-                    const scanName = scan[0].Scan_Name;
-                    invoiceText += `Radiology Item: ${scanName}\n`;
-                    invoiceText += `Price: $${totalAmount}\n`;
-                    invoiceText += `-----------------------------------------------------\n`;
-                }
-            }
-        }
-
-        // Fetch Insurance Information and Apply Coverage
-        const insuranceId = Billing.Insurance_ID; 
-        const { coveredAmount, remainingAmount } = await verifyInsuranceCoverage(insuranceId, totalAmount);
-        // Add the Total Amount
-        if(coveredAmount>0){
-            invoiceText += `Insurance Coverage:\n`;
-            invoiceText += `Covered Amount: $${coveredAmount.toFixed(2)}\n`;
-            invoiceText += `Remaining Amount: $${remainingAmount.toFixed(2)}\n`;
-        }else{
-            invoiceText += `Total Amount: $${totalAmount.toFixed(2)}\n`;
-        }
-        invoiceText += `====================================================\n\n`;
-
-        // Closing Message
-        invoiceText += `Thank you for choosing our services. Please feel free to contact us for any questions.\n`;
-
-        await connection.commit();
-        return invoiceText;
-
-    } catch (error) {
-        await connection.rollback();
-        throw error;
-    } finally {
-        connection.release();
+    if (paymentStatus) {
+      query += ` AND Billing.Payment_Status = ?`;
+      queryParams.push(paymentStatus);
     }
-};
 
+    const [rows] = await db.execute(query, queryParams);
+    return rows.map((row) => {
+      const coverageDetails = row.Coverage_Details
+        ? JSON.parse(row.Coverage_Details)
+        : null;
+      return {
+        Billing_ID: row.Billing_ID,
+        Amount: row.Amount,
+        Invoice_Date: row.Invoice_Date,
+        Payment_Status: row.Payment_Status,
+        Payment_Method: row.Payment_Method,
+        Coverage_Percentage: coverageDetails
+          ? coverageDetails.percentage
+          : null,
+      };
+    });
+  } catch (error) {
+    console.error("Error fetching billing details:", error);
+    throw error;
+  }
+}
 
-export {getPendingBills, processPayment, verifyInsuranceCoverage, generateBillingSummary};
+export async function fetchBillingDetailsByBilling(patientId, billingId) {
+  const query = "SELECT * FROM Billing WHERE Patient_ID = ? AND Billing_ID = ?";
+  const [result] = await db.query(query, [patientId, billingId]);
+  return result;
+}
+
+export async function getPaidBillsByPatientId(patientId) {
+  const query = `
+    SELECT Billing_ID, Patient_ID, Amount, Payment_Status, Payment_Method, Invoice_Date, Insurance_ID, Date_payment
+    FROM Billing
+    WHERE Patient_ID = ? AND Payment_Status = 'Paid';
+  `;
+
+  try {
+    const [result] = await db.execute(query, [patientId]);
+    return result;
+  } catch (error) {
+    console.error("Error fetching paid bills for patient:", error);
+    throw error;
+  }
+}
+
+// Fetch unpaid bills for a specific patient by Patient_ID
+export async function getUnpaidBillsByPatientId(patientId) {
+  const query = `
+    SELECT Billing_ID, Patient_ID, Amount, Payment_Status, Payment_Method, Invoice_Date, Insurance_ID
+    FROM Billing
+    WHERE Patient_ID = ? AND Payment_Status = 'Unpaid';
+  `;
+
+  try {
+    const [result] = await db.execute(query, [patientId]);
+    return result;
+  } catch (error) {
+    console.error("Error fetching unpaid bills for patient:", error);
+    throw error;
+  }
+}
+
+export async function getFilteredBills(filters) {
+  const { date, patient, status } = filters;
+
+  let query = `
+    SELECT 
+      b.Billing_ID, 
+      b.Patient_ID, 
+      b.Amount, 
+      b.Payment_Status, 
+      b.Date_payment, 
+      u.FName AS Patient_FName, 
+      u.LName AS Patient_LName
+    FROM Billing b
+    JOIN User u ON b.Patient_ID = u.User_ID
+    WHERE 1=1
+  `;
+
+  const queryParams = [];
+
+  if (date) {
+    query += ` AND b.Date_payment = ?`;
+    queryParams.push(date);
+  }
+
+  if (patient) {
+    query += ` AND (u.FName LIKE ? OR u.LName LIKE ?)`;
+    queryParams.push(`%${patient}%`, `%${patient}%`);
+  }
+
+  if (status) {
+    query += ` AND b.Payment_Status = ?`;
+    queryParams.push(status);
+  }
+
+  try {
+    const [rows] = await db.execute(query, queryParams); // Adjust `db.execute` as per your database library
+    
+    // Format the Date_payment as yyyy-mm-dd
+    rows.forEach(row => {
+      if (row.Date_payment) {
+        row.Date_payment = row.Date_payment.toISOString()
+        .split("T")[0]
+        .replace(/(\d{4}-\d{2}-\d{2})/, (match) => {
+          const date = new Date(match);
+          date.setDate(date.getDate() + 1);
+          return date.toISOString().split("T")[0];
+        });
+      }
+    });
+
+    return rows;
+  } catch (error) {
+    console.error("Error fetching filtered bills:", error);
+    throw error;
+  }
+}

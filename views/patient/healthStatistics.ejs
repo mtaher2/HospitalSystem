@@ -1,0 +1,157 @@
+<%- include('../partials/header', {title: 'Health statistics', stylesheetName:
+'styles', headerTitle: 'Health statistics' }) %> <% if (user.Role === 2) { %> <%-
+include('../partials/searchBar') %> <% } %> <%-
+include('../partials/patientNav') %>
+
+<div class="container-patient">
+  <div class="profile-section">
+    <div class="profile-info">
+      <% if (!healthData || Object.keys(healthData).length === 0) { %>
+        <div class="no-data">
+          <p>No health statistics recorded for this patient. Please contact the medical staff for updates.</p>
+        </div>
+      <% } else { %>
+      <div class="details">
+        <div class="left-details">
+          <p class="section-title">Health Statistics</p>
+          <% if (healthData.latestBloodPressure && healthData.latestWeight && healthData.latestHeight) { %>
+          <div class="info-item">
+            <strong>Blood Pressure:</strong>
+            <span><%= healthData.latestBloodPressure.Systolic %>/<%= healthData.latestBloodPressure.Diastolic %> mmHg</span> 
+            |<span>Last Check: <%=healthData.latestBloodPressure.Date %></span>
+          </div>
+          <div class="info-item">
+            <strong>Weight:</strong>
+            <span><%= healthData.latestWeight.Weight_kg %> kg</span>
+          </div>
+          <div class="info-item">
+            <strong>Height:</strong>
+            <span><%= healthData.latestHeight.Height_cm %> cm</span>
+          </div>
+          <% } else { %>
+          <p class="no-data-message">No health statistics recorded.</p>
+          <% } %>
+
+          <br>
+          <p class="section-title">Vaccination History</p>
+          <% if (healthData.vaccinationHistory.length > 0) { %>
+          <% healthData.vaccinationHistory.slice(0, 2).forEach(item => { %>
+          <div class="TEST-vaccinationHistory">
+            <div class="info-item">
+              <strong>Date:</strong> <span><%= item.Date %></span> |
+              <strong>Vaccine:</strong> <span><%= item.Vaccine %></span>
+            </div>
+          </div>
+          <% }) %>
+          <% if (healthData.vaccinationHistory.length > 2) { %>
+          <a href="#" class="load-more-link" data-type="vaccinationHistory">Load More</a>
+          <% } %>
+          <% } else { %>
+          <p class="no-data-message">No vaccination history recorded.</p>
+          <% } %>
+        </div>
+
+        <div class="right-details" style="margin-top: 0px;">
+          <p class="section-title">Chronic Diseases</p>
+          <% if (Object.keys(healthData.chronicDiseases).length > 0) { %>
+          <% Object.keys(healthData.chronicDiseases).slice(0, 4).forEach(disease => { %>
+          <div class="test-chronicDiseases">
+            <div class="info-item">
+              <strong>Date:</strong>
+              <span><%= healthData.chronicDiseases[disease].Date %></span> |
+              <strong>Measurement:</strong>
+              <span><%= healthData.chronicDiseases[disease].Measurement %></span>
+            </div>
+          </div>
+          <% }) %>
+          <% if (Object.keys(healthData.chronicDiseases).length > 5) { %>
+          <a href="#" class="load-more-link" data-type="chronicDiseases">Load More</a>
+          <% } %>
+          <% } else { %>
+          <p class="no-data-message">No chronic diseases recorded.</p>
+          <% } %>
+
+          <br>
+          <br>
+
+          <p class="section-title">Allergies</p>
+          <% if (healthData.allergies.length > 0) { %>
+          <% healthData.allergies.slice(0, 2).forEach(item => { %>
+          <div class="tes-allergies">
+            <div class="info-item">
+              <span><%= item.Allergen %></span>
+            </div>
+          </div>
+          <% }) %>
+          <% if (healthData.allergies.length > 2) { %>
+          <a href="#" class="load-more-link" data-type="allergies">Load More</a>
+          <% } %>
+          <% } else { %>
+          <p class="no-data-message">No allergies recorded.</p>
+          <% } %>
+        </div>
+      </div>
+      <% }%>
+    </div>
+  </div>
+</div>
+
+
+<script src="js/main.js"></script>
+<%- include('../partials/footer') %>
+
+<script>
+  document.querySelectorAll(".load-more-link").forEach((link) => {
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      const dataType = event.target.getAttribute("data-type");
+      loadMoreData(dataType, event.target);
+    });
+  });
+
+  async function loadMoreData(type, link) {
+    try {
+      const response = await fetch(`/load-more-data?type=${type}`);
+      const newData = await response.json();
+
+      updateUI(type, newData);
+
+      link.style.display = "none"; 
+    } catch (error) {
+      console.error("Error loading more data:", error.message);
+      alert("An error occurred while loading more data.");
+    }
+  }
+
+  function updateUI(type, newData) {
+    let container;
+    if (type === "vaccinationHistory") {
+      container = document.querySelector(".TEST-vaccinationHistory");
+    } else if (type === "chronicDiseases") {
+      container = document.querySelector(".test-chronicDiseases");
+    } else if (type === "allergies") {
+      container = document.querySelector(".right-details");
+    }
+
+    if (container) {
+      newData.forEach((item) => {
+        const newItem = document.createElement("div");
+        newItem.classList.add("info-item");
+        newItem.innerHTML = getDataHTML(type, item);
+        container.appendChild(newItem);
+      });
+    }
+  }
+
+  function getDataHTML(type, item) {
+    if (type === "vaccinationHistory") {
+      return `<strong>Date:</strong> ${item.Date} | <strong>Vaccine:</strong> ${item.Vaccine}`;
+    } else if (type === "chronicDiseases") {
+      console.log("Item",item);
+      return `<strong>Date:</strong> ${item.Date} | <strong>Measurement:</strong> ${item.Measurement}`;
+    } else if (type === "allergies") {
+      return `<span>${item.Allergen}</span>`;
+    }
+    return "";
+  }
+</script>

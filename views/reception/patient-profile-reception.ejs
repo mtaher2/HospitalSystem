@@ -1,0 +1,21 @@
+<%- include('../partials/header', { title: 'Patient Profile Reception', stylesheetName: 'styles', headerTitle: 'Patient Profile Reception' }) %>
+<%- include('../partials/receptionNav') %>
+<div class="container-patient">
+  <div class="search-container" style="background-color: white; border: none">
+    <form action="/patient-profile-reception" method="get" id="searchForm">
+      <input
+        type="text"
+        name="nationalID"
+        placeholder="Enter Patient National ID"
+        required
+        pattern="[34]\d{13}" 
+        title="National ID must be a 14-digit number starting with 3 or 4"
+        class="search-bar"
+      />
+      <button type="submit" class="appointment-btn">Search</button>
+    </form>
+    <% if (errorMessage) { %>
+      <p class="error-message"><%= errorMessage %></p>
+    <% } %>
+  </div>
+</div>

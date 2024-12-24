@@ -1,7 +1,8 @@
 import { db } from "../db.js";
-import { addUser, getRoleId } from './userModel.js';
-// Get patient medical records
-async function getPatientMedicalRecords(patientId) {
+import { addUser, getRoleId } from "./userModel.js";
+
+
+export async function getPatientMedicalRecords(patientId) {
   const sql = `
       SELECT 
           m.Record_ID, m.Description, m.Date_Of_Entry, m.Notes
@@ -13,39 +14,64 @@ async function getPatientMedicalRecords(patientId) {
 
   const connection = await db.getConnection();
   try {
-      const [rows] = await connection.query(sql, [patientId]);
-      return rows;
+    const [rows] = await connection.query(sql, [patientId]);
+    return rows;
   } catch (error) {
-      throw error;
+    throw error;
   } finally {
-      connection.release();
+    connection.release();
   }
 }
 
-// Get patient medications
-async function getPatientMedications(patientId) {
+export async function getPatientCurrentMedications(patientId) {
   const sql = `
       SELECT 
-          p.Prescription_ID, p.Medication_Name, p.Dosage, p.Frequency, p.Date_Prescribed
+          p.Prescription_ID, p.Patient_ID, p.Doctor_ID, p.Billing_ID, p.Date_Prescribed,
+          p.Medication_Name, p.Dosage, p.Frequency, p.Start_Date, p.End_Date, 
+          p.Status, p.Refill_Times, p.Upcoming_Refill
       FROM 
           Prescription p
       WHERE 
-          p.Patient_ID = ?;
-  `;
+          p.Patient_ID = ? 
+          AND p.End_Date > CURDATE();
+    `;
 
-  const connection = await db.getConnection();
   try {
-      const [rows] = await connection.query(sql, [patientId]);
-      return rows;
+    console.log("Executing query to fetch medications for patient:", patientId);
+    const [rows] = await db.query(sql, [patientId]); 
+    console.log("Medications fetched:", rows);
+    return rows;
   } catch (error) {
-      throw error;
-  } finally {
-      connection.release();
+    console.error("Error fetching medications:", error);
+    throw error;
   }
 }
 
-// Get allergies
-async function getAllergies(patientId) {
+export async function getPatientPastMedications(patientId) {
+  const sql = `
+      SELECT 
+          p.Prescription_ID, p.Patient_ID, p.Doctor_ID, p.Billing_ID, p.Date_Prescribed,
+          p.Medication_Name, p.Dosage, p.Frequency, p.Start_Date, p.End_Date, 
+          p.Status, p.Refill_Times, p.Upcoming_Refill
+      FROM 
+          Prescription p
+      WHERE 
+          p.Patient_ID = ? 
+          AND p.End_Date > CURDATE();
+    `;
+
+  try {
+    console.log("Executing query to fetch medications for patient:", patientId);
+    const [rows] = await db.query(sql, [patientId]); 
+    console.log("Medications fetched:", rows);
+    return rows;
+  } catch (error) {
+    console.error("Error fetching medications:", error);
+    throw error;
+  }
+}
+
+export async function getAllergies(patientId) {
   const sql = `
       SELECT 
           a.Allergy_ID, a.Allergy_Name, a.Reaction
@@ -57,17 +83,16 @@ async function getAllergies(patientId) {
 
   const connection = await db.getConnection();
   try {
-      const [rows] = await connection.query(sql, [patientId]);
-      return rows;
+    const [rows] = await connection.query(sql, [patientId]);
+    return rows;
   } catch (error) {
-      throw error;
+    throw error;
   } finally {
-      connection.release();
+    connection.release();
   }
 }
 
-// Get medical history
-async function getMedicalHistory(patientId) {
+export async function getMedicalHistory(patientId) {
   const sql = `
       SELECT 
           mh.Record_ID, mh.Description, mh.Date_Of_Entry, mh.Notes
@@ -79,135 +104,129 @@ async function getMedicalHistory(patientId) {
 
   const connection = await db.getConnection();
   try {
-      const [rows] = await connection.query(sql, [patientId]);
-      return rows;
+    const [rows] = await db.query(sql, [patientId]);
+    return rows;
   } catch (error) {
-      throw error;
+    throw error;
   } finally {
-      connection.release();
+    connection.release();
   }
 }
 
-// Update patient details
-async function updatePatientDetails(patientId, patientData) {
-  const { FName, LName, Email, Phone, Address } = patientData;
-  const sql = `
-      UPDATE Patient
-      SET 
-          FName = ?, 
-          LName = ?, 
-          Email = ?, 
-          Phone = ?, 
-          Address = ?
-      WHERE Patient_ID = ?;
-  `;
-  const values = [FName, LName, Email, Phone, Address, patientId];
+// export async function updatePatientDetails(patientId, patientData) {
+//   const { FName, LName, Email, Phone, Address } = patientData;
+//   const sql = `
+//       UPDATE Patient
+//       SET 
+//           FName = ?, 
+//           LName = ?, 
+//           Email = ?, 
+//           Phone = ?, 
+//           Address = ?
+//       WHERE Patient_ID = ?;
+//   `;
+//   const values = [FName, LName, Email, Phone, Address, patientId];
 
+//   const connection = await db.getConnection();
+//   try {
+//     await connection.beginTransaction();
+//     await connection.query(sql, values);
+//     await connection.commit();
+//     return { message: "Patient details updated successfully" };
+//   } catch (error) {
+//     await connection.rollback();
+//     throw error;
+//   } finally {
+//     connection.release();
+//   }
+// }
+
+export async function insertPatient(userId) {
+  const insertPatientQuery = `INSERT INTO Patient (Patient_ID, Health_Statistics, Health_History) 
+                                VALUES (?, NULL, NULL)`;
+  try {
+    const [patientResult] = await db.query(insertPatientQuery, [userId]);
+    return patientResult.insertId; 
+  } catch (err) {
+    console.error("Error adding patient:", err);
+    throw err;
+  }
+}
+
+export async function insertInsurance(insurance) {
+  const { Insurance_Provider, Coverage_Details, Expiry_Date } = insurance;
+  const coverageJson = JSON.stringify(Coverage_Details); // Convert Coverage_Details to JSON format
+
+  const insertInsuranceQuery = `INSERT INTO Insurance (Insurance_Provider, Coverage_Details, Expiry_Date) VALUES (?, ?, ?)`;
+
+  try {
+    const [insuranceResult] = await db.query(insertInsuranceQuery, [
+      Insurance_Provider,
+      coverageJson,
+      Expiry_Date,
+    ]);
+
+    return insuranceResult.insertId; 
+  } catch (err) {
+    console.error("Error adding insurance:", err);
+    throw err;
+  }
+}
+
+export async function updatePatientWithInsurance(patientId, insuranceId) {
+  console.log("Updating patient with insurance:", { patientId, insuranceId });
+  const updatePatientInsuranceQuery = `UPDATE Patient SET Insurance_ID = ? WHERE Patient_ID = ?`;
+
+  try {
+    const [result] = await db.query(updatePatientInsuranceQuery, [
+      insuranceId,
+      patientId,
+    ]);
+    console.log("Update result:", result); 
+  } catch (err) {
+    console.error("Error updating patient with insurance:", err);
+    throw err;
+  }
+}
+
+export async function addPatient(patientData) {
   const connection = await db.getConnection();
   try {
-      await connection.beginTransaction();
-      await connection.query(sql, values);
-      await connection.commit();
-      return { message: 'Patient details updated successfully' };
-  } catch (error) {
-      await connection.rollback();
-      throw error;
+    await connection.beginTransaction();
+
+    const roleId = await getRoleId(patientData.user.Role);
+    const userId = await addUser(patientData.user, roleId);
+    const patientId = await insertPatient(userId);
+
+    if (patientData.insurance) {
+      console.log("Adding insurance for patient:", patientId);
+      const insuranceId = await insertInsurance(patientData.insurance);
+      await updatePatientWithInsurance(userId, insuranceId);
+    }
+
+    await connection.commit();
+    return { patientId, userId };
+  } catch (err) {
+    await connection.rollback();
+    console.error("Error adding patient:", err);
+    throw err;
   } finally {
-      connection.release();
+    connection.release();
   }
 }
-
-export { getPatientMedicalRecords, getPatientMedications, getAllergies, getMedicalHistory, updatePatientDetails };
-
-
-
-async function insertPatient(userId) {
-    const insertPatientQuery = `INSERT INTO Patient (Patient_ID, Health_Statistics, Health_History) 
-                                VALUES (?, NULL, NULL)`;  // Health_Statistics and Health_History are NULL by default
-    try {
-        const [patientResult] = await db.query(insertPatientQuery, [userId]);
-        return patientResult.insertId;  // Return the inserted Patient_ID
-    } catch (err) {
-        console.error('Error adding patient:', err);
-        throw err;
-    }
-}
-
-async function insertInsurance(insurance) {
-    const { Insurance_Provider, Coverage_Details, Expiry_Date } = insurance;
-    const coverageJson = JSON.stringify(Coverage_Details);  // Convert Coverage_Details to JSON format
-
-    const insertInsuranceQuery = `INSERT INTO Insurance (Insurance_Provider, Coverage_Details, Expiry_Date) VALUES (?, ?, ?)`;
-
-    try {
-        const [insuranceResult] = await db.query(insertInsuranceQuery, [
-            Insurance_Provider,
-            coverageJson,
-            Expiry_Date
-        ]);
-
-        return insuranceResult.insertId;  // Return the inserted Insurance_ID
-    } catch (err) {
-        console.error('Error adding insurance:', err);
-        throw err;
-    }
-}
-
-async function updatePatientWithInsurance(patientId, insuranceId) {
-    console.log('Updating patient with insurance:', { patientId, insuranceId }); // Log the IDs
-    const updatePatientInsuranceQuery = `UPDATE Patient SET Insurance_ID = ? WHERE Patient_ID = ?`;
-
-    try {
-        const [result] = await db.query(updatePatientInsuranceQuery, [insuranceId, patientId]);
-        console.log('Update result:', result); // Log the update query result
-    } catch (err) {
-        console.error('Error updating patient with insurance:', err);
-        throw err;
-    }
-}
-
-
-// Main function to add a user and patient
-async function addPatient(patientData) {
-    const connection = await db.getConnection();
-    try {
-      await connection.beginTransaction();
-  
-      const roleId = await getRoleId(patientData.user.Role);
-      const userId = await addUser(patientData.user, roleId);
-      const patientId = await insertPatient(userId);
-  
-      if (patientData.insurance) {
-        console.log('Adding insurance for patient:', patientId);
-        const insuranceId = await insertInsurance(patientData.insurance);
-        await updatePatientWithInsurance(userId, insuranceId);
-      }
-  
-      await connection.commit();
-      return { patientId, userId };
-    } catch (err) {
-      await connection.rollback();
-      console.error('Error adding patient:', err);
-      throw err;
-    } finally {
-      connection.release();
-    }
-  }
-  
-
 
 export const selectPatientByID = async (patientID) => {
-  const query = "SELECT * FROM Patients WHERE Patient_ID = ?"; // Adjust table and column names
+  const query = "SELECT * FROM Patients WHERE Patient_ID = ?"; 
   try {
     const [results] = await db.query(query, [patientID]);
-    return results[0]; // Return the first matching record
+    return results[0]; 
   } catch (err) {
     console.error("Error fetching patient:", err);
     throw err;
   }
 };
 
-async function selectInsuranceDetails(userID) {
+export async function selectInsuranceDetails(userID) {
   const query = `
     SELECT 
       Insurance.Insurance_Provider, 
@@ -222,16 +241,13 @@ async function selectInsuranceDetails(userID) {
   try {
     const [results] = await db.query(query, [userID]);
 
-    // If no results are found, log and return null
     if (results.length === 0) {
       console.log("Insurance details not found for the user.");
       return null;
     }
 
-    // Assuming only one insurance record per user
     const insuranceDetails = results[0];
 
-    // Parse and handle coverage details
     insuranceDetails.Insurance_Coverage = parseCoverage(
       insuranceDetails.Coverage_Details
     );
@@ -239,138 +255,221 @@ async function selectInsuranceDetails(userID) {
     if (insuranceDetails.Expiry_Date) {
       insuranceDetails.Expiry_Date = formatDate(insuranceDetails.Expiry_Date);
     }
-    return insuranceDetails; // Return the insurance details with extracted coverage percentage
+    return insuranceDetails; 
   } catch (err) {
     console.error("Error selecting insurance details:", err);
-    throw err; // Rethrow the error for the caller to handle
+    throw err; 
   }
 }
 
 function parseCoverage(coverageData) {
   if (!coverageData) {
-    return "N/A"; // If no coverage data exists, return 'N/A'
+    return "N/A";
   }
 
   try {
-    // Parse the Coverage_Details JSON and extract the coverage percentage
     const coverage = JSON.parse(coverageData);
 
-    // Check if the 'percentage' field exists in the parsed data
     if (coverage && coverage.percentage) {
-      return coverage.percentage; // Return the coverage percentage
+      return coverage.percentage; 
     } else {
       console.log("Coverage percentage not found in the data.");
-      return "N/A"; // Return 'N/A' if the percentage is missing
+      return "N/A"; 
     }
   } catch (parseError) {
     console.error("Error parsing Coverage_Details JSON:", parseError);
-    return "Invalid JSON"; // Return 'Invalid JSON' in case of an error during parsing
+    return "Invalid JSON"; 
   }
 }
 
 function formatDate(dateString) {
   const date = new Date(dateString);
-  // Format the date to YYYY-MM-DD
   const formattedDate = date.toISOString().split("T")[0];
   return formattedDate;
 }
 
+export async function updatePatientDetails(data) {
+  const query = `
+    UPDATE User
+    SET 
+      FName = ?,
+      MidName = ?,
+      LName = ?,
+      Gender = ?,
+      Phone = ?,
+      Email = ?,
+      Address = ?,
+      Updated_At = NOW()
+    WHERE National_ID = ?
+  `;
+
+  try {
+    const { firstName, middleName, lastName, gender, phone, email, address, nationalId } = data;
+
+    const [result] = await db.query(query, [
+      firstName,
+      middleName,
+      lastName,
+      gender,
+      phone,
+      email,
+      address,
+      nationalId,
+    ]);
+
+    if (result.affectedRows === 0) {
+      throw new Error(`No user found with National ID: ${nationalId}`);
+    }
+
+    console.log("Patient details updated successfully.");
+    return result;
+  } catch (err) {
+    console.error("Error updating patient details:", err);
+    throw err;
+  }
+}
+
+export async function updateInsuranceDetails(nationalId, data) {
+  const selectQuery = `
+    SELECT Insurance_ID
+    FROM User
+    INNER JOIN Patient ON Patient_ID = User.User_ID
+    WHERE National_ID = ?
+  `;
+
+  const updateQuery = `
+    UPDATE Insurance
+    SET 
+      Insurance_Provider = ?,
+      Coverage_Details = ?,
+      Expiry_Date = ?
+    WHERE Insurance_ID = ?
+  `;
+
+  try {
+    // Fetch Insurance_ID based on National_ID
+    const [selectResult] = await db.query(selectQuery, [nationalId]);
+
+    if (selectResult.length === 0) {
+      throw new Error(`No insurance record found for National ID: ${nationalId}`);
+    }
+
+    const insuranceId = selectResult[0].Insurance_ID;
+
+    // Prepare data for update
+    const { provider, coverage, expireDate, image } = data;
+    const coverageDetails = JSON.stringify({ percentage: coverage, image });
+
+    const [updateResult] = await db.query(updateQuery, [provider, coverageDetails, expireDate, insuranceId]);
+
+    if (updateResult.affectedRows === 0) {
+      throw new Error(`No insurance record updated for Insurance ID: ${insuranceId}`);
+    }
+
+    console.log("Insurance details updated successfully.");
+    return updateResult;
+  } catch (err) {
+    console.error("Error updating insurance details:", err);
+    throw err;
+  }
+}
+
 function handleCoverageError() {
   console.error("There was an issue with the coverage data.");
-  return "Invalid JSON"; // Return a default error message
+  return "Invalid JSON"; 
 }
 
-//verify Patient Insurance
-async function verifyPatientInsurance(insuranceData) {
-    const { Insurance_ID, Insurance_Provider, Policy_Number, Coverage_Details, Expiry_Date } = insuranceData;
+export async function verifyPatientInsurance(insuranceData) {
+  const {
+    Insurance_ID,
+    Insurance_Provider,
+    Policy_Number,
+    Coverage_Details,
+    Expiry_Date,
+  } = insuranceData;
 
-    const sql = `INSERT INTO Insurance (Insurance_ID, Insurance_provider, Policy_Number, Coverage_Details, Expiry_Date) VALUES (?, ?, ?, ?)`;
+  const sql = `INSERT INTO Insurance (Insurance_ID, Insurance_provider, Policy_Number, Coverage_Details, Expiry_Date) VALUES (?, ?, ?, ?)`;
 
-    const values = [Insurance_ID, Insurance_Provider, Policy_Number, Coverage_Details, Expiry_Date];
+  const values = [
+    Insurance_ID,
+    Insurance_Provider,
+    Policy_Number,
+    Coverage_Details,
+    Expiry_Date,
+  ];
 
-    const connection = await db.getConnection();
+  const connection = await db.getConnection();
 
-    try {
-        await connection.beginTransaction();
-        await connection.query(sql, values);
-        await connection.commit();
-        return { message: 'Insurance added successfully' };
-    } catch (error) {
-        await connection.rollback();
-        throw error;
-    } finally {
-        connection.release();
+  try {
+    await connection.beginTransaction();
+    await connection.query(sql, values);
+    await connection.commit();
+    return { message: "Insurance added successfully" };
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
+}
+
+export async function getPatientHealthStatistics(patientId) {
+  const query = `SELECT Health_Statistics FROM Patient WHERE Patient_ID = ?`;
+
+  try {
+    const [rows] = await db.query(query, [patientId]);
+
+    if (rows.length === 0 || !rows[0].Health_Statistics) {
+      console.warn("No health statistics found for patient ID:", patientId);
+    return null; // Gracefully return null if no data is found
     }
-}
-async function downloadLabReport(patientId) {
-    const query = `
-        SELECT lo.Lab_Order_ID, lo.Patient_ID, lo.Doctor_ID, lo.Lab_ID, 
-               l.Lab_Name, l.Description, l.Category, lo.Status, 
-               lo.Results, lo.Created_At, lo.Updated_At
-        FROM Lab_Order lo
-        JOIN Lab l ON lo.Lab_ID = l.Lab_ID
-        WHERE lo.Patient_ID = ? AND lo.Status = 'Completed';
-    `;
-    try {
-        const [results] = await db.query(query, [patientId]);
-        return results; // Return completed lab reports
-    } catch (err) {
-        console.error('Error downloading lab report:', err);
-        throw err;
-    }
-}
-async function downloadRadiologyReport(patientId) {
-    const query = `
-        SELECT ro.Radiology_Order_ID, ro.Patient_ID, ro.Doctor_ID, ro.Radiology_ID, 
-               r.Scan_Name, r.Description, r.Radiology_Room, r.Preparation_Requirements, 
-               r.Cost, r.Duration, ro.Results, ro.Status, 
-               ro.Created_At, ro.Updated_At
-        FROM Radiology_Order ro
-        JOIN Radiology r ON ro.Radiology_ID = r.Radiology_ID
-        WHERE ro.Patient_ID = ? AND ro.Status = 'Completed';
-    `;
-    try {
-        const [results] = await db.query(query, [patientId]);
-        return results; // Return completed radiology reports
-    } catch (err) {
-        console.error('Error downloading radiology report:', err);
-        throw err;
-    }
-}
-async function cancelAppointment(appointmentId) {
-    const query = `
-        UPDATE Appointment
-        SET Status = 'Canceled'
-        WHERE Appointment_ID = ?;
-    `;
-    try {
-        const [result] = await db.query(query, [appointmentId]);
-        return result; // Return affected rows or update status
-    } catch (err) {
-        console.error('Error canceling appointment:', err);
-        throw err;
-    }
-}
-async function getLabReports(patientId) {
-    const query = `
-        SELECT lo.Lab_Order_ID, lo.Patient_ID, lo.Doctor_ID, lo.Lab_ID, 
-               l.Lab_Name, l.Description, l.Category, lo.Status, 
-               lo.Results, lo.Created_At, lo.Updated_At
-        FROM Lab_Order lo
-        JOIN Lab l ON lo.Lab_ID = l.Lab_ID
-        WHERE lo.Patient_ID = ?;
-    `;
-    try {
-        const [results] = await db.query(query, [patientId]);
-        return results; // Return all lab reports for the patient
-    } catch (err) {
-        console.error('Error retrieving lab reports:', err);
-        throw err;
-    }
+
+    const healthStatistics = JSON.parse(rows[0].Health_Statistics);
+
+    return {
+      latestBloodPressure: 
+        healthStatistics.Blood_Pressure?.[healthStatistics.Blood_Pressure.length - 1] || {
+          Systolic: "N/A",
+          Diastolic: "N/A",
+          Date: "N/A",
+        },
+      latestWeight: 
+        healthStatistics.Weight?.[healthStatistics.Weight.length - 1] || { Weight_kg: "N/A" },
+      latestHeight: 
+        healthStatistics.Height?.[healthStatistics.Height.length - 1] || { Height_cm: "N/A" },
+      vaccinationHistory: healthStatistics.Vaccination_History || [],
+      chronicDiseases: getLatestChronicDiseases(healthStatistics.Chronic_Diseases || {}),
+      allergies: healthStatistics.Allergies || [],
+    };
+  } catch (error) {
+    console.error("Error fetching patient health statistics:", error.message);
+    throw error;
+  }
 }
 
 
-;
 
+function getLatestChronicDiseases(chronicDiseases) {
+  const latestDiseases = {};
 
-export {selectInsuranceDetails, addPatient, verifyPatientInsurance };
+  if (!chronicDiseases || typeof chronicDiseases !== "object") {
+    return latestDiseases; // Return an empty object if input is invalid
+  }
+
+  for (const diseaseName in chronicDiseases) {
+    if (chronicDiseases.hasOwnProperty(diseaseName)) {
+      const diseaseData = chronicDiseases[diseaseName];
+
+      if (Array.isArray(diseaseData) && diseaseData.length > 0) {
+        // Sort the data by date in descending order
+        diseaseData.sort((a, b) => new Date(b.Date) - new Date(a.Date));
+
+        // Store the latest disease record
+        latestDiseases[diseaseName] = diseaseData[0];
+      }
+    }
+  }
+
+  return latestDiseases;
+}
+

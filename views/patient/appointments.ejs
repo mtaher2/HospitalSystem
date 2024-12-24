@@ -2,160 +2,211 @@
 <%- include('../partials/patientNav') %>
 
 <div class="medication-container">
-  <div class="top-strip"></div> <!-- White strip before tabs -->
+<div id="confirmation-modal" class="modal" aria-hidden="true">
+  <div class="modal-content">
+    <p>Are you sure you want to cancel this appointment?</p>
+    <div class="modal-buttons">
+      <button id="confirm-cancel" class="modal-btn confirm">Yes</button>
+      <button id="cancel-cancel" class="modal-btn cancel">No</button>
+    </div>
+  </div>
+</div>
+
+  <div class="top-strip"></div>
   <div class="tabs">
     <div
       class="tab <%= activeTab === 'upcoming' ? 'active' : '' %>"
-      onclick="location.href='/appointments?tab=upcoming'"
+      onclick="location.href='/appointments?activeTab=upcoming'"
     >
-    upcoming
+      upcoming
     </div>
     <div
       class="tab <%= activeTab === 'missed' ? 'active' : '' %>"
-      onclick="location.href='/appointments?tab=missed'"
+      onclick="location.href='/appointments?activeTab=missed'"
     >
-    missed
+      missed
     </div>
   </div>
+  
 
   <div class="content-body">
     <% if (activeTab === 'upcoming') { %>
       <div class="table-wrapper">
         <table>
           <% if (appointments && appointments.length > 0) { %>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Time</th>
-                <th>Doctor</th>
-                <th>Room</th>
-                <th>Floor</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% appointments.forEach(appointment => { %>
-                <tr>
-                  <td><%= appointment.date %></td>
-                  <td><%= appointment.time %></td>
-                  <td><%= appointment.doctorName %></td>
-                  <td><%= appointment.roomID %></td>
-                  <td><%= appointment.floorNumber %></td>
-                  <td class="pay-btn-cell"><button class="pay-btn cancel" data-id="<%= appointment.appointmentID %>">Cancel</button></td>
-                  <td class="pay-btn-cell"><button class="pay-btn">Reschedule</button></td>
-                </tr>
-              <% }); %>
-            </tbody>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Doctor</th>
+              <th>Room</th>
+              <th>Floor</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% appointments.forEach(appointment => { %>
+            <tr>
+              <td><%= appointment.date %></td>
+              <td><%= appointment.time %></td>
+              <td><%= appointment.doctorName %></td>
+              <td><%= appointment.roomID %></td>
+              <td><%= appointment.floorNumber %></td>
+              <td class="pay-btn-cell">
+                <button
+                  class="pay-btn cancel"
+                  data-id="<%= appointment.appointmentID %>"
+                >
+                  Cancel
+                </button>
+              </td>
+              <td class="pay-btn-cell">
+                <button class="pay-btn">Reschedule</button>
+              </td>
+            </tr>
+            <% }); %>
+          </tbody>
           <% } else { %>
-            <thead>
-              <tr>
-                <th colspan="7">No upcoming appointments found</th>
-              </tr>
-            </thead>
-            <tbody style="display: none;">
-              <!-- Empty body as it's hidden when there are no appointments -->
-            </tbody>
+          <thead>
+            <tr>
+              <th colspan="7">No upcoming appointments found</th>
+            </tr>
+          </thead>
+          <tbody style="display: none">
+          </tbody>
           <% } %>
         </table>
       </div>
-      
-      <!-- Confirmation Modal -->
-<div id="confirmation-modal" class="modal">
-  <div class="modal-content">
-    <h2>Are you sure you want to cancel this appointment?</h2>
-    <div class="modal-buttons">
-      <button id="confirm-cancel" class="modal-btn confirm">Yes</button>
-      <button id="cancel-cancel" class="modal-btn cancel">Cancel</button>
-    </div>
-  </div>
-</div>
-
-          
     <% } else if (activeTab === 'missed') { %>
-    <div class="table-wrapper">
-      <table>
-        <tr>
-            <th>date</th>
-            <th>time</th>
-            <th>doctor</th>
-            <th>room</th>
-            <th>floor</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>22/9/18</td>
-            <td>17:00</td>
-            <td>name</td>
-            <td>c204</td>
-            <td>second</td>
-            <td class="pay-btn-cell"><button class="pay-btn cancel">reschedual</button></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+      <div class="table-wrapper">
+        <table>
+          <% if (Cancelappointments && Cancelappointments.length > 0) { %>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Doctor</th>
+              <th>Room</th>
+              <th>Floor</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% Cancelappointments.forEach(appointment => { %>
+            <tr>
+              <td><%= appointment.date %></td>
+              <td><%= appointment.time %></td>
+              <td><%= appointment.doctorName %></td>
+              <td><%= appointment.roomID %></td>
+              <td><%= appointment.floorNumber %></td>
+              <td class="pay-btn-cell">
+                <button
+                  class="pay-btn reschedule"
+                  data-id="<%= appointment.appointmentID %>"
+                >
+                  Reschedule
+                </button>
+              </td>
+            </tr>
+            <% }); %>
+          </tbody>
+          <% } else { %>
+          <thead>
+            <tr>
+              <th colspan="6">No missed appointments found</th>
+            </tr>
+          </thead>
+          <tbody style="display: none">
+          </tbody>
+          <% } %>
+        </table>
+      </div>
     <% } %>
+    
   </div>
+  
   
 </div>
 <script>
   document.addEventListener("DOMContentLoaded", () => {
-  // Variable to store the appointment ID to cancel
-  let appointmentIdToCancel = null;
+    let appointmentIdToCancel = null;
 
-  // Show the confirmation modal
-  function showCancelModal(appointmentId) {
-    appointmentIdToCancel = appointmentId; // Store the appointment ID to cancel
-    const modal = document.getElementById("confirmation-modal");
-    modal.style.display = "flex"; // Show the modal
-  }
+    function showCancelModal(appointmentId) {
+      appointmentIdToCancel = appointmentId;
+      const modal = document.getElementById("confirmation-modal");
+      modal.style.display = "flex";
+      modal.setAttribute("aria-hidden", "false"); 
+    }
 
-  // Close the modal
-  function closeModal() {
-    const modal = document.getElementById("confirmation-modal");
-    modal.style.display = "none"; // Hide the modal
-  }
+    function closeModal() {
+      const modal = document.getElementById("confirmation-modal");
+      modal.style.display = "none";
+      modal.setAttribute("aria-hidden", "true"); 
+      appointmentIdToCancel = null; 
+    }
 
-  // Handle the confirmation (Yes) button click
-  document.getElementById("confirm-cancel").addEventListener("click", async () => {
-    if (appointmentIdToCancel) {
-      try {
-        const response = await fetch(`/appointments/${appointmentIdToCancel}/cancel`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-        });
+    document
+      .getElementById("confirm-cancel")
+      .addEventListener("click", async () => {
+        if (appointmentIdToCancel) {
+          const button = document.getElementById("confirm-cancel");
+          button.disabled = true; 
+          button.textContent = "Cancelling...";
 
-        if (response.ok) {
-          // Remove the canceled appointment row from the table
-          document.querySelector(`[data-id='${appointmentIdToCancel}']`).closest("tr").remove();
-          closeModal(); // Close the modal
-        } else {
-          alert("Failed to cancel the appointment. Please try again.");
-          closeModal(); // Close the modal
+          try {
+            const response = await fetch(
+              `/appointments/${appointmentIdToCancel}/cancel`,
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+              }
+            );
+
+            if (response.ok) {
+              document
+                .querySelector(`[data-id='${appointmentIdToCancel}']`)
+                .closest("tr")
+                .remove();
+              closeModal();
+            } else {
+              alert("Failed to cancel the appointment. Please try again.");
+            }
+          } catch (error) {
+            console.error("Error canceling appointment:", error);
+            alert("An error occurred. Please try again later.");
+          } finally {
+            button.disabled = false;
+            button.textContent = "Yes";
+          }
         }
-      } catch (error) {
-        console.error("Error canceling appointment:", error);
-        alert("An error occurred. Please try again later.");
-        closeModal(); // Close the modal
+      });
+
+    document
+      .getElementById("cancel-cancel")
+      .addEventListener("click", closeModal);
+
+    document.querySelector("table").addEventListener("click", (event) => {
+      if (event.target.classList.contains("cancel")) {
+        const appointmentId = event.target.dataset.id;
+        if (appointmentId) {
+          showCancelModal(appointmentId);
+        }
       }
-    }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        closeModal();
+      }
+    });
+
+    document
+      .getElementById("confirmation-modal")
+      .addEventListener("click", (event) => {
+        if (event.target.id === "confirmation-modal") {
+          closeModal();
+        }
+      });
   });
-
-  // Handle the Cancel (No) button click
-  document.getElementById("cancel-cancel").addEventListener("click", closeModal);
-
-  // Event listener for cancel buttons in the table
-  document.querySelector("table").addEventListener("click", (event) => {
-    if (event.target.classList.contains("cancel")) {
-      console.log("Cancel button clicked");
-      const appointmentId = event.target.dataset.id; // Get the appointment ID
-      showCancelModal(appointmentId); // Show the confirmation modal
-    }
-  });
-});
-
-
 </script>
-
 
 <script src="js/main.js"></script>
 <%- include('../partials/footer') %>

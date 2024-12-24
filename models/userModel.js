@@ -1,8 +1,7 @@
 import { db } from "../db.js";
 import { randomBytes } from "crypto";
-// Add a new user
-// Function to get the Role_ID based on the role name
-async function getRoleId(roleName) {
+
+export async function getRoleId(roleName) {
   const getRoleIdQuery = `SELECT Role_ID FROM Roles WHERE Role_Name = ?`;
 
   try {
@@ -19,7 +18,7 @@ async function getRoleId(roleName) {
   }
 }
 
-async function addUser(user, roleId) {
+export async function addUser(user, roleId) {
   const insertUserQuery = `INSERT INTO User (National_ID, Password, FName, MidName, LName, Email, Phone, Address, Role, Gender) 
                              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
@@ -44,8 +43,7 @@ async function addUser(user, roleId) {
   }
 }
 
-// Delete a user by User_ID
-async function deleteUser(userID) {
+export async function deleteUser(userID) {
   const query = `DELETE FROM User WHERE User_ID = ?`;
   try {
     const [results] = await db.query(query, [userID]);
@@ -56,8 +54,7 @@ async function deleteUser(userID) {
   }
 }
 
-// Select a user by User_ID
-async function selectUser(userID) {
+export async function selectUser(userID) {
   const query = `SELECT * FROM User WHERE User_ID = ?`;
   try {
     const [results] = await db.query(query, [userID]);
@@ -71,7 +68,10 @@ async function selectUser(userID) {
   }
 }
 
-function getDOBFromNationalID(nationalID) {
+export function getDOBFromNationalID(nationalID) {
+  console.log("National ID:", nationalID);
+  console.log("typeof National ID:", typeof nationalID);
+  
   const firstDigit = nationalID.charAt(0); // Get the first digit to check the century
   const year = nationalID.substring(1, 3); // Year is 2nd and 3rd digit
   const month = nationalID.substring(3, 5); // Month is 4th and 5th digit
@@ -92,14 +92,12 @@ function getDOBFromNationalID(nationalID) {
   return dob;
 }
 
-// Function to calculate the age from DOB
-function calculateAgeFromDOB(dob) {
+export function calculateAgeFromDOB(dob) {
   const today = new Date();
   let age = today.getFullYear() - dob.getFullYear();
   const monthDifference = today.getMonth() - dob.getMonth();
   const dayDifference = today.getDate() - dob.getDate();
 
-  // Adjust age if the birthday hasn't occurred yet this year
   if (monthDifference < 0 || (monthDifference === 0 && dayDifference < 0)) {
     age--;
   }
@@ -107,8 +105,7 @@ function calculateAgeFromDOB(dob) {
   return age;
 }
 
-// Select a user by National ID
-async function selectUserByNationalID(nationalID) {
+export async function selectUserByNationalID(nationalID) {
   const query = `
         SELECT User.*, Roles.Role_Name
         FROM User
@@ -117,15 +114,14 @@ async function selectUserByNationalID(nationalID) {
     `;
   try {
     const [results] = await db.query(query, [nationalID]);
-    return results; // Return the user data with the role
+    return results; 
   } catch (err) {
     console.error("Error selecting user by National ID:", err);
     throw err;
   }
 }
 
-// Authenticate a user by National_ID and Password
-async function authenticateUser(nationalId, password) {
+export async function authenticateUser(nationalId, password) {
   const query = `SELECT * FROM User WHERE National_ID = ? AND Password = ?`;
   try {
     const [results] = await db.query(query, [nationalId, password]);
@@ -143,7 +139,7 @@ async function authenticateUser(nationalId, password) {
   }
 }
 
-async function updateProfilePhoto(userId, imagePath) {
+export async function updateProfilePhoto(userId, imagePath) {
   const query = `UPDATE User SET profile_photo = ? WHERE User_ID = ?`;
   try {
     const [results] = await db.query(query, [imagePath, userId]);
@@ -154,24 +150,12 @@ async function updateProfilePhoto(userId, imagePath) {
   }
 }
 
-function generateRandomPassword(length) {
+export function generateRandomPassword(length) {
   return randomBytes(length).toString("base64").slice(0, length);
 }
-async function markNotificationAsRead(notificationId) {
-    const query = `
-        UPDATE Announcements
-        SET priority = 'Low'
-        WHERE announcement_id = ?;
-    `;
-    try {
-        const [result] = await db.query(query, [notificationId]);
-        return result; // Return affected rows or update status
-    } catch (err) {
-        console.error('Error marking notification as read:', err);
-        throw err;
-    }
-}
-async function payBill(billingId) {
+
+
+export async function payBill(billingId) {
     const query = `
         UPDATE Billing
         SET Payment_Status = 'Paid'
@@ -185,7 +169,8 @@ async function payBill(billingId) {
         throw err;
     }
 }
-async function getAllInsuranceProviders() {
+
+export async function getAllInsuranceProviders() {
     const query = `
         SELECT Insurance_ID, Insurance_Provider, Policy_Number, 
                Coverage_Details, Expiry_Date
@@ -199,8 +184,8 @@ async function getAllInsuranceProviders() {
         throw err;
     }
 }
-// Get all departments
-async function getAllDepartments() {
+
+export async function getAllDepartments() {
     const sql = `
         SELECT 
             Department_ID, Department_Name, Department_Head
@@ -219,10 +204,7 @@ async function getAllDepartments() {
     }
 }
 
-export { getAllDepartments };
-
-
-async function updateUserPasswordPlainText(
+export async function updateUserPasswordPlainText(
   nationalID,
   oldPassword,
   newPassword
@@ -241,12 +223,10 @@ async function updateUserPasswordPlainText(
     }
 
     const storedPassword = results[0].Password;
-    // Compare the old password with the stored password (plain text)
     if (storedPassword !== oldPassword) {
       throw new Error("Old password is incorrect");
     }
 
-    // Update the password and Updated_At timestamp
     const updateQuery = `
             UPDATE User 
             SET Password = ?, Updated_At = NOW() 
@@ -260,17 +240,3 @@ async function updateUserPasswordPlainText(
     throw err;
   }
 }
-
-export {
-  updateUserPasswordPlainText,
-  generateRandomPassword,
-  getRoleId,
-  addUser,
-  deleteUser,
-  selectUser,
-  authenticateUser,
-  selectUserByNationalID,
-  getDOBFromNationalID,
-  calculateAgeFromDOB,
-  updateProfilePhoto,
-};

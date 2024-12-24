@@ -140,15 +140,29 @@ export async function getDoctorProfile(doctorID) {
     if (rows.length === 0) {
       throw new Error('Doctor not found');
     }
-    
-    // Parse the experiences field into an array
     const doctor = rows[0];
-    doctor.Experiences = JSON.parse(doctor.Experiences); // Parse experiences JSON string into an array
-
-    return doctor; // Return the doctor data with the parsed experience array
+    doctor.Experiences = JSON.parse(doctor.Experiences); 
+    return doctor; 
   } catch (error) {
     console.error('Error fetching doctor profile:', error);
     throw error;
+  }
+}
+
+export async function getTimeBookedBefore() {
+  try {
+    const query = `
+      SELECT Appointment_ID, Doctor_ID, Appointment_Date, Appointment_Time, Status
+      FROM Appointment
+      WHERE Status = 'Scheduled';
+    `;
+
+    const [rows] = await db.execute(query);
+
+    return rows;
+  } catch (error) {
+    console.error('Error fetching appointment data:', error);
+    throw new Error('Failed to fetch scheduled appointments.');
   }
 }
 

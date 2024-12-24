@@ -1,71 +1,88 @@
-<%- include('../partials/header', {title: 'Bills', stylesheetName: 'styles', headerTitle: 'Bills' }) %>
+<%- include('../partials/header', { title: 'Bills', stylesheetName: 'styles', headerTitle: 'Bills' }) %>
 <%- include('../partials/patientNav') %>
 
 <div class="medication-container">
-  <div class="top-strip"></div> <!-- White strip before tabs -->
+  <div class="top-strip"></div> 
   <div class="tabs">
     <div
-      class="tab <%= activeTab === 'unpayed' ? 'active' : '' %>"
+      class="tab <%= tab === 'unpayed' ? 'active' : '' %>"
       onclick="location.href='/patient-Bills?tab=unpayed'"
     >
-    unpayed
+      Unpayed
     </div>
     <div
-      class="tab <%= activeTab === 'payed' ? 'active' : '' %>"
+      class="tab <%= tab === 'payed' ? 'active' : '' %>"
       onclick="location.href='/patient-Bills?tab=payed'"
     >
-    payed
+      Payed
     </div>
   </div>
 
   <div class="content-body">
-    <% if (activeTab === 'unpayed') { %>
-    <div class="table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th>amount</th>
-            <th>invoice</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>50$</td>
-            <td>open file</td>
-            <td class="pay-btn-cell"><button class="pay-btn">pay</button></td>
-          </tr>
-          <tr>
-            <td>50$</td>
-            <td>open file</td>
-            <td class="pay-btn-cell"><button class="pay-btn">pay</button></td>
-          </tr>
-          
-          <!-- Add more rows here -->
-        </tbody>
-      </table>
-    </div>
-    <% } else if (activeTab === 'payed') { %>
-    <div class="table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th>date of payment</th>
-            <th>amount</th>
-            <th>invoice</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>22/9/18</td>
-            <td>50$</td>
-            <td>open file</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <% if (tab === 'unpayed') { %>
+      <div class="table-wrapper">
+        <table>
+          <% if (bills && bills.length > 0) { %>
+          <thead>
+            <tr>
+              <th>Amount</th>
+              <th>Invoice</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% bills.forEach(bill => { %>
+              <tr>
+                <td><%= bill.Amount %> $</td>
+                <td><a href="invoices/invoice_<%= bill.Billing_ID %>.pdf" target="_blank">Open File</a></td>
+                <td class="pay-btn-cell">
+                  <button class="pay-btn">Pay</button>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+          <% } else { %>
+            <thead>
+              <tr>
+                <th colspan="7">No unPayed Bills found</th>
+              </tr>
+            </thead>
+            <tbody style="display: none">
+            </tbody>
+            <% } %>
+        </table>
+      </div>
+    <% } else if (tab === 'payed') { %>
+      <div class="table-wrapper">
+        <table>
+          <% if (bills && bills.length > 0) { %>
+          <thead>
+            <tr>
+              <th>Date of Payment</th>
+              <th>Amount</th>
+              <th>Invoice</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% bills.forEach(bill => { %>
+              <tr>
+                <td><%= new Date(bill.Invoice_Date).toLocaleDateString() %></td>
+                <td><%= bill.Amount %> $</td>
+                <td><a href="/invoices/invoice_<%= bill.Billing_ID %>.pdf" target="_blank">Open File</a></td>
+              </tr>
+            <% }) %>
+          </tbody>
+          <% } else { %>
+            <thead>
+              <tr>
+                <th colspan="7">No Payed Bills found</th>
+              </tr>
+            </thead>
+            <tbody style="display: none">
+              <% } %>
+        </table>
+      </div>
     <% } %>
   </div>
-  
 </div>
 
 <script src="js/main.js"></script>

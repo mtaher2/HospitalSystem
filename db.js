@@ -1,7 +1,6 @@
 import mysql from 'mysql2/promise';
 import dotenv from 'dotenv';
 
-// Load environment variables from .env file
 dotenv.config();
 
 const db = mysql.createPool({
@@ -20,8 +19,6 @@ async function testConnection() {
     }
 }
 
-// Test the database connection on startup
 testConnection();
 
-// Export db and testConnection
 export { db, testConnection };

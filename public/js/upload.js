@@ -3,12 +3,10 @@ function toggleMenu() {
   menu.classList.toggle("open");
 }
 
-// Function to open the modal
 function openProfilePhotoModal() {
   document.getElementById("profilePhotoModal").style.display = "block";
 }
 
-// Function to close the modal
 function closeProfilePhotoModal() {
   document.getElementById("profilePhotoModal").style.display = "none";
 }
@@ -21,7 +19,6 @@ function uploadProfilePhoto() {
     const formData = new FormData();
     formData.append("profilePhoto", file);
 
-    // Send the image to the server using fetch (POST request)
     fetch("/uploadProfilePhoto", {
       method: "POST",
       body: formData,
@@ -29,9 +26,8 @@ function uploadProfilePhoto() {
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
-          // Update the profile image with the new photo
           document.querySelector(".avatar").src = data.newImagePath;
-          closeProfilePhotoModal(); // Close the modal after uploading
+          closeProfilePhotoModal(); 
         } else {
           alert("Failed to upload image. Please try again.");
         }

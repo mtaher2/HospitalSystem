@@ -1,0 +1,87 @@
+<%- include('../partials/header', { title: 'Update Patient', stylesheetName: 'styles', headerTitle: 'Update Patient Profile' }) %>
+<%- include('../partials/receptionNav') %>
+
+<div class="rec-container">
+  <form method="post" class="rec-form" id="updatePatientUpdate" action="/reception-update-patient" enctype="multipart/form-data">
+    <div class="rec-form-grid">
+      <div class="rec-form-column">
+        <label class="rec-label" for="nationalId">National ID<span class="rec-required">*</span></label>
+        <input
+          type="text"
+          class="rec-input"
+          id="nationalId"
+          name="nationalId"
+          value="<%= patient?.National_ID || '' %>"
+          required
+          pattern="^[23]\d{13}$"
+          title="Please enter a valid National ID."
+        />
+
+        <label class="rec-label" for="firstName">First Name<span class="rec-required">*</span></label>
+        <input type="text" class="rec-input" id="firstName" name="firstName" value="<%= patient?.FName || '' %>" required />
+
+        <label class="rec-label" for="middleName">Middle Name</label>
+        <input type="text" class="rec-input" id="middleName" name="middleName" value="<%= patient?.MidName || '' %>" />
+
+        <label class="rec-label" for="lastName">Last Name<span class="rec-required">*</span></label>
+        <input type="text" class="rec-input" id="lastName" name="lastName" value="<%= patient?.LName || '' %>" required />
+
+        <label class="rec-label" for="gender">Gender<span class="rec-required">*</span></label>
+        <select class="rec-input" id="gender" name="gender" required>
+          <option value="" disabled>Select Gender</option>
+          <option value="male" <%= patient?.Gender === 'male' ? 'selected' : '' %>>Male</option>
+          <option value="female" <%= patient?.Gender === 'female' ? 'selected' : '' %>>Female</option>
+        </select>
+      </div>
+
+      <div class="rec-form-column">
+        <h2 class="rec-section-title">Contact Info</h2>
+
+        <label class="rec-label" for="phone">Phone<span class="rec-required">*</span></label>
+        <input type="text" class="rec-input" id="phone" name="phone" value="<%= patient?.Phone || '' %>" required />
+
+        <label class="rec-label" for="email">Email</label>
+        <input type="email" class="rec-input" id="email" name="email" value="<%= patient?.Email || '' %>" />
+
+        <label class="rec-label" for="address">Address<span class="rec-required">*</span></label>
+        <textarea class="rec-textarea rec-input" id="address" name="address" required><%= patient?.Address || '' %></textarea>
+
+        <h2 class="rec-section-title">Insurance (Optional)</h2>
+
+        <label class="rec-label" for="insuranceOrg">Organization</label>
+        <input type="text" class="rec-input" id="insuranceOrg" name="insuranceOrg" value="<%= insurance?.Insurance_Provider || '' %>" />
+
+        <label class="rec-label" for="coverage">Coverage</label>
+        <input type="number" class="rec-input" id="coverage" name="coverage" value="<%= insurance?.Insurance_Coverage || '' %>" min="1" max="100" />
+
+        <label class="rec-label" for="expireDate">Expire Date</label>
+        <input type="date" class="rec-input" id="expireDate" name="expireDate" value="<%= insurance?.Expiry_Date || '' %>" />
+
+        <div class="rec-button-group">
+          <label for="insuranceUpload" class="rec-btn-primary">Upload Insurance Photo</label>
+          <input type="file" class="rec-input-file" id="insuranceUpload" name="insuranceUpload" accept="image/*" />
+          <% if (insurance?.Coverage_Details && JSON.parse(insurance.Coverage_Details)?.image) { %>
+            <a href="<%= JSON.parse(insurance.Coverage_Details).image %>" target="_blank">View Uploaded Insurance</a>
+          <% } %>
+        </div>
+      </div>
+    </div>
+
+    <div class="rec-button-group">
+      <button type="submit" class="rec-btn-secondary">
+        Update Patient
+        <span>
+          <i class="fa-solid fa-edit" style="color: #ffffff"></i>
+        </span>
+      </button>
+    </div>
+  </form>
+
+  <% if (typeof alertMessage !== 'undefined' && alertMessage) { %>
+    <div class="alert <%= alertType %>">
+      <%= alertMessage %>
+    </div>
+  <% } %>
+</div>
+
+<script src="js/main.js"></script>

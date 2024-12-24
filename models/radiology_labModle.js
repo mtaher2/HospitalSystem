@@ -1,4 +1,4 @@
-// Get pending radiology tests
+
 async function getPendingRadiologyTests() {
     const sql = `SELECT * FROM Radiology_Order WHERE Status = 'Pending'`;
 

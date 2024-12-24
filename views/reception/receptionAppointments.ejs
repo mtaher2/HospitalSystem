@@ -1,91 +1,247 @@
-<%- include('../partials/header', {title: 'Reception Appointments', stylesheetName:'styles', headerTitle: 'Appointments' }) %>
-
-<%- include('../partials/receptionNav') %>
+<%- include('../partials/header', {title: 'Reception Appointments',
+stylesheetName: 'styles', headerTitle: 'Appointments '}) %> <%-
+include('../partials/receptionNav') %>
 
 <div class="medication-container">
-    <div class="top-strip"></div> <!-- White strip before tabs -->
+  <div id="confirmation-modal" class="modal" aria-hidden="true">
+    <div class="modal-content">
+      <p>Are you sure you want to cancel this appointment?</p>
+      <div class="modal-buttons">
+        <button id="confirm-cancel" class="modal-btn confirm">Yes</button>
+        <button id="cancel-cancel" class="modal-btn cancel">No</button>
+      </div>
+    </div>
+  </div>
 
-    <!-- Search Bar -->
+  <div class="medication-container">
+    <div class="top-strip"></div>
+
     <div class="search-container">
-        <input type="text" id="searchInput" class="search-bar" placeholder="Search appointments...">
+      <form
+        id="filterForm"
+        method="GET"
+        action="/reception-appointment"
+        class="filter-form"
+      >
+        <input type="hidden" name="tab" value="<%= activeTab %>" />
+        <div class="filter-group">
+          <label for="filterDate">Date</label>
+          <input
+            type="date"
+            id="filterDate"
+            name="date"
+            class="filter-input"
+            value="<%= filters.date || '' %>"
+          />
+        </div>
+        <div class="filter-group">
+          <label for="filterTime">Time</label>
+          <input
+            type="time"
+            id="filterTime"
+            name="time"
+            class="filter-input"
+            value="<%= filters.time || '' %>"
+          />
+        </div>
+        <div class="filter-group">
+          <label for="filterDoctor">Doctor</label>
+          <input
+            type="text"
+            id="filterDoctor"
+            name="doctor"
+            class="filter-input"
+            placeholder="Doctor's name"
+            value="<%= filters.doctor || '' %>"
+          />
+        </div>
+        <div class="filter-group">
+          <label for="filterPatient">Patient</label>
+          <input
+            type="text"
+            id="filterPatient"
+            name="patient"
+            class="filter-input"
+            placeholder="Patient's name"
+            value="<%= filters.patient || '' %>"
+          />
+        </div>
+        <div class="filter-group">
+          <label for="filterRoom">Room</label>
+          <input
+            type="text"
+            id="filterRoom"
+            name="room"
+            class="filter-input"
+            placeholder="Room number"
+            value="<%= filters.room || '' %>"
+          />
+        </div>
+      </form>
     </div>
 
     <div class="tabs">
       <div
         class="tab <%= activeTab === 'upcoming' ? 'active' : '' %>"
-        onclick="location.href='/appointments-patient-reception?tab=upcoming'"
+        onclick="location.href='/reception-appointment?tab=upcoming'"
       >
-      upcoming
+        Upcoming
       </div>
       <div
         class="tab <%= activeTab === 'missed' ? 'active' : '' %>"
-        onclick="location.href='/appointments-patient-reception?tab=missed'"
+        onclick="location.href='/reception-appointment?tab=missed'"
       >
-      missed
+        Missed
       </div>
     </div>
-  
+
     <div class="content-body">
-      <% if (activeTab === 'upcoming') { %>
+      <% if (appointments && appointments.length > 0) { %>
       <div class="table-wrapper">
         <table>
           <thead>
             <tr>
-              <th>date</th>
-              <th>time</th>
-              <th>doctor</th>
-              <th>room</th>
-              <th>floor</th>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Doctor</th>
+              <th>Patient</th>
+              <th>Room</th>
+              <th>Floor</th>
             </tr>
           </thead>
           <tbody>
+            <% appointments.forEach(appointment => { %>
             <tr>
-              <td>22/9/18</td>
-              <td>17:00</td>
-              <td>name</td>
-              <td>c204</td>
-              <td>second</td>
-              <td class="pay-btn-cell"><button class="pay-btn">cancel</button></td>
-              <td class="pay-btn-cell"><button class="pay-btn">reschedual</button></td>
+              <td><%= appointment.Appointment_Date %></td>
+              <td><%= appointment.Appointment_Time %></td>
+              <td>
+                <%= appointment.Doctor_FName + ' ' + appointment.Doctor_LName %>
+              </td>
+              <td>
+                <%= appointment.Patient_FName + ' ' + appointment.Patient_LName
+                %>
+              </td>
+              <td><%= appointment.Room_ID %></td>
+              <td><%= appointment.Floor_Number %></td>
+              <td class="pay-btn-cell">
+                <button
+                  class="pay-btn cancel"
+                  data-id="<%= appointment.Appointment_ID %>"
+                >
+                  Cancel
+                </button>
+              </td>
             </tr>
-            <tr>
-              <td>22/9/18</td>
-              <td>17:00</td>
-              <td>name</td>
-              <td>c204</td>
-              <td>second</td>
-              <td class="pay-btn-cell"><button class="pay-btn">cancel</button></td>
-              <td class="pay-btn-cell"><button class="pay-btn">reschedual</button></td>
-            </tr>
-            
-            <!-- Add more rows here -->
+            <% }); %>
           </tbody>
         </table>
       </div>
-      <% } else if (activeTab === 'missed') { %>
-      <div class="table-wrapper">
-        <table>
-          <tr>
-              <th>date</th>
-              <th>time</th>
-              <th>doctor</th>
-              <th>room</th>
-              <th>floor</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>22/9/18</td>
-              <td>17:00</td>
-              <td>name</td>
-              <td>c204</td>
-              <td>second</td>
-              <td class="pay-btn-cell"><button class="pay-btn">reschedual</button></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <% } else { %>
+      <p><%= noDataMessage %></p>
       <% } %>
     </div>
-    
   </div>
+
+  <script>
+    let debounceTimer;
+
+    function debounceFilter(event) {
+      clearTimeout(debounceTimer);
+
+      debounceTimer = setTimeout(() => {
+        const form = document.getElementById("filterForm");
+        form.querySelector("input[name='tab']").value = "<%= activeTab %>";
+        form.submit();
+      }, 500);
+    }
+
+    window.onload = function () {
+      const inputs = document.querySelectorAll(".filter-input");
+      inputs.forEach((input) => {
+        input.addEventListener("input", debounceFilter);
+      });
+    };
+
+    document.addEventListener("DOMContentLoaded", () => {
+      let appointmentIdToCancel = null;
+
+      function showCancelModal(appointmentId) {
+        appointmentIdToCancel = appointmentId;
+        const modal = document.getElementById("confirmation-modal");
+        modal.style.display = "flex";
+        modal.setAttribute("aria-hidden", "false");
+      }
+
+      function closeModal() {
+        const modal = document.getElementById("confirmation-modal");
+        modal.style.display = "none";
+        modal.setAttribute("aria-hidden", "true");
+        appointmentIdToCancel = null;
+      }
+
+      document
+        .getElementById("confirm-cancel")
+        .addEventListener("click", async () => {
+          if (appointmentIdToCancel) {
+            const button = document.getElementById("confirm-cancel");
+            button.disabled = true;
+            button.textContent = "Cancelling...";
+
+            try {
+              const response = await fetch(
+                `/reception-appointment/${appointmentIdToCancel}/cancel`,
+                {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                }
+              );
+
+              if (response.ok) {
+                document
+                  .querySelector(`[data-id='${appointmentIdToCancel}']`)
+                  .closest("tr")
+                  .remove();
+                closeModal();
+              } else {
+                alert("Failed to cancel the appointment. Please try again.");
+              }
+            } catch (error) {
+              console.error("Error canceling appointment:", error);
+              alert("An error occurred. Please try again later.");
+            } finally {
+              button.disabled = false;
+              button.textContent = "Yes";
+            }
+          }
+        });
+
+      document
+        .getElementById("cancel-cancel")
+        .addEventListener("click", closeModal);
+
+      document.querySelector("table").addEventListener("click", (event) => {
+        if (event.target.classList.contains("cancel")) {
+          const appointmentId = event.target.dataset.id;
+          if (appointmentId) {
+            showCancelModal(appointmentId);
+          }
+        }
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          closeModal();
+        }
+      });
+
+      document
+        .getElementById("confirmation-modal")
+        .addEventListener("click", (event) => {
+          if (event.target.id === "confirmation-modal") {
+            closeModal();
+          }
+        });
+    });
+  </script>
+  <script src="/js/main.js"></script>
+</div>
