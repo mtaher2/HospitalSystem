@@ -1,16 +1,17 @@
 import nodemailer from "nodemailer";
+import dotenv from 'dotenv';
 
 async function sendEmail(to, userName, password) {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-      user: "guhospitalms@gmail.com",
-      pass: "keto ayay vujy qsuz",
+      user: process.env.email_send,
+      pass: process.env.Pass_key,
     },
   });
 
   const mailOptions = {
-    from: "guhospitalms@gmail.com",
+    from: process.env.email_send,
     to,
     subject: "Welcome to Our Hospital System – Your Login Details",
     text: `
