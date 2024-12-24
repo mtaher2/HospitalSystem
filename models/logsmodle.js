@@ -20,3 +20,4 @@ async function createLogEntry(logData) {
         connection.release();
     }
 };
+export { createLogEntry };
