@@ -175,7 +175,7 @@ router.post('/appointments/:id/cancel', async (req, res) => {
     const result = await cancelAppointment(appointmentId);
 
     if (result) {
-      return res.status(600).json({ message: 'Appointment canceled successfully' });
+      return res.status(200).json({ message: 'Appointment canceled successfully' });
     } else {
       return res.status(400).json({ error: 'Failed to cancel appointment' });
     }
