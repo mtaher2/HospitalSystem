@@ -1,0 +1,52 @@
+<%- include('../partials/header', {title: 'Requests', stylesheetName: 'styles', headerTitle: 'Requests' }) %> --%>
+<%- include('../partials/DoctorNav') %>
+<div class="search-container_Doctor_Appointments">
+  <h3>filter by Doctor ID</h3>
+  <form id="filterForm" method="GET" action="/reception-appointment" class="filter-form">
+    <div class="filter-group">
+      <input type="text" id="filterName" name="name" class="filter-input" placeholder="Enter name">
+    </div>
+  </form>
+</div>
+
+<div class="content-body">
+  <div class="table-wrapper">
+      <table>
+          <thead>
+              <tr>
+                  <th>Doctor ID</th>
+                  <th>Name</th>
+                  <th>Date</th>
+                  <th>Time</th>
+                  <th>Status</th>
+                  <th>Type</th>
+                  <th>Comment</th>
+              </tr>
+          </thead>
+          <tbody>
+              <tr>
+                  <td>233334</td>
+                  <td>John Doe</td>
+                  <td>2023-10-01</td>
+                  <td>12:00 PM</td>
+                  <td>
+                      <select name="status">
+                          <option value="pending">approved</option>
+                          <option value="cancelled">rejected</option>
+                      </select>
+                  </td>
+                  <td>Follow-up</td>
+                  <td>
+                    <p>previous Comment</p>
+                      <input type="text" name="comment" placeholder="Add comment">
+                  </td>
+              </tr>
+              <!-- Additional rows as needed -->
+          </tbody>
+      </table>
+      <div class="table-actions">
+          <button type="button" class="btn-save">Save</button>
+          <button type="button" class="btn-cancel">Cancel</button>
+      </div>
+  </div>
+</div>

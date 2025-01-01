@@ -1,0 +1,16 @@
+<%- include('../partials/header', {title: 'Home', stylesheetName: 'styles', headerTitle: 'Welcome' }) %> --%>
+<%- include('../partials/DoctorNav') %>
+<div class="email-form-container">
+  <form class="email-form">
+      <label for="to">To</label>
+      <input type="text" id="to" name="to" placeholder="Recipient's email">
+
+      <label for="subject">Subject</label>
+      <input type="text" id="subject" name="subject" placeholder="Enter subject">
+
+      <label for="message">Message</label>
+      <textarea id="message" name="message" placeholder="Write your message here..."></textarea>
+
+      <button type="submit" class="send-button">Send</button>
+  </form>
+</div>

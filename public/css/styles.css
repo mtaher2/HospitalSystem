@@ -1474,3 +1474,273 @@ table td {
   font-style: italic;
 }
 
+/* wadood added */
+.search-container_Doctor_Appointments {
+  padding: 20px;
+}
+
+.search-container_Doctor_Appointments h2 {
+  text-align: left; 
+  margin-bottom: 20px; 
+  color: #2b3aa2; 
+}
+
+.search-container_Doctor_Appointments h3 {
+  text-align: left; 
+  margin-bottom: 10px; 
+  color: #2b3aa2; 
+}
+
+.search-container_Doctor_Appointments .filter-form {
+  display: flex; 
+  flex-direction: row; 
+  gap: 15px; 
+}
+
+.search-container_Doctor_Appointments .filter-group {
+  display: flex;
+  flex-direction: row; 
+  align-items: flex-start; 
+  gap: 5px; 
+}
+
+.search-container_Doctor_Appointments .filter-input {
+  width: 100%;
+  padding: 8px; 
+  border: 1px solid #ccc;
+  border-radius: 4px; 
+}
+.btn-show, .btn-order {
+  background-color: #99C65E; 
+  color: white; 
+  border: none;
+  padding: 4px 8px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  transition: all 0.3s;
+  cursor: pointer;
+  border-radius: 12px;
+}
+
+.btn-show:hover, .btn-order:hover {
+  background-color: #779a4a;
+}
+
+.email-form-container {
+  width: 50%; 
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+}
+
+.email-form label {
+  display: block;
+  margin-top: 20px;
+  margin-bottom: 5px;
+  color: #333;
+  font-size: 16px;
+}
+
+.email-form input[type="text"],
+.email-form textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.email-form textarea {
+  height: 150px; 
+  resize: none; 
+}
+
+.send-button {
+  background-color: #99C65E; 
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  margin-top: 20px;
+  cursor: pointer; 
+  display: block;
+  width: 100%;
+}
+
+.send-button:hover {
+  background-color: #779a4a;
+}
+
+.container_Doctor_Notifications {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px;
+}
+
+.left-panel, .right-panel {
+  flex: 1;
+  margin: 10px;
+}
+
+.info-box {
+  border: 1px solid #8e8e8e;
+  margin-bottom: 20px;
+  padding: 10px;
+  border-radius: 5px;
+  background-color: #cdcdcd;
+}
+
+.info-box_header {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.info-box_body {
+  font-size: 14px;
+  color: #333333c6;
+}
+
+.emergency-header {
+  font-size: 20px;
+  font-weight: bold;
+  color: red;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.right-panel {
+  border: 1px solid #8e8e8e;
+  width: 30%; 
+  background-color: #e8e8e8;
+  padding: 20px;
+  border-radius: 5px;
+}
+
+.lab-order-form {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+.lab-order-form label {
+  margin-right: 10px;
+}
+
+.lab-order-form input[type="text"] {
+  flex-grow: 1;
+  margin-right: 10px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.order-button {
+  background-color: #99C65E;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.order-button:hover {
+  background-color: #779a4a; 
+}
+
+/* prescrecptions */
+.prescription-form {
+  padding: 20px;
+  border-radius: 5px;
+  margin-top: 20px;
+  max-width: 100%; 
+  margin-left: 0;
+  margin-right: 0;
+  box-sizing: border-box;
+}
+
+.prescription-form h2 {
+  color: #333;
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.form-row input[type="text"] {
+  flex-grow: 1;
+  flex-basis: 100px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.form-row .btn-cancel {
+  background-color: #ff6347;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  flex-grow: 0;
+}
+
+.form-row .btn-cancel:hover {
+  background-color: #e53e30;
+}
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 50px;
+  padding-top: 10px;
+}
+
+.form-actions button {
+  background-color: #99C65E;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  flex-grow: 0;
+}
+
+.form-actions button:hover {
+  background-color: #779a4a;
+}
+
+.btn-save, .btn-cancel {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: #99C65E;
+  color: white;
+  margin-top: 20px;
+}
+
+.btn-cancel {
+  background-color: #ff6347;
+}
+
+.btn-save:hover {
+  background-color: #779a4a;
+}
+
+.btn-cancel:hover {
+  background-color: #e53e30;
+}
