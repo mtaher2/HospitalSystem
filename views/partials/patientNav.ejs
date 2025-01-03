@@ -9,7 +9,7 @@
   <a href="/healthStatistics">Health statistics</a>
   <a href="/medication">Medication</a>
 
-  <% if (user.Role === 7) { %>
+  <% if (user && user.Role === 7) { %>
   <a href="/patient-Bills">Your Bills</a>
   <% } %>
 </nav>

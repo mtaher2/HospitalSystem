@@ -8,4 +8,3 @@ export function setGlobalPatientUserID(value) {
 export function setGlobalPatientNationalID(value) {
     globalPatientNationalId = value;
 }
-  

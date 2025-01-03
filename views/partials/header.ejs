@@ -35,8 +35,9 @@
             ></i></span
         ></a>
         <% } %>
+        
 
-        <% if ((headerTitle === 'Patient Profile' || headerTitle === 'Appointments' || headerTitle === 'Medical Records' || headerTitle === 'Medication' || headerTitle === 'Health statistics') && user.Role === 6) { %> <a href="/patient-profile-reception" class="logout-button">Back</a> <% } %>
+        <% if ((headerTitle === 'Patient Profile' || headerTitle === 'Appointments' || headerTitle === 'Medical Records' || headerTitle === 'Medication' || headerTitle === 'Health statistics') && user && user.Role === 6) { %> <a href="/patient-profile-reception" class="logout-button">Back</a> <% } %>
         <% if (typeof user !== 'undefined' && user) { %>
         <a href="/logout" class="logout-button">Logout</a>
         <% } %>

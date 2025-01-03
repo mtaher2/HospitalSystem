@@ -11,7 +11,6 @@ function handleRoleBasedRedirection(user, req, res) {
   const roleName = user.Role_Name.toLowerCase();
 
   if (roleRouteMapping[roleName]) {
-   
     req.session.user = user;
     return res.redirect(roleRouteMapping[roleName]);
   } else {
@@ -33,15 +32,13 @@ export async function login(req, res) {
       });
     }
 
-    
     if (user[0].Password === password) {
-     
-      req.session.user = user[0]; 
+      req.session.user = user[0];
       const createdAt = new Date(user[0].Created_At);
       const updatedAt = new Date(user[0].Updated_At);
-      
+
       if (createdAt.getTime() === updatedAt.getTime()) {
-        return res.redirect("/update-password"); 
+        return res.redirect("/update-password");
       }
       return handleRoleBasedRedirection(user[0], req, res);
     } else {
