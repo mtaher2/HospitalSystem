@@ -1,0 +1,53 @@
+<%- include('../partials/header', {title: 'prescriptions', stylesheetName: 'styles', headerTitle: 'prescriptions' }) %> --%>
+<%- include('../partials/DoctorNav') %>
+
+<div class="lab-order-form">
+  <label for="labCode">Lab Code</label>
+  <input type="text" id="labCode" name="labCode" placeholder="Enter lab code">
+  <button type="button" class="order-button">Order</button>
+</div>
+
+<div class="content-body">
+  <div class="table-wrapper">
+      <table>
+          <thead>
+              <tr>
+                  <th>Patient's name</th>
+                  <th>Lab Code</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Type</th>
+                  <th>Comment</th>
+              </tr>
+          </thead>
+          <tbody>
+              <!-- Example row -->
+              <tr>
+                  <td>John Doe</td>
+                  <td>LC001</td>
+                  <td>2023-01-01</td>
+                  <td>Pending</td>
+                  <td>Blood Test</td>
+                  <td>Urgent</td>
+              </tr>
+          </tbody>
+      </table>
+  </div>
+  <div class="prescription-form">
+      <h2>Add Prescriptions</h2>
+      <form>
+          <div class="form-row">
+              <input type="text" placeholder="Name">
+              <input type="text" placeholder="Code">
+              <input type="text" placeholder="Dosage">
+              <input type="text" placeholder="Frequency">
+              <input type="text" placeholder="Duration">
+              <button type="button" class="btn-cancel">Cancel</button>
+          </div>
+          <div class="form-actions">
+              <button type="button" class="btn-add">Add</button>
+              <button type="button" class="btn-add-row">Add Row</button>
+          </div>
+      </form>
+  </div>
+</div>
