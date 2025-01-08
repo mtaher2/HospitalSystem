@@ -1,0 +1,98 @@
+<%- include('../partials/header', { title: 'Order Management', stylesheetName: 'styles', headerTitle: 'Order Management' }) %>
+<%- include('../partials/PharmacyNav') %>
+
+<div class="medication-container">
+  <div class="search-container">
+    <form
+      id="filterForm"
+      method="GET"
+      action="/pharmacy-search"
+      class="filter-form"
+    >
+      <div class="filter-group">
+        <label for="filterName">Name</label>
+        <input
+          type="text"
+          id="filterName"
+          name="name"
+          class="filter-input"
+          placeholder="Enter name"
+          oninput="filterMedications()"
+        />
+      </div>
+    </form>
+  </div>
+
+  <div class="container_Doctor_Notifications">
+    <div class="content-body" style="width: 70% !important">
+      <div class="table-wrapper" style="width: 100% !important;">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Expiration Dates</th>
+              <th>Quantity</th>
+              <th>Price</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="medicationTableBody">
+            <% medications.forEach(medication => { %>
+              <tr>
+                <td><%= medication.Medication_Name %></td>
+                <td><%= new Date(medication.Expiration_Date).toISOString().split('T')[0] %></td>
+                <td><%= medication.Stock_Level %></td>
+                <td><%= medication.Amount %></td>
+                <td><%= medication.Status %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn-save">Save</button>
+        <button type="button" class="btn-cancel">Cancel</button>
+      </div>
+    </div>
+
+    <div class="right-panel">
+      <div class="emergency-header">Notifications</div>
+      <% notifications.forEach(notification => { %>
+        <div class="info-box">
+          <div class="info-box_header"><%= notification.Title %></div>
+          <div class="info-box_body"><%= notification.Content %></div>
+          <div class="info-box_footer">
+            Priority: <%= notification.Priority %> | Created By: <%= notification.Created_By_Name %> | Date: <%= notification.created_at %>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</div>
+
+<script>
+  async function filterMedications() {
+    const filterValue = document.getElementById('filterName').value;
+
+    try {
+      const response = await fetch(`/pharmacy/filter?name=${filterValue}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch filtered medications');
+      }
+      const medications = await response.json();
+
+      const tableBody = document.getElementById('medicationTableBody');
+      tableBody.innerHTML = medications.map(medication => `
+        <tr>
+          <td>${medication.Medication_Name}</td>
+          <td>${new Date(medication.Expiration_Date).toISOString().split('T')[0]}</td>
+          <td>${medication.Stock_Level}</td>
+          <td>${medication.Amount}</td>
+          <td>${medication.Status}</td>
+        </tr>
+      `).join('');
+    } catch (error) {
+      console.error('Error:', error.message);
+    }
+  }
+</script>

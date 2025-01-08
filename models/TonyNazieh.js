@@ -47,116 +47,6 @@ export async function getPatientRecords(patientID) {
     }
 }
 
-export async function getDoctorAppointments(doctorID) {
-    const query = `
-    SELECT 
-        a.Appointment_ID,
-        a.Appointment_Date,
-        a.Appointment_Time,
-        a.Status,
-        a.Room_ID,
-        a.Patient_ID,
-        u.FName AS Patient_First_Name,
-        u.LName AS Patient_Last_Name,
-        r.Floor_Number,
-        r.Description AS Room_Description
-    FROM 
-        Appointment a
-    JOIN 
-        User u ON a.Patient_ID = u.User_ID
-    JOIN 
-        Room r ON a.Room_ID = r.Room_ID
-    WHERE 
-        a.Doctor_ID = ? 
-        AND a.Appointment_Date >= NOW() -- Get only upcoming appointments
-    ORDER BY 
-        a.Appointment_Date ASC, a.Appointment_Time ASC;`;
-
-    try {
-        const [rows] = await db.execute(query, [doctorID]);
-
-        return rows.map((row) => ({
-            appointmentID: row.Appointment_ID,
-            appointmentDate: row.Appointment_Date.toISOString().split("T")[0], // Format YYYY-MM-DD
-            appointmentTime: row.Appointment_Time, // Format HH:MM:SS
-            status: row.Status,
-            roomID: row.Room_ID,
-            patientName: `${row.Patient_First_Name} ${row.Patient_Last_Name}`,
-            floorNumber: row.Floor_Number,
-            roomDescription: row.Room_Description,
-        }));
-    } catch (error) {
-        console.error("Error fetching doctor appointments:", error);
-        throw error;
-    }
-}
-export async function filterDoctorAppointments(doctorID, filters = {}) {
-    // بناء استعلام SQL مع التصفية بناءً على المعايير
-    let query = `
-    SELECT 
-        a.Appointment_ID,
-        a.Appointment_Date,
-        a.Appointment_Time,
-        a.Status,
-        a.Room_ID,
-        a.Patient_ID,
-        u.FName AS Patient_First_Name,
-        u.LName AS Patient_Last_Name,
-        r.Floor_Number,
-        r.Description AS Room_Description
-    FROM 
-        Appointment a
-    JOIN 
-        User u ON a.Patient_ID = u.User_ID
-    JOIN 
-        Room r ON a.Room_ID = r.Room_ID
-    WHERE 
-        a.Doctor_ID = ?`;
-
-    // إضافة معايير الفلترة (إذا كانت موجودة)
-    const queryParams = [doctorID];
-
-    if (filters.appointmentDate) {
-        query += ` AND a.Appointment_Date = ?`;
-        queryParams.push(filters.appointmentDate);
-    }
-
-    if (filters.status) {
-        query += ` AND a.Status = ?`;
-        queryParams.push(filters.status);
-    }
-
-    if (filters.roomID) {
-        query += ` AND a.Room_ID = ?`;
-        queryParams.push(filters.roomID);
-    }
-
-    if (filters.patientName) {
-        query += ` AND (u.FName LIKE ? OR u.LName LIKE ?)`;
-        queryParams.push(`%${filters.patientName}%`, `%${filters.patientName}%`);
-    }
-
-    // إضافة ترتيب النتيجة (حسب التاريخ والوقت)
-    query += ` ORDER BY a.Appointment_Date ASC, a.Appointment_Time ASC`;
-
-    try {
-        const [rows] = await db.execute(query, queryParams);
-
-        return rows.map((row) => ({
-            appointmentID: row.Appointment_ID,
-            appointmentDate: row.Appointment_Date.toISOString().split("T")[0], // Format YYYY-MM-DD
-            appointmentTime: row.Appointment_Time, // Format HH:MM:SS
-            status: row.Status,
-            roomID: row.Room_ID,
-            patientName: `${row.Patient_First_Name} ${row.Patient_Last_Name}`,
-            floorNumber: row.Floor_Number,
-            roomDescription: row.Room_Description,
-        }));
-    } catch (error) {
-        console.error("Error fetching doctor appointments with filters:", error);
-        throw error;
-    }
-}
 export async function getAllergiesForPatient(patientID) {
     // ...
         const query = `
@@ -263,7 +153,7 @@ export async function updateMedicationPlanForPatient(patientID, doctorID, newTre
     }
 }
 
-export async function orderLabForPatientt( labID) {
+export async function orderLabForPatientt(labID) {
     const checkLabQuery = `SELECT COUNT(*) AS count FROM Lab WHERE Lab_ID = ?`;
 
     try {
@@ -283,6 +173,7 @@ export async function orderLabForPatientt( labID) {
         throw error;
     }
 }
+
 export async function OrderRadiologyforPatient( radiologyID) {
     // Query to check if Radiology_ID exists
     const checkRadiologyQuery = `SELECT COUNT(*) AS count FROM Radiology WHERE Radiology_ID = ?`;

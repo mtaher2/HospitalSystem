@@ -3,10 +3,12 @@ import bodyParser from 'body-parser';
 import session from 'express-session';
 import path from 'path';
 import multer from 'multer';
-import authRoutes from './routes/authRoutes.js';  // Import your authentication routes
-import patientRoutes from './routes/patientRoutes.js';  // Import your patient routes
-import receptionistRoutes from './routes/receptionistRoutes.js';  // Import receptionist routes
-import { updateProfilePhoto } from './models/userModel.js';  // Assuming you have a model to update profile photo
+import authRoutes from './routes/authRoutes.js';  
+import patientRoutes from './routes/patientRoutes.js';  
+import receptionistRoutes from './routes/receptionistRoutes.js'; 
+import pharmacyRoutes from './routes/pharmacyRoutes.js';
+import { updateProfilePhoto } from './models/userModel.js';  
+import docRoutes from './routes/docRoutes.js';
 import * as up from './middlewares/upload.js';
 
 const app = express();
@@ -40,6 +42,8 @@ app.get('/', (req, res) => {
 app.use(authRoutes);  
 app.use(patientRoutes); 
 app.use(receptionistRoutes);
+app.use(docRoutes);
+app.use(pharmacyRoutes);
 
 app.use((req, res) => {
   res.status(404).render('404', { errorMessage: 'Page not found!' });

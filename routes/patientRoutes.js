@@ -8,16 +8,17 @@ import checkAuthenticated from "../middlewares/checkAuthenticated.js";
 import { upload } from "../utils/multerConfig.js";
 import { uploadProfilePhoto } from "../controllers/patientController.js";
 import * as doc from "../controllers/doctorController.js";
-import { getPatientPastMedications , getPatientCurrentMedications, getPatientHealthStatistics } from "../models/patientModel.js";
+import { getPatientPastMedications , getPatientCurrentMedications, getPatientHealthStatistics, getMedicalRecordHistory} from "../models/patientModel.js";
 import {
   bookAppointment,
   getAppointmentsByPatient,
   
 } from "../controllers/appointmentController.js";
 import { showPatientBills } from "../controllers/billingController.js";
-import { globalPatientUserID } from "../globalVariables.js";
+import { globalDoctorUserID, globalPatientUserID, setGlobalPatientUserID } from "../globalVariables.js";
 
 const router = express.Router();
+router.use(express.json());
 
 router.get(
   "/patient-profile",
@@ -38,16 +39,68 @@ router.post(
   uploadProfilePhoto
 );
 
-router.get("/medicalRecords", checkAuthenticated([7, 6]), (req, res) => {
-  const activeTab = req.query.tab || "Medical_history"; 
-  res.render("patient/medicalRecords", { activeTab });
+router.get("/medicalRecords", checkAuthenticated([7, 6, 2 , 4]), async (req, res) => {
+  const activeTab = req.query.tab || "Medical_history";
+  const sessionUser = req.session.user;
+  let patientId;
+
+  if (sessionUser?.Role === 6) {
+    // Role 6: Use globalPatientUserID if available
+    if (!globalPatientUserID) {
+      return res.render("patient/medicalRecords", {
+        activeTab,
+        medicalHistory: [],
+        errorMessage: "No patient selected. Please select a patient first.",
+      });
+    }
+    patientId = globalPatientUserID;
+  } else if (sessionUser?.Role === 2 || sessionUser?.Role === 4) {
+    if (!globalPatientUserID) {
+      return res.render("patient/medicalRecords", {
+        activeTab,
+        medicalHistory: [],
+        errorMessage: "No patient selected. Please provide a valid patient ID.",
+      });
+    }
+    patientId = globalPatientUserID;
+  } else {
+    patientId = sessionUser.User_ID;
+  }
+
+  let medicalHistory = [];
+  if (activeTab === "Medical_history") {
+    try {
+      medicalHistory = await getMedicalRecordHistory(patientId);
+    } catch (error) {
+      console.error("Error retrieving medical history:", error);
+    }
+  }
+
+  res.render("patient/medicalRecords", { activeTab, medicalHistory });
 });
 
-router.get("/healthStatistics", async (req, res) => {
+
+router.post("/setGlobalPatientID", (req, res) => {
+  try {
+    const { patientID } = req.body;
+    console.log("patientID from global", req.body);
+    if (!patientID) {
+      return res.status(400).json({ error: "Patient ID is required." });
+    }
+
+    setGlobalPatientUserID(patientID);
+    res.status(200).json({ message: "Global patient ID set successfully." });
+  } catch (error) {
+    console.error("Error setting global patient ID:", error);
+    res.status(500).json({ error: "Internal server error." });
+  }
+});
+
+router.get("/healthStatistics",checkAuthenticated([2,7, 6, 4]) ,async (req, res) => {
   try {
     let patientId;
-
     const sessionUser = req.session.user;
+
     if (!sessionUser) {
       return res.status(400).render("error", {
         title: "Error",
@@ -65,6 +118,9 @@ router.get("/healthStatistics", async (req, res) => {
         });
       }
       patientId = globalPatientUserID;
+    } else if (sessionUser.Role === 2 || sessionUser.Role === 4) {
+      patientId = globalPatientUserID;
+      console.log("patientId", patientId);
     } else {
       patientId = sessionUser.User_ID;
     }
@@ -99,26 +155,44 @@ router.get("/healthStatistics", async (req, res) => {
 router.get("/load-more-data", async (req, res) => {
   try {
     const { type } = req.query;
-    const patientId = req.session.user?.User_ID;
+    const sessionUser = req.session.user;
+
+    if (!sessionUser) {
+      return res.status(400).json({ message: "You are not logged in. Please log in again." });
+    }
+
+    let patientId;
+
+    if (sessionUser.Role === 6) {
+      if (!globalPatientUserID) {
+        return res.status(400).json({ message: "Please search for a patient first." });
+      }
+      patientId = globalPatientUserID;
+    } else if (sessionUser.Role === 2) {
+      patientId = globalPatientUserID;
+    } else {
+      patientId = sessionUser.User_ID;
+    }
 
     const healthData = await getPatientHealthStatistics(patientId);
     let newData = [];
 
     if (type === "vaccinationHistory") {
-      newData = healthData.vaccinationHistory.slice(6); 
+      newData = healthData.vaccinationHistory.slice(6);
     } else if (type === "chronicDiseases") {
       console.log("loadMore", healthData.chronicDiseases);
-      newData = Object.keys(healthData.chronicDiseases).slice(6); 
+      newData = Object.keys(healthData.chronicDiseases).slice(6);
     } else if (type === "allergies") {
-      newData = healthData.allergies.slice(6); 
+      newData = healthData.allergies.slice(6);
     }
 
-    res.json(newData.length > 0 ? newData : []); 
+    res.json(newData.length > 0 ? newData : []);
   } catch (error) {
     console.error("Error loading more data:", error);
     res.status(500).json({ message: "Error loading more data", error: error.message });
   }
 });
+
 
 router.get('/patient-Bills', checkAuthenticated([7, 6]), async (req, res, next) => {
   try {
@@ -150,7 +224,7 @@ router.get("/specialties", doc.fetchSpecialties);
 router.get("/availability/days", doc.fetchAvailableDays);
 router.get("/availability/times", doc.fetchAvailableTimes);
 router.get("/doctors/availability", doc.fetchDoctorsByTime);
-router.get("/doctor-:doctorID", doc.viewDoctorProfile);
+router.get("/doctor-profile-:doctorID", doc.viewDoctorProfile);
 router.post("/book-appointment", bookAppointment);
 router.get('/appointments', async (req, res, next) => {
   if(!req.session.user) {
@@ -186,7 +260,7 @@ router.post('/appointments/:id/cancel', async (req, res) => {
 });
 router.get(
   '/medication',
-  checkAuthenticated([7, 6]),
+  checkAuthenticated([2, 7, 6,4]),
   async (req, res, next) => {
     try {
       const { tab } = req.query;
@@ -201,10 +275,11 @@ router.get(
     try {
       const activeTab = req.activeTab;
       const user = req.session.user;
-      let patientId = user?.User_ID;
-
+      let patientId;
+      console.log("user", user);
       if (user?.Role === 6) {
-        if (!globalPatientUserID || !globalPatientNationalId) {
+        // Logic for Role 6
+        if (!globalPatientUserID) {
           return res.render('patient/medication', {
             activeTab: activeTab,
             currentMedications: [],
@@ -212,7 +287,21 @@ router.get(
             errorMessage: 'No patient selected. Please select a patient first.',
           });
         }
+        patientId = globalPatientUserID; // Use globalPatientUserID if available for Role 6
+      } else if (user?.Role === 2 || user?.Role === 4) {
+        // Logic for Role 2
         patientId = globalPatientUserID; 
+        console.log("patientId", patientId);
+        if (!patientId) {
+          return res.render('patient/medication', {
+            activeTab: activeTab,
+            currentMedications: [],
+            pastMedications: [],
+            errorMessage: 'No patient selected. Please provide a valid patient ID.',
+          });
+        }
+      } else {
+        patientId = user?.User_ID; // Default for other roles (e.g., Role 7)
       }
 
       if (!patientId) {
@@ -223,14 +312,16 @@ router.get(
           errorMessage: 'User not authenticated.',
         });
       }
+
       const currentMedications = await getPatientCurrentMedications(patientId);
       const pastMedications = await getPatientPastMedications(patientId);
-
+      console.log("currentMedications", currentMedications);
+      console.log("pastMedications", pastMedications);
       res.render('patient/medication', {
         activeTab: activeTab,
         currentMedications: currentMedications || [],
         pastMedications: pastMedications || [],
-        errorMessage: '',  
+        errorMessage: '',
       });
     } catch (error) {
       console.error("Error in medication route:", error);

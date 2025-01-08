@@ -1,0 +1,101 @@
+<%- include('../partials/header', { title: 'Prescription Management', stylesheetName: 'styles', headerTitle: 'Prescription Management' }) %>
+
+<div class="medication-container">
+  <div class="search-container" style="background-color: white; border: none;">
+    <input type="text" id="searchInput" class="search-bar" placeholder="Search By Patient’s Name" />
+  </div>
+
+  <div class="content-body">
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Patient’s Name</th>
+            <th>Date</th>
+            <th>Prescriptions</th>
+            <th>PH</th>
+          </tr>
+        </thead>
+        <tbody id="prescriptionTableBody">
+          <% prescriptions.forEach(prescription => { %>
+            <tr class="prescription-row">
+              <td><%= prescription.FName %> <%= prescription.LName %></td>
+              <td><%= new Date(prescription.Date_Prescribed).toISOString().split('T')[0] %></td>
+              <td>
+                <a
+                  href="/prescription-pharmacy"
+                  class="btn-order doc-btn"
+                  data-patient-id="<%= prescription.Patient_ID %>"
+                  data-prescriptions='<%= JSON.stringify(prescription.Prescriptions) %>'>
+                  Open
+                </a>
+              </td>
+              <td>
+                <a
+                  href="/healthStatistics"
+                  class="btn-show doc-btn"
+                  data-patient-id="<%= prescription.Patient_ID %>">
+                  Open
+                </a>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const searchInput = document.getElementById("searchInput");
+    searchInput.addEventListener("input", debounceFilter);
+
+    function debounceFilter() {
+      const filterText = searchInput.value.toLowerCase();
+      const rows = document.querySelectorAll(".prescription-row");
+
+      rows.forEach(row => {
+        const nameCell = row.querySelector("td:first-child");
+        const name = nameCell.textContent.toLowerCase();
+        if (name.includes(filterText)) {
+          row.style.display = "";
+        } else {
+          row.style.display = "none";
+        }
+      });
+    }
+
+    document.body.addEventListener("click", (event) => {
+      const target = event.target;
+
+      if (target.classList.contains("btn-show")) {
+        event.preventDefault(); 
+        const patientID = target.getAttribute("data-patient-id");
+
+        fetch(`/setGlobalPatientID`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ patientID }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.message === "Global patient ID set successfully.") {
+              window.location.href = "/healthStatistics";
+            }
+          })
+          .catch((error) => console.error("Error setting patient ID:", error));
+      }
+
+      if (target.classList.contains("btn-order")) {
+        event.preventDefault(); 
+        const patientID = target.getAttribute("data-patient-id");
+        const prescriptions = JSON.parse(target.getAttribute("data-prescriptions"));
+        sessionStorage.setItem("prescriptionsData", JSON.stringify(prescriptions)); // Save to sessionStorage
+        window.location.href = "/prescription-pharmacy"; // Redirect to the prescription pharmacy page
+      }
+    });
+  });
+</script>

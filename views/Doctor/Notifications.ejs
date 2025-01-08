@@ -1,42 +1,53 @@
-<%- include('../partials/header', {title: 'Appointments', stylesheetName: 'styles', headerTitle: 'Appointments' }) %> --%>
+<%- include('../partials/header', {title: 'Appointments', stylesheetName: 'styles', headerTitle: 'Appointments' }) %>
 <%- include('../partials/DoctorNav') %>
 
-<div class="container_Doctor_Notifications">
-  <div class="left-panel">
-      <div class="info-box">
-          <div class="info-box_header">Header</div>
-          <div class="info-box_body">Body</div>
-      </div>
-      <div class="info-box">
-          <div class="info-box_header">Header</div>
-          <div class="info-box_body">Body</div>
-      </div>
-      <div class="info-box">
-          <div class="info-box_header">Header</div>
-          <div class="info-box_body">Body</div>
-      </div>
-      <div class="info-box">
-          <div class="info-box_header">Header</div>
-          <div class="info-box_body">Body</div>
-      </div>
-      <div class="info-box">
-          <div class="info-box_header">Header</div>
-          <div class="info-box_body">Body</div>
-      </div>
-  </div>
-  <div class="right-panel">
+<div class="medication-container">
+  <div class="container_Doctor_Notifications">
+    <!-- Left Panel -->
+    <div class="left-panel">
+      <% 
+        const nonHighPriority = announcements.filter(announcement => announcement.Priority !== 'High');
+      %>
+      <% if (nonHighPriority.length === 0) { %>
+        <div class="empty-message">
+            <i class="fas fa-inbox"></i> Your inbox is empty.
+        </div>
+      <% } else { %>
+        <% nonHighPriority.forEach(announcement => { %>
+          <div class="info-box">
+            <div class="info-box_header">
+              <%= announcement.Created_By_Name %>: <%= announcement.Title %>
+            </div>
+            <div class="info-box_body">
+              <%= announcement.Content %>
+            </div>
+          </div>
+        <% }); %>
+      <% } %>
+    </div>
+
+    <!-- Right Panel -->
+    <div class="right-panel">
       <div class="emergency-header">Emergency cases</div>
-      <div class="info-box">
-          <div class="info-box_header">Header</div>
-          <div class="info-box_body">Body</div>
-      </div>
-      <div class="info-box">
-          <div class="info-box_header">Header</div>
-          <div class="info-box_body">Body</div>
-      </div>
-      <div class="info-box">
-          <div class="info-box_header">Header</div>
-          <div class="info-box_body">Body</div>
-      </div>
+      <% 
+        const highPriority = announcements.filter(announcement => announcement.Priority === 'High');
+      %>
+      <% if (highPriority.length === 0) { %>
+        <div class="empty-message">
+            <i class="fas fa-inbox"></i> Your inbox is empty.
+        </div>
+      <% } else { %>
+        <% highPriority.forEach(announcement => { %>
+          <div class="info-box">
+            <div class="info-box_header">
+              <%= announcement.Created_By_Name %>: <%= announcement.Title %>
+            </div>
+            <div class="info-box_body">
+              <%= announcement.Content %>
+            </div>
+          </div>
+        <% }); %>
+      <% } %>
+    </div>
   </div>
 </div>

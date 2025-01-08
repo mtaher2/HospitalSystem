@@ -28,38 +28,39 @@
 
   <div class="content-body">
     <% if (activeTab === 'Medical_history') { %>
-    <div class="table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th>date</th>
-            <th>doctor</th>
-            <th>diagnoses</th>
-            <th>prescriptions</th>
-            <th>procedures</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>22/9/18</td>
-            <td>doctorname</td>
-            <td>name of the deases</td>
-            <td>medication name</td>
-            <td>lab or radiology requested</td>
-          </tr>
-          <tr>
-            <td>22/9/18</td>
-            <td>doctorname</td>
-            <td>name of the deases</td>
-            <td>medication name</td>
-            <td>lab or radiology requested</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>date</th>
+              <th>doctor</th>
+              <th>diagnoses</th>
+              <th>prescriptions</th>
+              <th>procedures</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (medicalHistory.length > 0) { %>
+              <% medicalHistory.forEach(record => { %>
+                <tr>
+                  <td><%= new Date(record.date).toISOString().split('T')[0] %></td>
+                  <td><%= record.doctor %></td>
+                  <td><%= record.diagnoses %></td>
+                  <td><%= record.prescriptions %></td>
+                  <td><%= record.procedures %></td>
+                </tr>
+              <% }) %>
+            <% } else { %>
+              <tr>
+                <td colspan="5">No medical history found.</td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
     <% } else if (activeTab === 'lab_reports') { %>
     <div class="table-wrapper">
-      <table>
+      <!-- <table>
         <thead>
           <tr>
             <th>date</th>
@@ -75,25 +76,20 @@
             <td>Lab type</td>
             <td>file download</td>
           </tr>
-          <tr>
-            <td>22/9/18</td>
-            <td>doctor name</td>
-            <td>Lab type</td>
-            <td>file download</td>
-          </tr>
-          <tr>
-            <td>22/9/18</td>
-            <td>doctor name</td>
-            <td>Lab type</td>
-            <td>file download</td>
-          </tr>
         </tbody>
+      </table> -->
+      <table>
+        <thead>
+          <tr>
+            <th colspan="4">No current Labs found.</th>
+          </tr>
+        </thead>
       </table>
     </div>
     <% } else if (activeTab === 'radiology_reports') { %>
     <div class="table-wrapper">
         <table>
-            <thead>
+            <!-- <thead>
               <tr>
                 <th>date</th>
                 <th>doctor</th>
@@ -108,19 +104,13 @@
                 <td>scan type</td>
                 <td>file download</td>
               </tr>
+            </tbody> -->
+            <thead>
               <tr>
-                <td>22/9/18</td>
-                <td>doctor name</td>
-                <td>scan type</td>
-                <td>file download</td>
+                <th colspan="4">No current Radiology found.</th>
               </tr>
-              <tr>
-                <td>22/9/18</td>
-                <td>doctor name</td>
-                <td>scan type</td>
-                <td>file download</td>
-              </tr>
-            </tbody>
+            </thead>
+
           </table>
     </div>
     <% } %>

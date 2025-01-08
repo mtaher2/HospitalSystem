@@ -1,7 +1,8 @@
 import nodemailer from "nodemailer";
 import dotenv from 'dotenv';
+dotenv.config();
 
-async function sendEmail(to, userName, password) {
+export async function sendEmail(to, userName, password) {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -37,4 +38,32 @@ GU Hospital Team
   }
 }
 
-export default sendEmail;
+export async function sendAnnouncementEmail(recipientEmail, userName, title, body) {
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.email_send,
+      pass: process.env.Pass_key,
+    },
+  });
+
+  const mailOptions = {
+    from: process.env.email_send,
+    to: recipientEmail,
+    subject: `New Announcement: ${title}`,
+    text: `
+Dear ${userName},
+
+${body}
+        `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log("Announcement email sent successfully!");
+  } catch (error) {
+    console.error("Error sending announcement email:", error);
+    throw new Error("Failed to send email.");
+  }
+}
+

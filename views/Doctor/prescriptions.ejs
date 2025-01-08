@@ -1,53 +1,476 @@
-<%- include('../partials/header', {title: 'prescriptions', stylesheetName: 'styles', headerTitle: 'prescriptions' }) %> --%>
+<%- include('../partials/header', { title: 'Prescriptions', stylesheetName: 'styles', headerTitle: 'Prescriptions' }) %>
 <%- include('../partials/DoctorNav') %>
 
-<div class="lab-order-form">
-  <label for="labCode">Lab Code</label>
-  <input type="text" id="labCode" name="labCode" placeholder="Enter lab code">
-  <button type="button" class="order-button">Order</button>
-</div>
+<div class="medication-container">
+  <div class="lab-order-form">
+    <div class="lab-order-item">
+      <label for="labCode1">Lab Code&nbsp;</label>
+      <div class="input-wrapper">
+        <input
+          type="text"
+          id="labCode1"
+          name="labCode"
+          placeholder="Enter lab code"
+        />
+        <div id="labSuggestions" class="suggestion-box"></div>
+      </div>
+      <button type="button" class="order-button lab-order">Order</button>
+    </div>
 
-<div class="content-body">
-  <div class="table-wrapper">
-      <table>
+    <div class="lab-order-item">
+      <label for="labCode2">Radiology</label>
+      <div class="input-wrapper">
+        <input
+          type="text"
+          id="labCode2"
+          name="labCode"
+          placeholder="Enter Radiology code"
+        />
+        <div id="radiologySuggestions" class="suggestion-box"></div>
+      </div>
+      <button type="button" class="order-button radiology-order">Order</button>
+    </div>
+  </div>
+
+  <div class="content-body Prescription-body">
+    <div class="table-wrapper"> 
+      <% if (labOrders.length === 0 && radiologyOrders.length === 0) { %>
+        <p class="no-orders-message">There are no lab or radiology orders for this patient and doctor.</p>
+      <% } else { %>
+        <table>
           <thead>
-              <tr>
-                  <th>Patient's name</th>
-                  <th>Lab Code</th>
-                  <th>Date</th>
-                  <th>Status</th>
-                  <th>Type</th>
-                  <th>Comment</th>
-              </tr>
+            <tr>
+              <th>Patient's name</th>
+              <th>Code</th>
+              <th>Status</th>
+              <th>Type</th>
+            </tr>
           </thead>
           <tbody>
-              <!-- Example row -->
+            <% labOrders.forEach(order => { %>
               <tr>
-                  <td>John Doe</td>
-                  <td>LC001</td>
-                  <td>2023-01-01</td>
-                  <td>Pending</td>
-                  <td>Blood Test</td>
-                  <td>Urgent</td>
+                <td><%= patientName %></td>
+                <td><%= order.LabCode %></td>
+                <td><%= order.Status %></td>
+                <td><%= order.Type %></td>
               </tr>
+            <% }); %>
+            <% radiologyOrders.forEach(order => { %>
+              <tr>
+                <td><%= patientName %></td>
+                <td><%= order.LabCode %></td>
+                <td><%= order.Status %></td>
+                <td><%= order.Type %></td>
+              </tr>
+            <% }); %>
           </tbody>
-      </table>
-  </div>
+        </table>
+      <% } %>
+    </div>
+    </div>
+  <br>
   <div class="prescription-form">
-      <h2>Add Prescriptions</h2>
-      <form>
-          <div class="form-row">
-              <input type="text" placeholder="Name">
-              <input type="text" placeholder="Code">
-              <input type="text" placeholder="Dosage">
-              <input type="text" placeholder="Frequency">
-              <input type="text" placeholder="Duration">
-              <button type="button" class="btn-cancel">Cancel</button>
+    <h2>Add Prescriptions</h2>
+    <form id="prescriptionForm">
+      <div id="form-rows">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" class="name" placeholder="Enter Name" required autocomplete="off" />
+            <div class="suggestions"></div>
           </div>
-          <div class="form-actions">
-              <button type="button" class="btn-add">Add</button>
-              <button type="button" class="btn-add-row">Add Row</button>
+          <div class="form-group">
+            <label for="dosage">Dosage</label>
+            <input type="text" class="dosage" placeholder="Enter Dosage" required />
           </div>
-      </form>
+          <div class="form-group">
+            <label for="frequency">Frequency</label>
+            <input type="text" class="frequency" placeholder="Enter Frequency" required />
+          </div>
+          <div class="form-group">
+            <label for="start-date">Start Date</label>
+            <input type="date" class="start-date" required />
+          </div>
+          <div class="form-group">
+            <label for="end-date">End Date</label>
+            <input type="date" class="end-date" required />
+          </div>
+          <div class="form-group">
+            <label for="refill-times">Refill Times</label>
+            <input type="number" class="refill-times" placeholder="Enter Refill Times" />
+          </div>
+          <button type="button" class="btn-delete-row">X</button>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn-add-row">Add Row</button>
+        <button type="submit" class="btn-save">Save</button>
+      </div>
+    </form>
   </div>
+  
 </div>
+
+
+<script>
+document.getElementById("labCode1").addEventListener("input", function () {
+  fetchSuggestions("lab", this.value, "labSuggestions");
+});
+
+document.getElementById("labCode2").addEventListener("input", function () {
+  fetchSuggestions("radiology", this.value, "radiologySuggestions");
+});
+
+function fetchSuggestions(type, query, targetId) {
+  if (query.length < 1) {
+    document.getElementById(targetId).classList.remove("active");
+    return;
+  }
+
+  fetch(`/filter-lab-and-radiology?type=${type}&query=${query}`)
+    .then((response) => response.json())
+    .then((data) => {
+      const suggestionsBox = document.getElementById(targetId);
+      suggestionsBox.innerHTML = "";
+
+      if (data.length > 0) {
+        data.forEach((item) => {
+          const div = document.createElement("div");
+          div.classList.add("suggestion-item");
+          div.textContent = `${item.name} (${item.description})`;
+          div.addEventListener("click", () => {
+            if (type === "lab") {
+              document.getElementById("labCode1").value = item.name;
+            } else {
+              document.getElementById("labCode2").value = item.name;
+            }
+            suggestionsBox.innerHTML = "";
+            suggestionsBox.classList.remove("active");
+          });
+          suggestionsBox.appendChild(div);
+        });
+        suggestionsBox.classList.add("active");
+      } else {
+        const div = document.createElement("div");
+        div.classList.add("suggestion-item");
+        div.textContent = "Not Found";
+        suggestionsBox.appendChild(div);
+        suggestionsBox.classList.add("active");
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+      document.getElementById(targetId).classList.remove("active");
+    });
+}
+
+document.querySelectorAll('.lab-order').forEach(button => {
+  button.addEventListener('click', async (event) => {
+    const labCodeInput = event.target.closest('.lab-order-item').querySelector('input');
+    const labName = labCodeInput.value;
+
+    if (!labName) {
+      alert("Please enter a valid lab code");
+      return;
+    }
+
+    try {
+      // Show circular progress indicator
+      const refreshCircle = showRefreshCircle();
+
+      const response = await fetch('/order-lab', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ labName })
+      });
+
+      if (response.ok) {
+        // Clear the input field after successful order
+        labCodeInput.value = '';
+
+        // Fetch updated orders and refresh the table
+        await fetchOrders();
+
+        // Hide circular progress indicator after success
+        hideRefreshCircle(refreshCircle);
+      } else {
+        const result = await response.json();
+        alert(result.message || "Error placing the lab order");
+
+        // Hide circular progress indicator after failure
+        hideRefreshCircle(refreshCircle);
+      }
+    } catch (error) {
+      console.error(error);
+      alert('An error occurred while placing the order');
+
+      // Hide circular progress indicator after failure
+      hideRefreshCircle(refreshCircle);
+    }
+  });
+});
+
+document.querySelectorAll('.radiology-order').forEach(button => {
+  button.addEventListener('click', async (event) => {
+    const radiologyCodeInput = event.target.closest('.lab-order-item').querySelector('input');
+    const scanName = radiologyCodeInput.value;
+
+    if (!scanName) {
+      alert("Please enter a valid radiology code");
+      return;
+    }
+
+    try {
+      // Show circular progress indicator
+      const refreshCircle = showRefreshCircle();
+
+      const response = await fetch('/order-radiology', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ scanName })
+      });
+
+      if (response.ok) {
+        // Clear the input field after successful order
+        radiologyCodeInput.value = '';
+
+        // Fetch updated orders and refresh the table
+        await fetchOrders();
+
+        // Hide circular progress indicator after success
+        hideRefreshCircle(refreshCircle);
+      } else {
+        const result = await response.json();
+        alert(result.message || "Error placing the radiology order");
+
+        // Hide circular progress indicator after failure
+        hideRefreshCircle(refreshCircle);
+      }
+    } catch (error) {
+      console.error(error);
+      alert('An error occurred while placing the order');
+
+      // Hide circular progress indicator after failure
+      hideRefreshCircle(refreshCircle);
+    }
+  });
+});
+
+async function fetchOrders() {
+  const tbody = document.querySelector('tbody');
+
+  // Clear the existing table rows before updating
+  tbody.innerHTML = '';
+
+  try {
+    const response = await fetch(`/fetch-orders`);
+    const { labOrders, radiologyOrders, patientName } = await response.json();
+
+    // Handle empty orders
+    if (labOrders.length === 0 && radiologyOrders.length === 0) {
+      const noOrdersMessage = document.createElement('p');
+      noOrdersMessage.textContent = `${patientName} has no lab or radiology orders.`;
+      noOrdersMessage.className = 'no-orders-message';
+      tbody.parentElement.replaceWith(noOrdersMessage);
+    } else {
+      // Populate Lab Orders
+      labOrders.forEach(order => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${patientName}</td>
+            <td>${order.LabCode}</td>
+            <td>${order.Status}</td>
+            <td>${order.Type}</td>
+          </tr>`;
+      });
+
+      // Populate Radiology Orders
+      radiologyOrders.forEach(order => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${patientName}</td>
+            <td>${order.LabCode}</td>
+            <td>${order.Status}</td>
+            <td>${order.Type}</td>
+          </tr>`;
+      });
+    }
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+  }
+}
+
+function showRefreshCircle() {
+  const refreshCircle = document.createElement('div');
+  refreshCircle.classList.add('refresh-circle');
+  document.body.appendChild(refreshCircle);
+  return refreshCircle;
+}
+
+function hideRefreshCircle(refreshCircle) {
+  refreshCircle.remove();
+}
+
+$(document).ready(function () {
+  // Add new row
+  $(".btn-add-row").click(function () {
+    const newRow = `
+      <div class="form-row">
+        <div class="form-group">
+          <label for="name">Name</label>
+          <input type="text" class="name" placeholder="Enter Name" required autocomplete="off" />
+          <div class="suggestions"></div>
+        </div>
+        <div class="form-group">
+          <label for="dosage">Dosage</label>
+          <input type="text" class="dosage" placeholder="Enter Dosage" required />
+        </div>
+        <div class="form-group">
+          <label for="frequency">Frequency</label>
+          <input type="text" class="frequency" placeholder="Enter Frequency" required />
+        </div>
+        <div class="form-group">
+          <label for="start-date">Start Date</label>
+          <input type="date" class="start-date" required />
+        </div>
+        <div class="form-group">
+          <label for="end-date">End Date</label>
+          <input type="date" class="end-date" required />
+        </div>
+        <div class="form-group">
+          <label for="refill-times">Refill Times</label>
+          <input type="number" class="refill-times" placeholder="Enter Refill Times" />
+        </div>
+        <button type="button" class="btn-delete-row">X</button>
+      </div>
+    `;
+    $("#form-rows").append(newRow);
+  });
+
+  // Delete row
+  $(document).on("click", ".btn-delete-row", function () {
+    $(this).closest(".form-row").remove();
+  });
+
+  // Dynamic suggestions
+  $(document).on("input", ".name", function () {
+    const input = $(this);
+    const query = input.val();
+    if (query.length > 0) {
+      $.ajax({
+        url: "/medication-suggestions",
+        method: "GET",
+        data: { query },
+        success: function (data) {
+          const suggestions = input.siblings(".suggestions");
+          suggestions.empty();
+          data.forEach((item) => {
+            suggestions.append(`<div class="suggestion-item">${item.Medication_Name}</div>`);
+          });
+        },
+      });
+    } else {
+      input.siblings(".suggestions").empty();
+    }
+  });
+
+  // Select suggestion
+  $(document).on("click", ".suggestion-item", function () {
+    const selected = $(this).text();
+    $(this).closest(".form-group").find(".name").val(selected);
+    $(this).parent(".suggestions").empty();
+  });
+
+  // Submit form
+  $("#prescriptionForm").submit(async function (e) {
+    e.preventDefault();
+    const prescriptions = [];
+    let valid = true;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Clear time part for comparison
+
+    $(".form-row").each(function () {
+      const name = $(this).find(".name").val();
+      const dosage = $(this).find(".dosage").val();
+      const frequency = $(this).find(".frequency").val();
+      const startDate = new Date($(this).find(".start-date").val());
+      const endDate = new Date($(this).find(".end-date").val());
+      const refillTimes = $(this).find(".refill-times").val();
+
+      // Check if all required fields are filled
+      if (!name || !dosage || !frequency || isNaN(startDate) || isNaN(endDate)) {
+        valid = false;
+        alert("Please fill in all required fields.");
+        return false; // Break out of the loop
+      }
+
+      // Check if start date is today or later
+      if (startDate < today) {
+        valid = false;
+        alert("Start Date must be today or a future date.");
+        return false; // Break out of the loop
+      }
+
+      // Check if end date is after start date
+      if (endDate <= startDate) {
+        valid = false;
+        alert("End Date must be after Start Date.");
+        return false; // Break out of the loop
+      }
+
+      prescriptions.push({ name, dosage, frequency, startDate, endDate, refillTimes });
+    });
+
+    if (!valid) return;
+
+    const response = await fetch("/prescriptions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prescriptions }),
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      alert("Prescriptions added successfully!");
+      // Reset the form
+      $("#prescriptionForm")[0].reset();
+      $("#form-rows").html(`
+        <div class="form-row">
+          <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" class="name" placeholder="Enter Name" required autocomplete="off" />
+            <div class="suggestions"></div>
+          </div>
+          <div class="form-group">
+            <label for="dosage">Dosage</label>
+            <input type="text" class="dosage" placeholder="Enter Dosage" required />
+          </div>
+          <div class="form-group">
+            <label for="frequency">Frequency</label>
+            <input type="text" class="frequency" placeholder="Enter Frequency" required />
+          </div>
+          <div class="form-group">
+            <label for="start-date">Start Date</label>
+            <input type="date" class="start-date" required />
+          </div>
+          <div class="form-group">
+            <label for="end-date">End Date</label>
+            <input type="date" class="end-date" required />
+          </div>
+          <div class="form-group">
+            <label for="refill-times">Refill Times</label>
+            <input type="number" class="refill-times" placeholder="Enter Refill Times" />
+          </div>
+          <button type="button" class="btn-delete-row">X</button>
+        </div>
+      `);
+    } else {
+      alert(result.message || "Error saving prescriptions.");
+    }
+  });
+});
+
+</script>
+<script src="js/main.js"></script>

@@ -115,7 +115,7 @@ export async function getDoctorsByTime(specialty, day, time) {
 }
 
 export async function getDoctorsBySpecialty(specialty) {
-  const [rows] = await pool.execute(
+  const [rows] = await db.execute(
     'SELECT * FROM Doctors WHERE Specialty = ?',
     [specialty]
   );
@@ -166,3 +166,245 @@ export async function getTimeBookedBefore() {
   }
 }
 
+export async function getDoctorAppointments(doctorID) {
+  const query = `
+  SELECT 
+      a.Appointment_ID,
+      a.Appointment_Date,
+      a.Appointment_Time,
+      a.Status,
+      a.Room_ID,
+      a.Patient_ID,
+      u.FName AS Patient_First_Name,
+      u.LName AS Patient_Last_Name,
+      r.Floor_Number,
+      r.Description AS Room_Description
+  FROM 
+      Appointment a
+  JOIN 
+      User u ON a.Patient_ID = u.User_ID
+  JOIN 
+      Room r ON a.Room_ID = r.Room_ID
+  WHERE 
+      a.Doctor_ID = ? 
+      AND a.Appointment_Date >= NOW() 
+  ORDER BY 
+      a.Appointment_Date ASC, a.Appointment_Time ASC;`;
+
+  try {
+      const [rows] = await db.execute(query, [doctorID]);
+
+      return rows.map((row) => ({
+          appointmentID: row.Appointment_ID,
+          appointmentDate: row.Appointment_Date.toISOString().split("T")[0], 
+          appointmentTime: row.Appointment_Time, 
+          status: row.Status,
+          roomID: row.Room_ID,
+          patientName: `${row.Patient_First_Name} ${row.Patient_Last_Name}`,
+          floorNumber: row.Floor_Number,
+          roomDescription: row.Room_Description,
+      }));
+  } catch (error) {
+      console.error("Error fetching doctor appointments:", error);
+      throw error;
+  }
+}
+
+export async function filterDoctorAppointments(doctorID, filters = {}) {
+  let query = `
+    SELECT 
+        a.Appointment_ID,
+        a.Appointment_Date,
+        a.Appointment_Time,
+        a.Status,
+        a.Room_ID,
+        a.Patient_ID,
+        u.FName AS Patient_First_Name,
+        u.LName AS Patient_Last_Name,
+        r.Floor_Number,
+        r.Description AS Room_Description
+    FROM 
+        Appointment a
+    JOIN 
+        User u ON a.Patient_ID = u.User_ID
+    JOIN 
+        Room r ON a.Room_ID = r.Room_ID
+    WHERE 
+        a.Doctor_ID = ? 
+        AND a.Appointment_Date >= NOW()
+        AND a.Status = 'Scheduled'`;
+
+  const queryParams = [doctorID];
+
+  console.log("Filter Parameters: Doctor ID =", doctorID, "Filters:", filters);
+
+  if (filters.appointmentDate) {
+    query += ` AND a.Appointment_Date = ?`;
+    queryParams.push(filters.appointmentDate);
+  }
+
+  if (filters.patientName) {
+    query += ` AND (u.FName LIKE ? OR u.LName LIKE ?)`;
+    queryParams.push(`%${filters.patientName}%`, `%${filters.patientName}%`);
+  }
+
+  query += ` ORDER BY a.Appointment_Date ASC, a.Appointment_Time ASC`;
+
+  try {
+    const [rows] = await db.execute(query, queryParams);
+    console.log("Appointments fetched:", rows);
+    return rows.map((row) => ({
+      appointmentID: row.Appointment_ID,
+      appointmentDate: row.Appointment_Date.toISOString().split("T")[0],
+      appointmentTime: row.Appointment_Time,
+      status: row.Status,
+      roomID: row.Room_ID,
+      patientName: `${row.Patient_First_Name} ${row.Patient_Last_Name}`,
+      floorNumber: row.Floor_Number,
+      roomDescription: row.Room_Description,
+      patientID: row.Patient_ID,
+    }));
+  } catch (error) {
+    console.error("Error fetching doctor appointments with filters:", error);
+    throw error;
+  }
+}
+
+export async function getLabSuggestions(query) {
+  const sql = `
+      SELECT Lab_Name AS name, Description AS description, Lab_ID AS id
+      FROM Lab
+      WHERE Lab_Name LIKE ? OR Description LIKE ?
+      LIMIT 10
+  `;
+  const values = [`${query}%`, `${query}%`]; // Ensure we match only starting with the entered character
+  const [results] = await db.execute(sql, values);
+  return results;
+}
+
+export async function getRadiologySuggestions(query) {
+  const sql = `
+      SELECT Scan_Name AS name, Description AS description, Radiology_ID AS id
+      FROM Radiology
+      WHERE Scan_Name LIKE ? OR Description LIKE ?
+      LIMIT 10
+  `;
+  const values = [`${query}%`, `${query}%`]; // Ensure we match only starting with the entered character
+  const [results] = await db.execute(sql, values);
+  return results;
+}
+
+export async function getLabData(labName) {
+  const query = 'SELECT `Lab_ID`, `Cost` FROM `Lab` WHERE `Lab_Name` = ?';
+  const [rows] = await db.query(query, [labName]);
+  return rows;
+}
+
+export async function getPatientInsurance(patientId) {
+  const query = 'SELECT `Insurance_ID` FROM `Patient` WHERE `Patient_ID` = ?';
+  const [rows] = await db.query(query, [patientId]);
+  return rows.length ? rows[0].Insurance_ID : null;
+}
+
+export async function createLabOrder(patientId, doctorId, labId, billingId) {
+  const query = `
+    INSERT INTO Lab_Order (Patient_ID, Doctor_ID, Lab_ID, Status, Billing_ID)
+    VALUES (?, ?, ?, "Pending", ?)
+  `;
+  const values = [patientId, doctorId, labId, billingId];
+  const [result] = await db.query(query, values);
+  return result.insertId;
+}
+
+export async function getRadiologyData(scanName) {
+  const query = 'SELECT `Radiology_ID`, `Cost` FROM `Radiology` WHERE `Scan_Name` = ?';
+  const [rows] = await db.query(query, [scanName]);
+  return rows;
+}
+
+// Create Radiology Order
+export async function createRadiologyOrder(patientId, doctorId, radiologyId, billingId) {
+  const query = `
+    INSERT INTO Radiology_Order (Patient_ID, Doctor_ID, Radiology_ID, Status, Results, Billing_ID)
+    VALUES (?, ?, ?, "Pending", NULL, ?)
+  `;
+  const values = [patientId, doctorId, radiologyId, billingId];
+  const [result] = await db.query(query, values);
+  return result.insertId;
+}
+
+export async function insertPrescription(prescription) {
+  const query = `
+    INSERT INTO Prescription 
+    (Patient_ID, Doctor_ID, Billing_ID, Medication_Name, Dosage, Frequency, Start_Date, End_Date, Status, Refill_Times) 
+    VALUES (?, ?, NULL, ?, ?, ?, ?, ?, 'Active', ?)
+  `;
+  const { Patient_ID, Doctor_ID, Medication_Name, Dosage, Frequency, Start_Date, End_Date, Refill_Times } = prescription;
+  await db.execute(query, [
+    Patient_ID,
+    Doctor_ID,
+    Medication_Name,
+    Dosage,
+    Frequency,
+    Start_Date,
+    End_Date,
+    Refill_Times,
+  ]);
+}
+
+// Function to fetch medication suggestions
+export async function getMedicationSuggestions(query) {
+  try {
+    const [rows] = await db.execute(
+      "SELECT Medication_ID, Medication_Name, Stock_Level FROM Pharmacy WHERE Medication_Name LIKE ?",
+      [`${query}%`]
+    );
+    return rows;
+  } catch (error) {
+    throw new Error("Error fetching medication suggestions: " + error.message);
+  }
+}
+
+// Function to validate a medication's existence and stock level
+export async function validateMedication(name) {
+  try {
+    const [rows] = await db.execute(
+      "SELECT Medication_ID, Stock_Level FROM Pharmacy WHERE Medication_Name = ?",
+      [name]
+    );
+    if (rows.length === 0) {
+      throw new Error(`Medication "${name}" not found.`);
+    }
+    if (rows[0].Stock_Level <= 1) {
+      throw new Error(`Medication "${name}" is out of stock.`);
+    }
+    return rows[0]; // Return medication details if valid
+  } catch (error) {
+    throw new Error(error.message);
+  }
+}
+
+// Function to add a prescription
+export async function addPrescription(prescription) {
+  try {
+    const {
+      patientId,
+      doctorId,
+      name,
+      dosage,
+      frequency,
+      startDate,
+      endDate,
+      refillTimes,
+    } = prescription;
+
+    await db.execute(
+      `INSERT INTO Prescription 
+        (Patient_ID, Doctor_ID, Billing_ID, Medication_Name, Dosage, Frequency, Start_Date, End_Date, Status, Refill_Times)
+        VALUES (?, ?, NULL, ?, ?, ?, ?, ?, 'Active', ?)`,
+      [patientId, doctorId, name, dosage, frequency, startDate, endDate, refillTimes]
+    );
+  } catch (error) {
+    throw new Error("Error adding prescription: " + error.message);
+  }
+}

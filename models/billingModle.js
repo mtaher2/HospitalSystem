@@ -23,17 +23,29 @@ export async function getBillingDetails(billingId) {
 
 export async function createInvoice(patientId, amount, insuranceId) {
   const sql = `
-        INSERT INTO Billing (Patient_ID, Amount, Payment_Status, Insurance_ID)
-        VALUES (?, ?, 'Pending', ?);
-    `;
+    INSERT INTO Billing (Patient_ID, Amount, Payment_Status, Insurance_ID)
+    VALUES (?, ?, 'Unpaid', ?);
+  `;
   const values = [patientId, amount, insuranceId];
 
   const connection = await db.getConnection();
   try {
     await connection.beginTransaction();
+    // Perform the insertion
     await connection.query(sql, values);
+
+    // Query to get the last inserted Billing_ID using LAST_INSERT_ID()
+    const [result] = await connection.query('SELECT LAST_INSERT_ID() AS Billing_ID');
+    
+    const billingId = result[0]?.Billing_ID; // Ensure we access the correct result
+
     await connection.commit();
-    return { message: "Invoice created successfully" };
+
+    // Return the Billing_ID along with the success message
+    return { 
+      message: "Invoice created successfully", 
+      billingId: billingId
+    };
   } catch (error) {
     await connection.rollback();
     throw error;
@@ -41,6 +53,8 @@ export async function createInvoice(patientId, amount, insuranceId) {
     connection.release();
   }
 }
+
+
 
 export async function getPendingBills() {
   const connection = await db.getConnection();

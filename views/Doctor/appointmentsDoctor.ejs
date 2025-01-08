@@ -1,0 +1,186 @@
+<%- include('../partials/header', {title: 'Appointments Doctor', stylesheetName: 'styles', headerTitle: 'Appointments Doctor' }) %>
+<%- include('../partials/DoctorNav') %>
+
+<div class="medication-container">
+  <div class="search-container">
+    <form id="filterForm" method="GET" action="/doctor-appointment" class="filter-form">
+      <div class="filter-group">
+        <label for="filterPatient">Patient</label>
+        <input
+          type="text"
+          id="filterPatient"
+          name="patient"
+          class="filter-input"
+          placeholder="Patient's name"
+        />
+      </div>
+      <div class="filter-group">
+        <label for="filterDate">Date</label>
+        <input
+          type="date"
+          id="filterDate"
+          name="date"
+          class="filter-input"
+        />
+      </div>
+    </form>
+  </div>
+
+  <div class="content-body">
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Status</th>
+            <th>PR</th>
+            <th>Prescription</th>
+          </tr>
+        </thead>
+        <tbody id="appointmentsTable">
+          <% if (appointments && appointments.length > 0) { %>
+            <% appointments.forEach(appointment => { %>
+              <tr>
+                <td><%= appointment.patientName %></td>
+                <td><%= appointment.appointmentDate %></td>
+                <td><%= appointment.appointmentTime %></td>
+                <td><%= appointment.status %></td>
+                <td>
+                  <a
+                    href="/healthStatistics"
+                    class="btn-show doc-btn"
+                    data-patient-id="<%= appointment.patientID %>"
+                  >
+                    Show
+                  </a>
+                </td>
+                <td>
+                  <a href="/doctor-prescription" data-patient-id="<%= appointment.patientID %>" class="btn-order doc-btn">Write</a>
+                </td>
+              </tr>
+            <% }); %>
+          <% } else { %>
+            <tr>
+              <td colspan="6">No appointments found for this doctor.</td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  let debounceTimer;
+
+  function debounceFilter() {
+    clearTimeout(debounceTimer);
+
+    debounceTimer = setTimeout(() => {
+      const patient = document.getElementById("filterPatient").value;
+      const date = document.getElementById("filterDate").value;
+
+      fetch(`/doctor-appointment?patient=${encodeURIComponent(patient)}&date=${encodeURIComponent(date)}`, {
+        headers: {
+          'Accept': 'application/json',
+        },
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json(); 
+        })
+        .then((data) => {
+          const tableBody = document.getElementById("appointmentsTable");
+          tableBody.innerHTML = ""; 
+
+          if (data.length > 0) {
+            data.forEach((appointment) => {
+              const row = document.createElement("tr");
+              row.innerHTML = `
+                <td>${appointment.patientName}</td>
+                <td>${appointment.appointmentDate}</td>
+                <td>${appointment.appointmentTime}</td>
+                <td>${appointment.status}</td>
+                <td>
+                  <a
+                    href="/healthStatistics"
+                    class="btn-show doc-btn"
+                    data-patient-id="${appointment.patientID}"
+                  >
+                    Show
+                  </a>
+                </td>
+                <td>
+                  <a href="/doctor-prescription" data-patient-id="${appointment.patientID}" class="btn-order doc-btn">Write</a>
+                </td>
+              `;
+              tableBody.appendChild(row);
+            });
+          } else {
+            tableBody.innerHTML = `<tr><td colspan="6">No appointments found for this doctor.</td></tr>`;
+          }
+        })
+        .catch((error) => console.error("Error fetching filtered data:", error));
+    }, 500); 
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+  // Add debounce filter to inputs
+  const inputs = document.querySelectorAll(".filter-input");
+  inputs.forEach((input) => {
+    input.addEventListener("input", debounceFilter);
+  });
+
+  // Handle dynamic button clicks
+  document.body.addEventListener("click", (event) => {
+    const target = event.target;
+
+    // PR button click
+    if (target.classList.contains("btn-show")) {
+      event.preventDefault(); // Prevent default anchor behavior
+      const patientID = target.getAttribute("data-patient-id");
+
+      fetch(`/setGlobalPatientID`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ patientID }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.message === "Global patient ID set successfully.") {
+            window.location.href = "/healthStatistics";
+          }
+        })
+        .catch((error) => console.error("Error setting patient ID:", error));
+    }
+
+    // "Write" button click
+    if (target.classList.contains("btn-order")) {
+      event.preventDefault();
+      const patientID = target.getAttribute("data-patient-id");
+
+      fetch(`/setGlobalPatientID`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ patientID }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.message === "Global patient ID set successfully.") {
+            window.location.href = "/doctor-prescription";
+          }
+        })
+        .catch((error) => console.error("Error setting patient ID:", error));
+    }
+  });
+});
+
+</script>

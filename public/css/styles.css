@@ -933,6 +933,17 @@ table td {
   transition: border-color 0.3s ease;
 }
 
+.input-message {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #fff;
+  appearance: none;
+  transition: border-color 0.3s ease;
+}
+
 .dropdown:focus {
   border-color: #4caf50;
 }
@@ -1510,24 +1521,6 @@ table td {
   border: 1px solid #ccc;
   border-radius: 4px; 
 }
-.btn-show, .btn-order {
-  background-color: #99C65E; 
-  color: white; 
-  border: none;
-  padding: 4px 8px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  margin: 4px 2px;
-  transition: all 0.3s;
-  cursor: pointer;
-  border-radius: 12px;
-}
-
-.btn-show:hover, .btn-order:hover {
-  background-color: #779a4a;
-}
 
 .email-form-container {
   width: 50%; 
@@ -1621,37 +1614,77 @@ table td {
   border-radius: 5px;
 }
 
-.lab-order-form {
+/* Container styling */
+.lab-order-item {
   display: flex;
   align-items: center;
-  padding: 10px;
-  border-radius: 5px;
-  margin-bottom: 20px;
+  gap: 8px;
+  margin-bottom: 16px;
 }
 
-.lab-order-form label {
-  margin-right: 10px;
+.lab-order-item label {
+  width: auto; /* Adjusts based on the label text */
+  font-weight: bold;
+  margin-right: 8px;
 }
 
-.lab-order-form input[type="text"] {
-  flex-grow: 1;
-  margin-right: 10px;
+.input-wrapper {
+  position: relative;
+  width: 200px; /* Set a fixed width for the input and suggestions */
+}
+
+.input-wrapper input[type="text"] {
+  width: 100%; /* Matches the width of the wrapper */
   padding: 8px;
+  font-size: 14px;
   border: 1px solid #ccc;
   border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.suggestion-box {
+  position: absolute;
+  top: 100%; /* Align directly under the input */
+  left: 0;
+  width: 100%; /* Matches the input's width */
+  border: 1px solid #ddd;
+  background-color: #fff;
+  max-height: 150px;
+  overflow-y: auto;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+  z-index: 1000;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  display: none; /* Hidden by default */
+}
+
+.suggestion-box.active {
+  display: block;
+}
+
+.suggestion-item {
+  padding: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.suggestion-item:hover {
+  background-color: #f7f7f7;
 }
 
 .order-button {
+  padding: 8px 16px;
+  font-size: 14px;
   background-color: #99C65E;
   color: white;
   border: none;
-  padding: 10px 20px;
+  border-radius: 4px;
   cursor: pointer;
-  border-radius: 5px;
 }
 
 .order-button:hover {
-  background-color: #779a4a; 
+  background-color: #779a4a;
 }
 
 /* prescrecptions */
@@ -1681,7 +1714,7 @@ table td {
 
 .form-row input[type="text"] {
   flex-grow: 1;
-  flex-basis: 100px;
+  /* flex-basis: 100px; */
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -1743,4 +1776,169 @@ table td {
 
 .btn-cancel:hover {
   background-color: #e53e30;
+}
+
+.doc-btn{
+  background-color: #99C65E !important; 
+  color: white !important; 
+  border: none !important;
+  padding: 4px 8px !important;
+  text-align: center !important;
+  text-decoration: none !important;
+  display: inline-block !important;
+  font-size: 16px !important;
+  margin: 4px 2px !important;
+  transition: all 0.3s !important;
+  cursor: pointer !important;
+  border-radius: 12px !important;
+}
+
+.btn-show:hover, .btn-order:hover {
+  background-color: #779a4a !important;
+}
+
+.refresh-circle {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.empty-message {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #ff6347; /* A beautiful red-orange color */
+  text-align: center;
+  margin: 20px 0;
+  padding: 20px;
+  background: #fbe4e4; /* Light red background */
+  border: 2px dashed #ff6347; /* Dashed border for emphasis */
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.empty-message i {
+  font-size: 2rem;
+  color: #ff6347;
+}
+
+.prescription-form {
+  max-width: 100%;
+  margin: auto;
+  padding: 20px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  font-family: Arial, sans-serif;
+}
+
+.prescription-form h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.form-row {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: nowrap;
+  gap: 10px;
+  overflow-x: auto;
+  margin-bottom: 10px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 1 1 auto;
+}
+
+.form-group label {
+  font-size: 12px;
+  color: #555;
+  margin-bottom: 5px;
+}
+
+.form-group input {
+  width: 130px;
+  padding: 5px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.2);
+}
+
+.btn-delete-row {
+  flex: 0 0 auto;
+  padding: 5px 20px;
+  background: #ff4d4d;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+  height: 45px; /* Matches input height for alignment */
+  align-self: center;
+}
+
+.btn-delete-row:hover {
+  background: #e63939;
+}
+
+.form-actions {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.btn-add-row,
+.btn-save {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  margin: 5px;
+}
+
+.btn-add-row {
+  background: #28a745;
+  color: white;
+}
+
+.btn-save {
+  background: #99C65E;
+  color: white;
+}
+
+.btn-add-row:hover {
+  background: #1c7c31;
+}
+
+.btn-save:hover {
+  background: #779a4a;
+}
+
+.Prescription-body{
+  min-height: 0px;
 }

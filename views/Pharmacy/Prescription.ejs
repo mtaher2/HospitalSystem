@@ -1,0 +1,107 @@
+<%- include('../partials/header', { title: 'Prescription Pharmacy', stylesheetName: 'styles', headerTitle: 'Prescription Pharmacy' }) %>
+
+<div class="medication-container">
+  <div class="content-body" style='border-radius: 25px !important;'>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Dosage</th>
+            <th>Frequency</th>
+            <th>Status</th>
+            <th>Upcoming Refill</th>
+            <th>Upcoming Refill</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="prescriptionTableBody">
+          <!-- Dynamic content from sessionStorage -->
+          <script>
+            document.addEventListener("DOMContentLoaded", () => {
+              const prescriptionsData = JSON.parse(sessionStorage.getItem("prescriptionsData")) || [];
+              
+              // Get the table body element
+              const tableBody = document.getElementById("prescriptionTableBody");
+
+              // Loop through the prescriptions data and create table rows
+              prescriptionsData.forEach(prescription => {
+                const row = document.createElement('tr');
+                row.setAttribute('data-prescription-id', prescription.Prescription_ID); // Add data attribute to track the prescription
+                row.innerHTML = `
+                  <td>${prescription.Medication_Name}</td>
+                  <td>${prescription.Dosage}</td>
+                  <td>${prescription.Frequency}</td>
+                  <td>${prescription.Status}</td>
+                  <td>${prescription.Upcoming_Refill_test ?? 'NA'}</td>
+                  <td><input type="date" class="start-date" required /></td>
+                  <td><button class="btn-cancel" data-prescription-id="${prescription.Prescription_ID}">Cancel</button></td>
+                `;
+                tableBody.appendChild(row);
+              });
+
+              // Handle "Cancel" button click
+              document.querySelectorAll('.btn-cancel').forEach(button => {
+                button.addEventListener('click', (event) => {
+                  const prescriptionId = event.target.getAttribute('data-prescription-id');
+                  
+                  // Remove the row from the table
+                  event.target.closest('tr').remove();
+
+                  // Update sessionStorage to remove the canceled prescription
+                  const updatedPrescriptions = prescriptionsData.filter(prescription => prescription.Prescription_ID !== prescriptionId);
+                  sessionStorage.setItem("prescriptionsData", JSON.stringify(updatedPrescriptions));
+                });
+              });
+            });
+          </script>
+        </tbody>
+      </table>
+      <button type="button" class="btn-save">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const confirmButton = document.querySelector(".btn-save");
+    confirmButton.addEventListener("click", () => {
+      const prescriptionsData = JSON.parse(sessionStorage.getItem("prescriptionsData")) || [];
+      
+      // Filter out the canceled prescriptions from the list
+      const prescriptions = prescriptionsData.filter((prescription, index) => {
+        const row = document.querySelector(`tr[data-prescription-id='${prescription.Prescription_ID}']`);
+        // If the row exists (hasn't been removed), include it in the data
+        return row !== null;
+      }).map((prescription, index) => {
+        const startDateInput = document.querySelectorAll(".start-date")[index];
+        const startDate = startDateInput.value ? startDateInput.value : null;
+        return {
+          prescriptionId: prescription.Prescription_ID,
+          startDate,
+        };
+      });
+
+      // Send the prescriptions data to the server
+      fetch("/create-billing", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ prescriptions }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            window.location.href = "/prescriptions-dashbard"; // Redirect after success
+          } else {
+            alert("Failed to create billing.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          alert("An error occurred.");
+        });
+    });
+  });
+</script>

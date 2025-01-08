@@ -25,14 +25,6 @@ router.get('/update-password', (req, res) => {
 
 router.post('/update-password', handleUpdatePassword);
 
-// Route to get doctor appointments
-router.get('/doctor-apointment' , (req, res) => { 
-    const user = req.session.user || null;
-    res.render('Doctor/appointments', { user });
-});
 
-router.get('/doctor-Home' , (req, res) => { 
-    const user = req.session.user || null;
-    res.render('Doctor/Home', { user });
-});
+
 export default router;

@@ -1,16 +1,35 @@
-<%- include('../partials/header', {title: 'Home', stylesheetName: 'styles', headerTitle: 'Welcome' }) %> --%>
-<%- include('../partials/DoctorNav') %>
-<div class="email-form-container">
-  <form class="email-form">
-      <label for="to">To</label>
-      <input type="text" id="to" name="to" placeholder="Recipient's email">
+<%- include('../partials/header', { title: 'Announcement', stylesheetName: 'styles', headerTitle: 'Announcement' }) %>
+<% if (user && user.Role === 2) { %> <%- include('../partials/DoctorNav') %> <% } %>
 
-      <label for="subject">Subject</label>
-      <input type="text" id="subject" name="subject" placeholder="Enter subject">
+<div class="medication-container">
+    <div class="email-form-container">
+        <form class="email-form" action="/create-announcement" method="POST">
+            <label for="to">To</label>
+            <input type="email" id="to" name="to" placeholder="Recipient's email" class="input-message" required>
 
-      <label for="message">Message</label>
-      <textarea id="message" name="message" placeholder="Write your message here..."></textarea>
+            <label for="subject">Subject</label>
+            <input type="text" id="subject" name="subject" placeholder="Enter subject" class="input-message" required>
 
-      <button type="submit" class="send-button">Send</button>
-  </form>
+            <label for="Priority">Priority</label>
+            <select name="Priority" id="Priority" class="input-message" required>
+                <option value="" selected disabled>Select</option>
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+            </select>
+
+            <label for="message">Message</label>
+            <textarea id="message" name="message" placeholder="Write your message here..." required class="input-message"></textarea>
+
+            <button type="submit" class="send-button">Send</button>
+        </form>
+    </div>
+
+    <% if (typeof alertMessage !== 'undefined' && alertMessage) { %>
+      <div class="alert <%= alertType %>">
+        <%= alertMessage %>
+      </div>
+    <% } %>
 </div>
+
+<script src="js/main.js"></script>

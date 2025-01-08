@@ -1,6 +1,6 @@
 import * as patientModel from "../models/patientModel.js";
 import * as userModel from "../models/userModel.js";
-import sendEmail from "../middlewares/emailService.js";
+import {sendEmail} from "../middlewares/emailService.js";
 import { globalPatientUserID } from "../globalVariables.js";
 import { globalPatientNationalId } from "../globalVariables.js";
 export const addPatient = async (req, res) => {

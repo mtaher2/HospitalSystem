@@ -3,8 +3,12 @@
 </button>
 
 <nav class="navigation" id="navigation-menu">
+  <% if (user && user.Role !== 2) { %>
+    <% if (user && user.Role !== 4) { %>
   <a href="/patient-profile">Profile</a>
   <a href="/appointments">Appointments</a>
+  <% } %>
+  <% } %>
   <a href="/medicalRecords">Medical records</a>
   <a href="/healthStatistics">Health statistics</a>
   <a href="/medication">Medication</a>

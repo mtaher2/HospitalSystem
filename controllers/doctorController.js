@@ -132,7 +132,34 @@ export async function viewDoctorProfile(req, res) {
     });
   } catch (error) {
     console.error("Error in viewDoctorProfile controller:", error);
-    res.status(500).send("Error fetching doctor profile");
+    res.status(500).send("Error fetching doc profile");
+  }
+}
+
+export async function getDoctorAppointmentsController(req, res) {
+  try {
+    const doctor_ID = req.session.user.User_ID;
+    const { patient, date } = req.query;
+
+    const filters = {
+      patientName: patient || '',
+      appointmentDate: date || '',
+    };
+
+    const appointments = await docModel.filterDoctorAppointments(doctor_ID, filters);
+
+
+    if (req.xhr || req.headers.accept.includes('application/json')) {
+      return res.json(appointments); 
+    }
+
+    res.render('Doctor/appointmentsDoctor', { appointments, patient, date });
+  } catch (error) {
+    console.error("Error fetching appointments:", error);
+    if (req.xhr || req.headers.accept.includes('application/json')) {
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+    res.status(500).send("Internal Server Error");
   }
 }
 

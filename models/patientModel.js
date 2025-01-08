@@ -57,7 +57,7 @@ export async function getPatientPastMedications(patientId) {
           Prescription p
       WHERE 
           p.Patient_ID = ? 
-          AND p.End_Date > CURDATE();
+          AND p.End_Date < CURDATE();
     `;
 
   try {
@@ -471,5 +471,42 @@ function getLatestChronicDiseases(chronicDiseases) {
   }
 
   return latestDiseases;
+}
+
+export async function getMedicalRecordHistory(patientId) {
+  try {
+    const query = `
+      SELECT 
+          p.Date_Prescribed AS date,
+          CONCAT(u.FName, ' ', u.LName) AS doctor,
+          GROUP_CONCAT(DISTINCT p.Dosage SEPARATOR ', ') AS diagnoses,
+          GROUP_CONCAT(DISTINCT p.Medication_Name SEPARATOR ', ') AS prescriptions,
+          GROUP_CONCAT(DISTINCT 
+              CASE 
+                  WHEN lo.Lab_Order_ID IS NOT NULL THEN 'Lab Requested'
+                  WHEN ro.Radiology_Order_ID IS NOT NULL THEN 'Radiology Requested'
+                  ELSE NULL 
+              END 
+              SEPARATOR ', ') AS procedures
+      FROM 
+          Prescription p
+      LEFT JOIN User u ON p.Doctor_ID = u.User_ID
+      LEFT JOIN Lab_Order lo ON p.Patient_ID = lo.Patient_ID 
+          AND p.Doctor_ID = lo.Doctor_ID 
+          AND DATE(p.Date_Prescribed) = DATE(lo.Created_At)
+      LEFT JOIN Radiology_Order ro ON p.Patient_ID = ro.Patient_ID 
+          AND p.Doctor_ID = ro.Doctor_ID 
+          AND DATE(p.Date_Prescribed) = DATE(ro.Created_At)
+      WHERE 
+          p.Patient_ID = ?
+      GROUP BY 
+          DATE(p.Date_Prescribed), p.Doctor_ID;
+    `;
+    const [results] = await db.execute(query, [patientId]);
+    return results;
+  } catch (error) {
+    console.error("Error fetching medical history:", error);
+    throw error;
+  }
 }
 

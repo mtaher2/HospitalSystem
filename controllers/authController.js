@@ -4,7 +4,8 @@ import { updateUserPasswordPlainText } from "../models/userModel.js";
 const roleRouteMapping = {
   patient: "/patient-profile",
   receptionist: "/patient-profile-reception",
-  doctor: "/doctor-dashboard",
+  doctor: "/doctor-appointment",
+  pharmacist: "/pharmacy-home-page",
 };
 
 function handleRoleBasedRedirection(user, req, res) {
