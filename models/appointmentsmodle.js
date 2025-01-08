@@ -293,6 +293,7 @@ export async function scheduleAppointment(appointmentData, billingID) {
 export async function createAppointmentWithBilling(appointmentData) {
   try {
     const billingID = await createBillingRecord(appointmentData);
+    console.log("Billing ID:", billingID);
     const appointmentID = await scheduleAppointment(appointmentData, billingID);
     return { Appointment_ID: appointmentID, Billing_ID: billingID };
   } catch (error) {

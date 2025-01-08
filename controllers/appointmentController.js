@@ -6,9 +6,15 @@ import { globalPatientNationalId } from "../globalVariables.js";
 
 export async function bookAppointment(req, res) {
   try {
-    const appointmentData = req.body;
+    const user = req.session.user;
+    let appointmentData = req.body;
     console.log("Appointment data:", appointmentData);
-    console.log("Appointment data:", appointmentData);
+
+    if (user.Role === 6) {
+      appointmentData.Patient_ID = globalPatientUserID;
+      console.log("Using globalPatientUserID for Patient_ID:", globalPatientUserID);
+    }
+
     if (
       !appointmentData.Patient_ID ||
       !appointmentData.Doctor_ID ||
@@ -21,11 +27,15 @@ export async function bookAppointment(req, res) {
           "Missing required fields: Patient_ID, Doctor_ID, Appointment_Date, and Appointment_Time are mandatory.",
       });
     }
-    
-    
+
+    console.log("Booking appointment with billing:", appointmentData);  
+
+    // Create appointment with billing
     const result = await appointmentModel.createAppointmentWithBilling(appointmentData);
+    console.log("Appointment booked successfully:", result);
     const specialties = await getSpecialties();
     await generateInvoicePdf(appointmentData.Patient_ID, result.Billing_ID);
+
     console.log("Appointment booked successfully:", result);
     res.render("patient/addAppointment", {
       alertMessage: "Appointment booked successfully...",
@@ -34,7 +44,6 @@ export async function bookAppointment(req, res) {
       specialties,
     });
   } catch (error) {
-    
     console.error("Error booking appointment:", error);
 
     if (error.code === "ER_BAD_FIELD_ERROR") {
@@ -52,6 +61,7 @@ export async function bookAppointment(req, res) {
     });
   }
 }
+
 
 export async function getAppointmentsByPatient(req, res) {
   const user = req.session.user;
