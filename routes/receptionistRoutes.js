@@ -130,6 +130,14 @@ router.get("/patient-profile-reception",checkAuthenticated(6) ,async (req, res) 
       });
     }
 
+    // Check if the patient's role is 7
+    if (patientData[0].Role !== 7) {
+      return res.render("reception/patient-profile-reception", {
+        errorMessage: "The provided National ID belongs to a non-patient user.",
+        stylesheetName: "styles",
+      });
+    }
+
     // Set globalPatientUserID and globalPatientNationalID
     const userId = patientData[0].User_ID;
     setGlobalPatientUserID(userId);
