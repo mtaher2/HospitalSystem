@@ -15,12 +15,20 @@
         <h2><%= user.FName %> <%= user.LName %></h2>
         <p><%= age %> | <%= user.Gender %></p>
         <% if (user.Role === 6) { %>
-          <a href="/update-patient" class="appointment-btn">
-            Update Profile
-            <span
-              ><i class="fa-solid fa-edit" style="color: #ffffff"></i>
-            </span>
-          </a>
+          <div class="profile-buttons">
+            <a href="/update-patient" class="appointment-btn">
+              Update Profile
+              <span
+                ><i class="fa-solid fa-edit" style="color: #ffffff"></i>
+              </span>
+            </a>
+            <a href="#" class="appointment-btn" onclick="openResetPasswordModal()">
+              Reset Password
+              <span
+                ><i class="fa-solid fa-key" style="color: #ffffff"></i>
+              </span>
+            </a>
+          </div>
         <% } %>
         <a href="/addAppointment" class="appointment-btn">
           Make Appointment
@@ -41,6 +49,18 @@
         <button onclick="uploadProfilePhoto()" class="btn-upload">
           Upload
         </button>
+      </div>
+    </div>
+
+    <div id="resetPasswordModal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn" onclick="closeResetPasswordModal()">&times;</span>
+        <h2>Reset Password</h2>
+        <p>Are you sure you want to reset your password? A new password will be sent to your email.</p>
+        <div class="modal-buttons">
+          <button onclick="resetPassword()" class="btn-confirm">Confirm Reset</button>
+          <button onclick="closeResetPasswordModal()" class="btn-cancel">Cancel</button>
+        </div>
       </div>
     </div>
 
@@ -90,6 +110,36 @@
 
   function closeProfilePhotoModal() {
     document.getElementById("profilePhotoModal").style.display = "none";
+  }
+
+  function openResetPasswordModal() {
+    document.getElementById("resetPasswordModal").style.display = "block";
+  }
+
+  function closeResetPasswordModal() {
+    document.getElementById("resetPasswordModal").style.display = "none";
+  }
+
+  function resetPassword() {
+    fetch('/reset-password', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        alert('Password reset successful! A new password has been sent to your email.');
+        closeResetPasswordModal();
+      } else {
+        alert('Failed to reset password: ' + data.message);
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('An error occurred while resetting your password. Please try again later.');
+    });
   }
 </script>
 <script src="js/upload.js"></script>

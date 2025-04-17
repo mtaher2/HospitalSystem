@@ -1942,3 +1942,49 @@ table td {
 .Prescription-body{
   min-height: 0px;
 }
+
+/* Profile Buttons */
+.profile-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+/* Reset Password Modal */
+#resetPasswordModal .modal-content {
+  max-width: 400px;
+}
+
+#resetPasswordModal .modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+#resetPasswordModal .btn-confirm {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+#resetPasswordModal .btn-cancel {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+#resetPasswordModal .btn-confirm:hover {
+  background-color: #45a049;
+}
+
+#resetPasswordModal .btn-cancel:hover {
+  background-color: #d32f2f;
+}

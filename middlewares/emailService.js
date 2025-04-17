@@ -38,6 +38,43 @@ GU Hospital Team
   }
 }
 
+export async function sendPasswordResetEmail(to, userName, newPassword) {
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.email_send,
+      pass: process.env.Pass_key,
+    },
+  });
+
+  const mailOptions = {
+    from: process.env.email_send,
+    to,
+    subject: "Password Reset - GU Hospital System",
+    text: `
+Dear ${userName},
+
+Your password has been reset as requested. Your new temporary password is: ${newPassword}
+
+For security reasons, please log in to your account and change this password immediately.
+
+If you did not request this password reset, please contact our support team right away.
+
+Best regards,
+GU Hospital Team
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log("Password reset email sent successfully!");
+    return true;
+  } catch (error) {
+    console.error("Error sending password reset email:", error);
+    return false;
+  }
+}
+
 export async function sendAnnouncementEmail(recipientEmail, userName, title, body) {
   const transporter = nodemailer.createTransport({
     service: "gmail",
