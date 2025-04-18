@@ -1121,6 +1121,88 @@ table td {
   cursor: not-allowed;
 }
 
+/* Back Button Styles */
+.back-btn {
+    /* Basic Layout */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    
+    /* Sizing */
+    padding: 10px 20px;
+    margin: 20px 0;
+    min-width: 160px;
+    
+    /* Typography */
+    font-family: "Inter", sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    text-decoration: none;
+    
+    /* Colors */
+    background-color: #99c65e;
+    color: white;
+    
+    /* Shape */
+    border: none;
+    border-radius: 5px;
+    
+    /* Effects */
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+}
+
+/* Icon Styles */
+.back-btn i {
+    font-size: 14px;
+    transition: transform 0.3s ease;
+}
+
+/* Hover State */
+.back-btn:hover {
+    background-color: #7ea84d;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Active/Click State */
+.back-btn:active {
+    background-color: #5c8a39;
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Focus State for Accessibility */
+.back-btn:focus {
+    outline: 2px solid #99c65e;
+    outline-offset: 2px;
+}
+
+/* Hover Effect for Icon */
+.back-btn:hover i {
+    transform: translateX(-3px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .back-btn {
+        /* Adjust for smaller screens */
+        padding: 8px 16px;
+        font-size: 14px;
+        min-width: 140px;
+    }
+}
+
+@media (max-width: 480px) {
+    .back-btn {
+        /* Further adjustments for mobile */
+        width: 100%;
+        margin: 15px 0;
+    }
+}
+
 @media (max-width: 768px) {
   .appointment-container {
     width: 90%;
