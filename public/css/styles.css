@@ -742,56 +742,16 @@ input[type="date"]::-moz-calendar {
   padding: 50px 150px 50px 18px;
   min-height: 70%;
   margin-bottom: 10px;
-}
-
-table {
-  width: 75%;
-  border-collapse: collapse;
-}
-
-th,
-td {
-  padding: 8px 12px;
-  text-align: left;
-  border: 1px solid #ccc;
-}
-
-th {
-  background-color: #b9db9d;
-  color: black;
-  font-weight: bold;
-}
-
-tr:nth-child(even) {
-  background-color: #f7f7f7;
-}
-
-.search-container {
-  margin: 20px 0;
-  text-align: center;
-}
-
-.search-bar {
-  padding: 10px;
-  font-size: 16px;
-  width: 50%;
-  max-width: 500px;
-  border: 2px solid #ccc;
-  border-radius: 5px;
-  background-color: #fff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  outline: none;
-}
-
-.search-bar:focus {
-  border-color: #2b3aa2;
+  border-radius: 25px !important;
 }
 
 .table-wrapper {
-  /* max-height: 400px; */
   position: relative;
   margin: 0;
   width: 70%;
+  background-color: white;
+  border-radius: 10px;
+  overflow: hidden;
 }
 
 .table-wrapper table {
@@ -819,31 +779,180 @@ tr:nth-child(even) {
   background-color: #f7f7f7;
 }
 
-.table-wrapper::-webkit-scrollbar {
-  width: 8px;
+.editable {
+  padding: 5px;
+  border: 1px solid transparent;
+  transition: all 0.3s;
 }
 
-.table-wrapper::-webkit-scrollbar-thumb {
-  background: #b9db9d;
+.editable:hover {
+  border: 1px solid #ccc;
+  background-color: #f8f8f8;
+}
+
+.editable:focus {
+  border: 1px solid #b9db9d;
+  background-color: white;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(185, 219, 157, 0.2);
+}
+
+.editable-select {
+  width: 100%;
+  padding: 5px;
+  border: 1px solid #ccc;
   border-radius: 4px;
+  background-color: white;
 }
 
-.table-wrapper::-webkit-scrollbar-track {
-  background: #f7f7f7;
+.editable-select:focus {
+  border-color: #b9db9d;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(185, 219, 157, 0.2);
 }
 
-table {
-  width: 75%;
-  border-collapse: collapse;
+.btn-save-row {
+  background-color: #b9db9d;
+  color: black;
   border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
 }
 
-table th,
-table td {
-  padding: 8px 12px;
-  text-align: left;
+.btn-save-row:hover {
+  background-color: #a1c77d;
+}
+
+.btn-edit-row {
+  background-color: #b9db9d;
+  color: black;
   border: none;
-  border-right: 1px;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.btn-edit-row:hover {
+  background-color: #a1c77d;
+}
+
+.modal .form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.modal .btn-save,
+.modal .btn-cancel {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s;
+}
+
+.modal .btn-save {
+  background-color: #b9db9d;
+  color: black;
+}
+
+.modal .btn-cancel {
+  background-color: #d9d9d9;
+  color: black;
+}
+
+.modal .btn-save:hover {
+  background-color: #a1c77d;
+  transform: translateY(-1px);
+}
+
+.modal .btn-cancel:hover {
+  background-color: #c9c9c9;
+  transform: translateY(-1px);
+}
+
+input[type="date"] {
+  appearance: none;
+  background-color: #fff;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-family: inherit;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  background-color: #b9db9d;
+  padding: 4px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 20px;
+  padding: 10px;
+}
+
+.btn-edit, .btn-save, .btn-cancel {
+  padding: 8px 16px;
+  border-radius: 5px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-edit {
+  background-color: #b9db9d;
+  color: black;
+}
+
+.btn-save {
+  background-color: #b9db9d;
+  color: black;
+}
+
+.btn-cancel {
+  background-color: #d9d9d9;
+  color: black;
+}
+
+.btn-edit:hover, .btn-save:hover {
+  background-color: #a1c77d;
+  transform: translateY(-1px);
+}
+
+.btn-cancel:hover {
+  background-color: #c9c9c9;
+  transform: translateY(-1px);
+}
+
+.search-container {
+  margin: 20px 0;
+  text-align: center;
+}
+
+.search-bar {
+  padding: 10px;
+  font-size: 16px;
+  width: 50%;
+  max-width: 500px;
+  border: 2px solid #ccc;
+  border-radius: 5px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  outline: none;
+}
+
+.search-bar:focus {
+  border-color: #b9db9d;
 }
 
 .pay-btn-cell {
