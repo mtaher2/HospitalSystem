@@ -1,161 +1,3 @@
-<%- include('../partials/header', { title: 'Order Management', stylesheetName: 'styles', headerTitle: 'Order Management' }) %>
-<%- include('../partials/PharmacyNav') %>
-
-<div class="medication-container">
-  <div class="search-container">
-    <form
-      id="filterForm"
-      method="GET"
-      action="/pharmacy-search"
-      class="filter-form"
-    >
-      <div class="filter-group">
-        <label for="filterName">Name</label>
-        <input
-          type="text"
-          id="filterName"
-          name="name"
-          class="filter-input"
-          placeholder="Enter name"
-          oninput="filterMedications()"
-        />
-      </div>
-    </form>
-  </div>
-
-  <div class="container_Doctor_Notifications">
-    <div class="content-body" style="width: 70% !important">
-      <div class="table-wrapper" style="width: 100% !important;">
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Expiration Dates</th>
-              <th>Quantity</th>
-              <th>Price</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="medicationTableBody">
-            <% medications.forEach(medication => { %>
-              <tr data-id="<%= medication.Medication_ID %>">
-                <td contenteditable="true" class="editable" data-field="Medication_Name"><%= medication.Medication_Name %></td>
-                <td contenteditable="true" class="editable" data-field="Expiration_Date"><%= new Date(medication.Expiration_Date).toISOString().split('T')[0] %></td>
-                <td contenteditable="true" class="editable" data-field="Stock_Level"><%= medication.Stock_Level %></td>
-                <td contenteditable="true" class="editable" data-field="Amount"><%= medication.Amount %></td>
-                <td>
-                  <select class="editable-select" data-field="Status">
-                    <option value="In Stock" <%= medication.Status === 'In Stock' ? 'selected' : '' %>>In Stock</option>
-                    <option value="Low Stock" <%= medication.Status === 'Low Stock' ? 'selected' : '' %>>Low Stock</option>
-                    <option value="Out of Stock" <%= medication.Status === 'Out of Stock' ? 'selected' : '' %>>Out of Stock</option>
-                  </select>
-                </td>
-                <td>
-                  <button type="button" class="btn-save-row" onclick="saveRowChanges(this)">Save</button>
-                  <button type="button" class="btn-cancel-row" onclick="cancelRowChanges(this)" style="margin-left: 5px;">Cancel</button>
-                </td>
-              </tr>
-            <% }) %>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="right-panel">
-      <div class="emergency-header">Notifications</div>
-      <% notifications.forEach(notification => { %>
-        <div class="info-box">
-          <div class="info-box_header"><%= notification.Title %></div>
-          <div class="info-box_body"><%= notification.Content %></div>
-          <div class="info-box_footer">
-            Priority: <%= notification.Priority %> | Created By: <%= notification.Created_By_Name %> | Date: <%= notification.created_at %>
-          </div>
-        </div>
-      <% }) %>
-    </div>
-  </div>
-</div>
-
-<!-- Edit Modal -->
-<div id="editModal" class="modal">
-  <div class="modal-content">
-    <span class="close-btn">&times;</span>
-    <h2>Edit Medication</h2>
-    <form id="editForm">
-      <input type="hidden" id="editId">
-      <div class="form-group">
-        <label for="editName">Name:</label>
-        <input type="text" id="editName" class="form-control">
-      </div>
-      <div class="form-group">
-        <label for="editExpiration">Expiration Date:</label>
-        <input type="date" id="editExpiration" class="form-control">
-      </div>
-      <div class="form-group">
-        <label for="editQuantity">Quantity:</label>
-        <input type="number" id="editQuantity" class="form-control">
-      </div>
-      <div class="form-group">
-        <label for="editPrice">Price:</label>
-        <input type="number" id="editPrice" class="form-control">
-      </div>
-      <div class="form-group">
-        <label for="editStatus">Status:</label>
-        <select id="editStatus" class="form-control">
-          <option value="In Stock">In Stock</option>
-          <option value="Low Stock">Low Stock</option>
-          <option value="Out of Stock">Out of Stock</option>
-        </select>
-      </div>
-      <div class="form-actions">
-        <button type="button" class="btn-save" onclick="saveChanges()">Save</button>
-        <button type="button" class="btn-cancel" onclick="closeEditModal()">Cancel</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<style>
-.btn-save-row, .btn-cancel-row {
-    padding: 6px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    border: none;
-}
-
-.btn-save-row {
-    background-color: #70e674;
-    color: white;
-}
-
-.btn-save-row:hover {
-    background-color: #45a049;
-}
-
-.btn-cancel-row {
-    background-color: #e45247;
-    color: white;
-    margin-left: 5px;
-}
-
-.btn-cancel-row:hover {
-    background-color: #da190b;
-}
-
-.btn-save-row:disabled, .btn-cancel-row:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-    opacity: 0.7;
-}
-
-/* Existing styles remain unchanged */
-</style>
-
-<script>
 // Modal functionality
 const modal = document.getElementById('editModal');
 const closeBtn = document.querySelector('.close-btn');
@@ -179,15 +21,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (cancelBtn) {
         cancelBtn.addEventListener('click', closeEditModal);
     }
-
-    // Store original values when editing starts
-    const editableCells = document.querySelectorAll('.editable, .editable-select');
-    editableCells.forEach(cell => {
-        cell.addEventListener('focus', function() {
-            // Store original value when starting to edit
-            this.dataset.originalValue = this.tagName === 'SELECT' ? this.value : this.textContent;
-        });
-    });
 });
 
 function openEditModal(medication) {
@@ -354,23 +187,6 @@ async function saveRowChanges(button) {
     }
 }
 
-// Function to cancel changes for a single row
-function cancelRowChanges(button) {
-    const row = button.closest('tr');
-    if (!row) return;
-
-    // Restore original values
-    row.querySelectorAll('.editable, .editable-select').forEach(cell => {
-        if (cell.dataset.originalValue) {
-            if (cell.tagName === 'SELECT') {
-                cell.value = cell.dataset.originalValue;
-            } else {
-                cell.textContent = cell.dataset.originalValue;
-            }
-        }
-    });
-}
-
 // Helper function to show messages
 function showMessage(message, type) {
     const messageDiv = document.createElement('div');
@@ -413,7 +229,6 @@ async function refreshTableData() {
                 </td>
                 <td>
                     <button type="button" class="btn-save-row" onclick="saveRowChanges(this)">Save</button>
-                    <button type="button" class="btn-cancel-row" onclick="cancelRowChanges(this)" style="margin-left: 5px;">Cancel</button>
                 </td>
             </tr>
         `).join('');
@@ -450,17 +265,10 @@ async function filterMedications() {
                 </td>
                 <td>
                     <button type="button" class="btn-save-row" onclick="saveRowChanges(this)">Save</button>
-                    <button type="button" class="btn-cancel-row" onclick="cancelRowChanges(this)" style="margin-left: 5px;">Cancel</button>
                 </td>
             </tr>
         `).join('');
     } catch (error) {
         console.error('Error:', error.message);
-        showMessage('Error: ' + error.message, 'error');
     }
-}
-</script>
-
-
-
-
+} 
