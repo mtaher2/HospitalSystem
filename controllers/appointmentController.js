@@ -4,6 +4,14 @@ import { generateInvoicePdf } from "../Services/invoiceService.js";
 import { globalPatientUserID } from "../globalVariables.js";
 import { globalPatientNationalId } from "../globalVariables.js";
 
+function isTimeSlotPassed(appointmentDate, appointmentTime) {  //check if the time slot is passed
+  const now = new Date();
+  const [hours, minutes] = appointmentTime.split(':');
+  const appointmentDateTime = new Date(appointmentDate);
+  appointmentDateTime.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0);
+  return now > appointmentDateTime;
+}
+
 export async function bookAppointment(req, res) {
   try {
     const user = req.session.user;
@@ -29,6 +37,18 @@ export async function bookAppointment(req, res) {
     }
 
     console.log("Booking appointment with billing:", appointmentData);  
+
+    // Add this time slot validation
+    const [datePart, timePart] = appointmentData.Appointment_Time.split(' ');
+    if (isTimeSlotPassed(appointmentData.Appointment_Date, timePart)) {
+      const specialties = await getSpecialties();
+      return res.render("patient/addAppointment", {
+        alertMessage: "Cannot book appointment for passed time slots.",
+        alertType: "error",
+        title: "Add Appointment",
+        specialties,
+      });
+    }
 
     // Create appointment with billing
     const result = await appointmentModel.createAppointmentWithBilling(appointmentData);
@@ -156,6 +176,42 @@ try {
   });
 }
 
+}
+
+export async function fetchAvailableTimes(req, res) {
+  const { specialty, day } = req.query;
+
+  try {
+    if (!specialty || !day) {
+      return res.status(400).json({ error: "Specialty and day are required" });
+    }
+
+    const availableTimes = await docModel.getAvailableTimes(specialty, day);
+    
+    // Filter out passed times if the selected date is today
+    const now = new Date();
+    const today = now.toISOString().split('T')[0];
+    const selectedDate = req.query.date;
+
+    if (selectedDate === today) {
+      const currentHour = now.getHours();
+      const currentMinute = now.getMinutes();
+      
+      return res.status(200).json(
+        availableTimes.filter(time => {
+          const [hours, minutes] = time.split(':').map(num => parseInt(num));
+          if (hours > currentHour) return true;
+          if (hours === currentHour) return minutes > currentMinute;
+          return false;
+        })
+      );
+    }
+
+    res.status(200).json(availableTimes);
+  } catch (error) {
+    console.error("Error fetching available times:", error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
 }
 
 
