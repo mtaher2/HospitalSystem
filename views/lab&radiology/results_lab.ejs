@@ -67,36 +67,42 @@
   background-color: #f9fafa;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: #333;
-  padding: 2rem 1rem;
+  padding: 0.5rem 1.5rem; /* Reduced top padding */
+  min-height: 100vh;
 }
 
 /* Search Section */
 .search-section {
   background: #fff;
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  margin-bottom: 2rem;
+  padding: 1rem 2rem; /* Reduced padding */
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  margin: 0 auto 1rem; /* Reduced bottom margin */
+  max-width: 1200px;
+  margin-top: 20px; /* Added specific top margin */
 }
 
 .search-section label {
   display: block;
-  font-weight: bold;
-  margin-bottom: 0.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem; /* Reduced margin */
   color: #1a394d;
+  font-size: 1.1rem;
 }
 
 .input-group {
   display: flex;
   gap: 1rem;
+  max-width: 600px;
 }
 
 .search-input {
   flex: 1;
-  padding: 0.8rem;
-  border: 1px solid #dcdcdc;
-  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid #dcdcdc;
+  border-radius: 6px;
   font-size: 1rem;
+  transition: border-color 0.2s;
 }
 
 .search-btn {
@@ -116,20 +122,19 @@
 
 /* Outer Container */
 .outer-container {
-  max-width: 100%;
-  margin: 0 2rem 2rem;
-  background-color: #ececec;
-  padding: 2rem;
-  border: 1px solid #ccc;
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: #fff;
+  padding: 1.5rem; /* Reduced padding */
   border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
 /* Inner Card */
 .inner-card {
   background-color: #fff;
-  border-radius: 12px;
-  padding: 2rem;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  padding: 0;
 }
 
 /* Results Table */
@@ -141,25 +146,23 @@
 }
 
 .results-table thead {
-  background-color: #f1f8fa;
-}
-
-.results-table th,
-.results-table td {
-  padding: 1rem 1.5rem;
-  text-align: left;
-  vertical-align: middle;
-  font-size: 1rem;
+  background-color: #f8f9fa;
 }
 
 .results-table th {
+  padding: 0.8rem 1.5rem; /* Reduced padding */
   font-weight: 600;
   color: #1a394d;
-  border-bottom: 2px solid #dcdcdc;
+  border-bottom: 2px solid #e9ecef;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
 }
 
 .results-table td {
-  border-top: 1px solid #e6e6e6;
+  padding: 1rem 1.5rem; /* Reduced padding */
+  border-bottom: 1px solid #e9ecef;
+  font-size: 0.95rem;
 }
 
 .results-table th + th,
@@ -234,4 +237,3 @@
 }
 </style>
 
-<%- include('../partials/footer') %>
