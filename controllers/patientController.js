@@ -1,8 +1,11 @@
 import * as patientModel from "../models/patientModel.js";
 import * as userModel from "../models/userModel.js";
 import {sendEmail} from "../middlewares/emailService.js";
-import { globalPatientUserID } from "../globalVariables.js";
-import { globalPatientNationalId } from "../globalVariables.js";
+import { globalPatientUserID, globalPatientNationalId } from "../globalVariables.js";
+import { generateRandomPassword } from '../utils/passwordUtils.js';
+import { sendPasswordResetEmail } from '../middlewares/emailService.js';
+import { db } from "../db.js";
+
 export const addPatient = async (req, res) => {
   console.log("Request Body:", req.body);
   console.log("Uploaded File:", req.file); 
@@ -139,9 +142,6 @@ export async function renderPatientProfile(req, res) {
   }
 }
 
-
-
-
 export async function updatePatientProfile(req, res) {
   const user = req.session.user; 
 
@@ -217,3 +217,75 @@ export async function uploadProfilePhoto(req, res) {
     res.json({ success: false, message: "Database update failed" });
   }
 }
+
+/**
+ * Reset a patient's password and send the new password via email
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+export const resetPatientPassword = async (req, res) => {
+  try {
+    // Check if user is authenticated and has role 6 (patient)
+    if (!req.session.user || req.session.user.Role !== 6) {
+      return res.status(403).json({ 
+        success: false, 
+        message: 'Unauthorized access. Only patients can reset their own password.' 
+      });
+    }
+
+    // Check if global patient variables are set
+    if (!globalPatientUserID || !globalPatientNationalId) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'No patient selected. Please select a patient first.' 
+      });
+    }
+
+    // Get patient data using the global variables
+    const patientData = await userModel.selectUserByNationalID(globalPatientNationalId);
+    
+    if (!patientData || patientData.length === 0) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Patient not found.' 
+      });
+    }
+
+    const patient = patientData[0];
+    const userId = globalPatientUserID;
+    const userEmail = patient.Email;
+    const userName = `${patient.FName} ${patient.LName}`;
+
+    // Generate a new random password
+    const newPassword = generateRandomPassword();
+    
+    // Update the password in the database without encryption and set need_update to True
+    const updateQuery = 'UPDATE User SET Password = ?, need_update = TRUE WHERE User_ID = ?';
+    await db.query(updateQuery, [newPassword, userId]);
+    
+    // Send the new password via email
+    const emailSent = await sendPasswordResetEmail(userEmail, userName, newPassword);
+    
+    if (emailSent) {
+      return res.status(200).json({ 
+        success: true, 
+        message: 'Password reset successful. A new password has been sent to your email.' 
+      });
+    } else {
+      // If email failed, revert the password change
+      const revertQuery = 'UPDATE User SET Password = ?, need_update = FALSE WHERE User_ID = ?';
+      await db.query(revertQuery, [patient.Password, userId]);
+      
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Failed to send email with new password. Password reset aborted.' 
+      });
+    }
+  } catch (error) {
+    console.error('Error resetting password:', error);
+    return res.status(500).json({ 
+      success: false, 
+      message: 'An error occurred while resetting your password. Please try again later.' 
+    });
+  }
+};
