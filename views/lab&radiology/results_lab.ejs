@@ -31,7 +31,13 @@
             <th>Test Name</th>
             <th>Date</th>
             <th>Status</th>
-            <th>Results <img src="/images/download-icon.png" class="download-icon" alt="Download"></th>
+            <th>Results</th>
+            <th>
+              Download
+              <button class="download-all-btn">
+                <i class="fas fa-download"></i> All
+              </button>
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -44,6 +50,12 @@
               <button class="btn view">View</button>
               <button class="btn print">Print</button>
             </td>
+            <td>
+              <button class="btn download">
+                <i class="fas fa-download"></i>
+                <span>Download</span>
+              </button>
+            </td>
           </tr>
           <tr>
             <td>Jane Smith</td>
@@ -53,6 +65,12 @@
             <td>
               <button class="btn view">View</button>
               <button class="btn print">Print</button>
+            </td>
+            <td>
+              <button class="btn download">
+                <i class="fas fa-download"></i>
+                <span>Download</span>
+              </button>
             </td>
           </tr>
         </tbody>
@@ -234,6 +252,64 @@
   .search-btn {
     width: 100%;
   }
+}
+
+/* Add these new styles */
+.download-all-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  margin-left: 8px;
+  color: #45a049;
+  transition: color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.download-all-btn:hover {
+  color: #3d8b41;
+}
+
+.btn.download {
+  background-color: #45a049;
+  color: white;
+  padding: 0.6rem 1.2rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px; /* Space between icon and text */
+  white-space: nowrap;
+  flex-direction: row; /* Ensure icon and text are in a row */
+  justify-content: flex-start; /* Align items to the start */
+}
+
+.btn.download .fas.fa-download {
+  font-size: 1rem;
+  margin-right: 8px; /* Additional space between icon and text */
+}
+
+.btn.download span {
+  font-weight: 600;
+}
+
+.btn.download:hover {
+  background-color: #3d8b41;
+  transform: translateY(-1px);
+}
+
+/* Center align the download column */
+.results-table th:last-child,
+.results-table td:last-child {
+  text-align: center;
+}
+
+/* Adjust table layout if needed */
+.results-table th,
+.results-table td {
+  padding: 1rem 1.5rem;
+  text-align: left;
+  vertical-align: middle;
 }
 </style>
 
