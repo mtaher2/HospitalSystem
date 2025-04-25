@@ -2,6 +2,7 @@ import express from "express";
 import {
   renderPatientProfile,
   updatePatientProfile,
+  resetPatientPassword
 } from "../controllers/patientController.js";
 import { cancelAppointment, getPastAppointments } from "../models/appointmentsmodle.js";
 import checkAuthenticated from "../middlewares/checkAuthenticated.js";
@@ -441,4 +442,7 @@ router.get("/labpatientresultsradiology", async (req, res) => {
   }
 });
 
-export default router; // Moved outside the route handler
+// Password reset route
+router.post("/reset-password", checkAuthenticated([6]), resetPatientPassword);
+
+export default router;
