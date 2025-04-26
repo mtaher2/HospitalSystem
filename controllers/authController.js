@@ -38,9 +38,16 @@ export async function login(req, res) {
       const createdAt = new Date(user[0].Created_At);
       const updatedAt = new Date(user[0].Updated_At);
 
+      // Check if the user needs to update their password
+      if (user[0].need_update === true || user[0].need_update === 1) {
+        return res.redirect("/update-password");
+      }
+      
+      // Check if this is the first login (created and updated timestamps are the same)
       if (createdAt.getTime() === updatedAt.getTime()) {
         return res.redirect("/update-password");
       }
+      
       return handleRoleBasedRedirection(user[0], req, res);
     } else {
       return res.render("login", {

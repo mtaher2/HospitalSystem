@@ -50,8 +50,8 @@
         </table>
       </div>
       <div class="form-actions">
-        <button type="button" class="btn-save">Save</button>
-        <button type="button" class="btn-cancel">Cancel</button>
+        <!-- <button type="button" class="btn-save">Save</button>
+        <button type="button" class="btn-cancel">Cancel</button> -->
       </div>
     </div>
 
@@ -59,11 +59,9 @@
       <div class="emergency-header">Notifications</div>
       <% notifications.forEach(notification => { %>
         <div class="info-box">
-          <div class="info-box_header"><%= notification.Title %></div>
+          <div class="info-box_header"><%= notification.Created_By_Name %>: <%= notification.Title %></div>
           <div class="info-box_body"><%= notification.Content %></div>
-          <div class="info-box_footer">
-            Priority: <%= notification.Priority %> | Created By: <%= notification.Created_By_Name %> | Date: <%= notification.created_at %>
-          </div>
+          
         </div>
       <% }) %>
     </div>
