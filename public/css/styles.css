@@ -2025,6 +2025,51 @@ table td {
   min-height: 0px;
 }
 
+.section-title-order {
+  margin: 35px 0 20px 0;
+  font-size: 29px;
+  font-weight: 600;
+  color: #2b3aa2;
+}
+
+.button-container {
+margin-top: 20px;
+display: flex;
+justify-content: center;
+padding: 10px 0;
+}
+
+.order-btn {
+  background-color: #8BC34A;
+  color: white;
+  border: none;
+  padding: 10px 40px;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  text-transform: capitalize;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.order-btn:hover {
+  background-color: #7cb342;
+}
+
+.order-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .content-body {
+      padding: 10px;
+  }
+  
+  .table-container {
+      overflow-x: auto;
+  }
 /* Profile Buttons */
 .profile-buttons {
   display: flex;
@@ -2069,4 +2114,5 @@ table td {
 
 #resetPasswordModal .btn-cancel:hover {
   background-color: #d32f2f;
+}
 }
