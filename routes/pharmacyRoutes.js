@@ -63,5 +63,8 @@ router.get('/prescription-pharmacy',checkAuthenticated(4), (req, res) => {
     });
 });
 
+router.get('/order-management',checkAuthenticated(4), (req, res) => {
+    res.render('Pharmacy/OrderManagement');
+});
 
 export default router;
