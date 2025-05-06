@@ -1,0 +1,91 @@
+<%- include('../partials/header', { title: 'Available Scans', stylesheetName: 'styles', headerTitle: 'Available Scans' }) %>
+<%- include('../partials/radNav') %>
+
+<div class="medication-container">
+    <div class="top-strip"></div>
+
+    <div class="lab-search-container">
+        <div class="search-row">
+          <div class="label-container">Scan Code</div>
+          <div class="input-container" style="display: flex; align-items: center;">
+            <input 
+              type="text" 
+              id="scanCodeInput" 
+              class="search-input" 
+              placeholder="" 
+              style="flex-grow: 1; height: 30px; background-color: #f5f5f5; border: 1px solid #ddd; border-radius: 4px; padding: 5px 10px;" 
+            />
+            <button 
+              type="button" 
+              class="search-button" 
+              style="margin-left: 10px; background-color: #a1d55d; color: white; border: none; border-radius: 20px; padding: 8px 20px; cursor: pointer;"
+            >
+              Search
+            </button>
+          </div>
+        </div>
+    </div>
+    
+    <div class="content-body">
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Code</th>
+              <th>Cost</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Placeholder data for radiology scans -->
+            <tr>
+              <td>X-Ray Chest</td>
+              <td>XRC001</td>
+              <td>$75.00</td>
+            </tr>
+            <tr>
+              <td>CT Scan Brain</td>
+              <td>CTB002</td>
+              <td>$350.00</td>
+            </tr>
+            <tr>
+              <td>MRI Spine</td>
+              <td>MRS003</td>
+              <td>$450.00</td>
+            </tr>
+            <tr>
+              <td>Ultrasound Abdomen</td>
+              <td>USA004</td>
+              <td>$200.00</td>
+            </tr>
+            <tr>
+              <td>Mammogram</td>
+              <td>MAM005</td>
+              <td>$250.00</td>
+            </tr>
+            <tr>
+              <td>PET Scan</td>
+              <td>PET006</td>
+              <td>$800.00</td>
+            </tr>
+            <tr>
+              <td>Bone Density Scan</td>
+              <td>BDS007</td>
+              <td>$180.00</td>
+            </tr>
+            <tr>
+              <td>Angiography</td>
+              <td>ANG008</td>
+              <td>$600.00</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <div style="margin-top: 50px;">
+        <a href="/add-patient" class="appointment-btn">Add a Patient</a>
+      </div>
+    </div>
+  </div>
+  
+  <script src="js/main.js"></script> 

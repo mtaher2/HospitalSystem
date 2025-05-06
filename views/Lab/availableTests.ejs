@@ -1,0 +1,125 @@
+<%- include('../partials/header', { title: 'Available Tests', stylesheetName: 'styles', headerTitle: 'Available Tests' }) %>
+<%- include('../partials/labNav') %>
+
+<div class="medication-container">
+    <div class="top-strip"></div>
+    <div class="lab-search-container">
+        <div class="search-row">
+          <div class="label-container">Lab Code</div>
+          <div class="input-container" style="display: flex; align-items: center;">
+            <input 
+              type="text" 
+              id="labCodeInput" 
+              class="search-input" 
+              placeholder="" 
+              style="flex-grow: 1; height: 30px; background-color: #f5f5f5; border: 1px solid #ddd; border-radius: 4px; padding: 5px 10px;" 
+            />
+            <button 
+              type="button" 
+              class="search-button" 
+              style="margin-left: 10px; background-color: #a1d55d; color: white; border: none; border-radius: 20px; padding: 8px 20px; cursor: pointer;"
+            >
+              Search
+            </button>
+          </div>
+        </div>
+      </div>
+    
+    <div class="content-body">
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Code</th>
+              <th>Cost</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Placeholder data for lab tests -->
+            <tr>
+              <td>Complete Blood Count (CBC)</td>
+              <td>CBC001</td>
+              <td>$45.00</td>
+            </tr>
+            <tr>
+              <td>Comprehensive Metabolic Panel</td>
+              <td>CMP002</td>
+              <td>$65.00</td>
+            </tr>
+            <tr>
+              <td>Lipid Panel</td>
+              <td>LIP003</td>
+              <td>$50.00</td>
+            </tr>
+            <tr>
+              <td>Thyroid Stimulating Hormone</td>
+              <td>TSH004</td>
+              <td>$75.00</td>
+            </tr>
+            <tr>
+              <td>Hemoglobin A1C</td>
+              <td>A1C005</td>
+              <td>$60.00</td>
+            </tr>
+            <tr>
+              <td>Urinalysis</td>
+              <td>UA006</td>
+              <td>$35.00</td>
+            </tr>
+            <tr>
+              <td>Vitamin D Level</td>
+              <td>VD007</td>
+              <td>$80.00</td>
+            </tr>
+            <tr>
+              <td>Liver Function Test</td>
+              <td>LFT008</td>
+              <td>$55.00</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <div style="margin-top: 50px;">
+        <a href="/add-patient" class="appointment-btn">Add a Patient</a>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Added client-side search functionality -->
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('testSearchInput');
+    
+    if (searchInput) {
+      searchInput.addEventListener('keyup', function() {
+        const filter = searchInput.value.toUpperCase();
+        const table = document.getElementById('testsTable');
+        const rows = table.getElementsByTagName('tr');
+        
+        // Start from index 1 to skip the header row
+        for (let i = 1; i < rows.length; i++) {
+          const nameCell = rows[i].getElementsByTagName('td')[0];
+          const codeCell = rows[i].getElementsByTagName('td')[1];
+          
+          if (nameCell && codeCell) {
+            const nameValue = nameCell.textContent || nameCell.innerText;
+            const codeValue = codeCell.textContent || codeCell.innerText;
+            
+            if (
+              nameValue.toUpperCase().indexOf(filter) > -1 || 
+              codeValue.toUpperCase().indexOf(filter) > -1
+            ) {
+              rows[i].style.display = '';
+            } else {
+              rows[i].style.display = 'none';
+            }
+          }
+        }
+      });
+    }
+  });
+  </script>
+  
+  <script src="js/main.js"></script>
