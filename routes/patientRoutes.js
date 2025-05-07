@@ -4,7 +4,7 @@ import {
   updatePatientProfile,
   resetPatientPassword
 } from "../controllers/patientController.js";
-import { cancelAppointment, getPastAppointments } from "../models/appointmentsmodle.js";
+import { cancelAppointment, getPastAppointments, rescheduleAppointment } from "../models/appointmentsmodle.js";
 import checkAuthenticated from "../middlewares/checkAuthenticated.js";
 import { upload } from "../utils/multerConfig.js";
 import { uploadProfilePhoto } from "../controllers/patientController.js";
@@ -259,6 +259,36 @@ router.post('/appointments/:id/cancel', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+router.post('/appointments/:id/reschedule', async (req, res) => {
+  try {
+    const appointmentId = req.params.id;
+    const { New_Appointment_Date, New_Appointment_Time } = req.body;
+    
+    if (!New_Appointment_Date || !New_Appointment_Time) {
+      return res.status(400).json({ error: 'Date and time are required' });
+    }
+    
+    // Convert time to database format if needed
+    const appointmentData = {
+      Appointment_ID: appointmentId,
+      New_Appointment_Date,
+      New_Appointment_Time
+    };
+    
+    const result = await rescheduleAppointment(appointmentData);
+    
+    if (result) {
+      return res.status(200).json({ message: 'Appointment rescheduled successfully' });
+    } else {
+      return res.status(400).json({ error: 'Failed to reschedule appointment' });
+    }
+  } catch (error) {
+    console.error('Error rescheduling appointment:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 router.get(
   '/medication',
   checkAuthenticated([2, 7, 6,4]),
