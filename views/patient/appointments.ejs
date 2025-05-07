@@ -18,11 +18,13 @@
     <form id="reschedule-form">
       <div class="form-group">
         <label for="new-date">New Date:</label>
-        <input type="date" id="new-date" required>
+        <input type="text" id="new-date" class="dropdown" placeholder="Choose a date" required autocomplete="off">
       </div>
       <div class="form-group">
         <label for="new-time">New Time:</label>
-        <input type="time" id="new-time" required>
+        <select id="new-time" class="dropdown" required>
+          <option value="" disabled selected>Select time</option>
+        </select>
       </div>
       <div class="modal-buttons">
         <button type="submit" id="confirm-reschedule" class="modal-btn confirm">Reschedule</button>
@@ -30,6 +32,10 @@
       </div>
     </form>
   </div>
+</div>
+
+<div id="success-message" class="alert success" style="display: none;">
+  Appointment rescheduled successfully!
 </div>
 
   <div class="top-strip"></div>
@@ -80,7 +86,13 @@
                 </button>
               </td>
               <td class="pay-btn-cell">
-                <button class="pay-btn reschedule" data-id="<%= appointment.appointmentID %>">Reschedule</button>
+                <button class="pay-btn reschedule" 
+                  data-id="<%= appointment.appointmentID %>"
+                  data-doctor="<%= appointment.doctorName %>"
+                  data-specialty="<%= appointment.specialty || '' %>"
+                >
+                  Reschedule
+                </button>
               </td>
             </tr>
             <% }); %>
@@ -121,6 +133,8 @@
                 <button
                   class="pay-btn reschedule"
                   data-id="<%= appointment.appointmentID %>"
+                  data-doctor="<%= appointment.doctorName %>"
+                  data-specialty="<%= appointment.specialty || '' %>"
                 >
                   Reschedule
                 </button>
@@ -145,10 +159,14 @@
   
   
 </div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     let appointmentIdToCancel = null;
     let appointmentIdToReschedule = null;
+    let appointmentDoctorSpecialty = null;
+    let flatpickrInstance = null;
 
     function showCancelModal(appointmentId) {
       appointmentIdToCancel = appointmentId;
@@ -157,15 +175,145 @@
       modal.setAttribute("aria-hidden", "false"); 
     }
 
-    function showRescheduleModal(appointmentId) {
+    function showRescheduleModal(appointmentId, doctorName, specialty) {
       appointmentIdToReschedule = appointmentId;
       const modal = document.getElementById("reschedule-modal");
       modal.style.display = "flex";
       modal.setAttribute("aria-hidden", "false");
       
-      // Set minimum date to today
-      const today = new Date().toISOString().split('T')[0];
-      document.getElementById("new-date").min = today;
+      // If specialty is provided, use it; otherwise we'll need to fetch it
+      if (specialty) {
+        appointmentDoctorSpecialty = specialty;
+        initializeDatePicker(specialty);
+      } else {
+        // In a real implementation, you would fetch the doctor's specialty here
+        // For now, we'll assume a default specialty for testing
+        fetch(`/doctor-specialty/${encodeURIComponent(doctorName)}`)
+          .then(response => response.json())
+          .then(data => {
+            appointmentDoctorSpecialty = data.specialty;
+            initializeDatePicker(data.specialty);
+          })
+          .catch(error => {
+            console.error("Error fetching doctor specialty:", error);
+            // Fallback to a default specialty if needed
+            appointmentDoctorSpecialty = "General Medicine";
+            initializeDatePicker("General Medicine");
+          });
+      }
+    }
+
+    function showSuccessMessage() {
+      const successMsg = document.getElementById("success-message");
+      successMsg.style.display = "block";
+      
+      // Auto-hide the message after 5 seconds
+      setTimeout(() => {
+        successMsg.style.display = "none";
+      }, 5000);
+    }
+
+    function initializeDatePicker(specialty) {
+      // Fetch available days from the server
+      fetch(`/availability/days?specialty=${encodeURIComponent(specialty)}`)
+        .then(response => response.json())
+        .then(data => {
+          if (Array.isArray(data)) {
+            const availableDates = data.flatMap(day => getWeekdaysForTwoMonths(day));
+            
+            // Initialize flatpickr
+            if (flatpickrInstance) {
+              flatpickrInstance.destroy();
+            }
+            
+            flatpickrInstance = flatpickr("#new-date", {
+              dateFormat: "Y-m-d",
+              minDate: "today",
+              disableMobile: true,
+              allowInput: true,
+              enable: availableDates.map(date => new Date(date)),
+              onDayCreate: function(dObj, dStr, fp, dayElem) {
+                const date = fp.formatDate(dayElem.dateObj, "Y-m-d");
+                if (availableDates.includes(date)) {
+                  dayElem.classList.add("available");
+                } else {
+                  dayElem.classList.add("unavailable");
+                }
+              },
+              onChange: function(selectedDates, dateStr) {
+                updateTimeDropdown(dateStr, specialty);
+              }
+            });
+          } else {
+            console.error("Invalid data format returned from server:", data);
+          }
+        })
+        .catch(error => {
+          console.error("Error fetching available days:", error);
+        });
+    }
+
+    function getWeekdaysForTwoMonths(weekday) {
+      const today = new Date();
+      const daysOfWeek = {
+        Sunday: 0,
+        Monday: 1,
+        Tuesday: 2,
+        Wednesday: 3,
+        Thursday: 4,
+        Friday: 5,
+        Saturday: 6,
+      };
+      
+      if (!(weekday in daysOfWeek)) {
+        console.error(`Invalid weekday: ${weekday}`);
+        return [];
+      }
+
+      const targetDay = daysOfWeek[weekday];
+      const dates = [];
+      const twoMonthsFromToday = new Date();
+      twoMonthsFromToday.setMonth(today.getMonth() + 1);
+
+      let currentDate = new Date(today);
+
+      while (currentDate <= twoMonthsFromToday) {
+        const currentDay = currentDate.getDay();
+        // Exclude Saturday (6) and Sunday (0)
+        if (currentDay === targetDay && currentDay !== 0 && currentDay !== 6) {
+          dates.push(currentDate.toISOString().split("T")[0]);
+        }
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+
+      return dates;
+    }
+
+    function updateTimeDropdown(selectedDate, specialty) {
+      if (!selectedDate || !specialty) return;
+      
+      const timeDropdown = document.getElementById("new-time");
+      timeDropdown.innerHTML = '<option value="" disabled selected>Select time</option>';
+      
+      const dateObj = new Date(selectedDate);
+      const daysOfWeek = [
+        "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
+      ];
+      const dayName = daysOfWeek[dateObj.getUTCDay()];
+      
+      fetch(`/availability/times?specialty=${encodeURIComponent(specialty)}&day=${dayName}`)
+        .then(response => response.json())
+        .then(data => {
+          data.forEach(time => {
+            const option = document.createElement("option");
+            option.value = time;
+            option.textContent = time;
+            timeDropdown.appendChild(option);
+          });
+        })
+        .catch(error => {
+          console.error("Error fetching available times:", error);
+        });
     }
 
     function closeRescheduleModal() {
@@ -173,7 +321,13 @@
       modal.style.display = "none";
       modal.setAttribute("aria-hidden", "true");
       appointmentIdToReschedule = null;
+      appointmentDoctorSpecialty = null;
       document.getElementById("reschedule-form").reset();
+      
+      if (flatpickrInstance) {
+        flatpickrInstance.destroy();
+        flatpickrInstance = null;
+      }
     }
 
     function closeModal() {
@@ -230,6 +384,13 @@
         const newDate = document.getElementById("new-date").value;
         const newTime = document.getElementById("new-time").value;
         
+        if (!newDate || !newTime) {
+          alert("Please select both date and time");
+          button.disabled = false;
+          button.textContent = "Reschedule";
+          return;
+        }
+        
         try {
           const response = await fetch(`/appointments/${appointmentIdToReschedule}/reschedule`, {
             method: "POST",
@@ -241,8 +402,16 @@
           });
           
           if (response.ok) {
-            // Refresh the page to show updated appointments
-            window.location.reload();
+            // Close the modal first
+            closeRescheduleModal();
+            
+            // Show success message
+            showSuccessMessage();
+            
+            // Refresh the page after a short delay
+            setTimeout(() => {
+              window.location.reload();
+            }, 1500);
           } else {
             const errorData = await response.json();
             alert(`Failed to reschedule: ${errorData.error || 'Please try again'}`);
@@ -275,8 +444,10 @@
         }
         if (event.target.classList.contains("reschedule")) {
           const appointmentId = event.target.dataset.id;
+          const doctorName = event.target.dataset.doctor;
+          const specialty = event.target.dataset.specialty;
           if (appointmentId) {
-            showRescheduleModal(appointmentId);
+            showRescheduleModal(appointmentId, doctorName, specialty);
           }
         }
       });

@@ -345,13 +345,16 @@ export async function getUpcomingAppointments(patientID) {
         u.FName AS Doctor_First_Name,
         u.LName AS Doctor_Last_Name,
         r.Floor_Number,
-        r.Description
+        r.Description,
+        d.Specialty
       FROM 
         Appointment a
       JOIN 
         User u ON a.Doctor_ID = u.User_ID
       JOIN 
         Room r ON a.Room_ID = r.Room_ID
+      JOIN
+        Doctor d ON a.Doctor_ID = d.Doctor_ID
       WHERE 
         a.Patient_ID = ? AND a.Appointment_Date > NOW() AND a.Status = 'Scheduled'
       ORDER BY 
@@ -375,6 +378,7 @@ export async function getUpcomingAppointments(patientID) {
       roomID: row.Room_ID,
       floorNumber: row.Floor_Number,
       Billing_ID: row.Billing_ID,
+      specialty: row.Specialty,
     }));
   } catch (error) {
     console.error("Error fetching upcoming appointments:", error);
@@ -466,13 +470,16 @@ export async function getPastAppointments(patientID) {
       u.FName AS Doctor_First_Name,
       u.LName AS Doctor_Last_Name,
       r.Floor_Number,
-      r.Description
+      r.Description,
+      d.Specialty
     FROM 
       Appointment a
     JOIN 
       User u ON a.Doctor_ID = u.User_ID
     JOIN 
       Room r ON a.Room_ID = r.Room_ID
+    JOIN
+      Doctor d ON a.Doctor_ID = d.Doctor_ID
     WHERE 
       a.Patient_ID = ? AND a.Appointment_Date < NOW() AND a.Status = 'Scheduled'
     ORDER BY 
@@ -496,9 +503,10 @@ export async function getPastAppointments(patientID) {
       roomID: row.Room_ID,
       floorNumber: row.Floor_Number,
       Billing_ID: row.Billing_ID,
+      specialty: row.Specialty,
     }));
   } catch (error) {
-    console.error("Error fetching upcoming appointments:", error);
+    console.error("Error fetching past appointments:", error);
     throw error;
   }
 }

@@ -17,6 +17,7 @@ import {
 } from "../controllers/appointmentController.js";
 import { showPatientBills } from "../controllers/billingController.js";
 import { globalDoctorUserID, globalPatientUserID, setGlobalPatientUserID } from "../globalVariables.js";
+import { db } from "../db.js";
 
 const router = express.Router();
 router.use(express.json());
@@ -371,5 +372,35 @@ router.get("/doctors-by-time", doc.fetchDoctorsByTime);
 
 // Password reset route
 router.post("/reset-password", checkAuthenticated([6]), resetPatientPassword);
+
+// Route to get doctor specialty by name
+router.get('/doctor-specialty/:doctorName', async (req, res) => {
+  try {
+    const doctorName = req.params.doctorName;
+    const [firstName, lastName] = doctorName.split(' ');
+    
+    if (!firstName || !lastName) {
+      return res.status(400).json({ error: 'Invalid doctor name format' });
+    }
+    
+    const query = `
+      SELECT d.Specialty 
+      FROM Doctor d 
+      JOIN User u ON d.Doctor_ID = u.User_ID
+      WHERE u.FName = ? AND u.LName = ?
+    `;
+    
+    const [rows] = await db.execute(query, [firstName, lastName]);
+    
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Doctor not found' });
+    }
+    
+    return res.status(200).json({ specialty: rows[0].Specialty });
+  } catch (error) {
+    console.error('Error fetching doctor specialty:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 export default router;
