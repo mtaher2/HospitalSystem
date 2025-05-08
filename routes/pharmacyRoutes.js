@@ -63,8 +63,53 @@ router.get('/prescription-pharmacy',checkAuthenticated(4), (req, res) => {
     });
 });
 
-router.get('/order-management',checkAuthenticated(4), (req, res) => {
-    res.render('Pharmacy/OrderManagement');
+router.get('/order-management', checkAuthenticated(4), async (req, res) => {
+    try {
+        // Create the Medication_Orders table if it doesn't exist
+        await pharmacyModel.createMedicationOrdersTable();
+        
+        // Get medications with stock level less than 5
+        const lowStockMedications = await pharmacyModel.getLowStockMedications();
+        // Get current pending orders
+        const currentOrders = await pharmacyModel.getCurrentOrders();
+        res.render('Pharmacy/OrderManagement', { lowStockMedications, currentOrders });
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        res.status(500).send('Error loading data: ' + error.message);
+    }
+});
+
+router.post('/api/pharmacy/create-order', checkAuthenticated(4), async (req, res) => {
+    try {
+        const { medicationId, amount } = req.body;
+        const result = await pharmacyModel.createMedicationOrder(medicationId, amount);
+        res.json({ success: true, orderId: result.orderId });
+    } catch (error) {
+        console.error('Error creating order:', error);
+        res.status(500).json({ message: error.message });
+    }
+});
+
+router.post('/api/pharmacy/update-order-status', checkAuthenticated(4), async (req, res) => {
+    try {
+        const { orderId, status } = req.body;
+        const result = await pharmacyModel.updateOrderStatus(orderId, status);
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error updating order status:', error);
+        res.status(500).json({ message: error.message });
+    }
+});
+
+router.post('/api/pharmacy/cancel-order', checkAuthenticated(4), async (req, res) => {
+    try {
+        const { orderId } = req.body;
+        const result = await pharmacyModel.cancelOrder(orderId);
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error canceling order:', error);
+        res.status(500).json({ message: error.message });
+    }
 });
 
 export default router;
