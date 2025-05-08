@@ -6,38 +6,52 @@
     <div class="order-management-container">
         <!-- Current Orders Table -->
         <div class="table-wrapper orders-table">
+            <h2 class="section-title-order">Current Orders</h2>
             <table>
                 <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Date</th>
-                        <th>expiration dates</th>
-                        <th>Quantity</th>
+                        <th>Order ID</th>
+                        <th>Medication Name</th>
+                        <th>Distributor</th>
+                        <th>Order Amount</th>
+                        <th>Order Date</th>
                         <th>Status</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>John Doe</td>
-                        <td>mm/dd/yyyy</td>
-                        <td>mm/dd/yyyy</td>
-                        <td>100</td>
-                        <td>available</td>
-                    </tr>
-                    <tr>
-                        <td>Jane Smith</td>
-                        <td>mm/dd/yyyy</td>
-                        <td>mm/dd/yyyy</td>
-                        <td>75</td>
-                        <td>available</td>
-                    </tr>
-                    <tr>
-                        <td>Robert Johnson</td>
-                        <td>mm/dd/yyyy</td>
-                        <td>mm/dd/yyyy</td>
-                        <td>120</td>
-                        <td>available</td>
-                    </tr>
+                    <% if (currentOrders && currentOrders.length > 0) { %>
+                        <% currentOrders.forEach(order => { %>
+                            <tr>
+                                <td><%= order.Order_ID %></td>
+                                <td><%= order.Medication_Name %></td>
+                                <td><%= order.Distributor %></td>
+                                <td><%= order.Order_Amount %></td>
+                                <td><%= new Date(order.Order_Date).toLocaleDateString() %></td>
+                                <td><%= order.Status %></td>
+                                <td>
+                                    <% if (order.Status === 'Pending') { %>
+                                        <div class="action-buttons">
+                                            <button type="button" 
+                                                    class="btn-deliver" 
+                                                    data-order-id="<%= order.Order_ID %>">
+                                                <i class="fas fa-check"></i> Mark as Delivered
+                                            </button>
+                                            <button type="button" 
+                                                    class="btn-cancel" 
+                                                    data-order-id="<%= order.Order_ID %>">
+                                                <i class="fas fa-times"></i> Cancel Order
+                                            </button>
+                                        </div>
+                                    <% } %>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="7" class="no-data">No current orders found.</td>
+                        </tr>
+                    <% } %>
                 </tbody>
             </table>
         </div>
@@ -49,43 +63,296 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>Name</th>
-                            <th>Code</th>
-                            <th>Quantity</th>
-                            <th>Priority</th>
-                            <th></th>
+                            <th>Medication ID</th>
+                            <th>Medication Name</th>
+                            <th>Distributor</th>
+                            <th>Current Stock</th>
+                            <th>Reorder Level</th>
+                            <th>Expiration Date</th>
+                            <th>Order Amount</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>John Doe</td>
-                            <td>15sdc6</td>
-                            <td>5566</td>
-                            <td>Highe</td>
-                            <td><button type="button" class="btn-cancel">Cancel</button></td>
-                        </tr>
-                        <tr>
-                            <td>Sarah Wilson</td>
-                            <td>24xfd8</td>
-                            <td>3200</td>
-                            <td>Medium</td>
-                            <td><button type="button" class="btn-cancel">Cancel</button></td>
-                        </tr>
-                        <tr>
-                            <td>Michael Brown</td>
-                            <td>89plm2</td>
-                            <td>1800</td>
-                            <td>Low</td>
-                            <td><button type="button" class="btn-cancel">Cancel</button></td>
-                        </tr>
+                        <% if (lowStockMedications && lowStockMedications.length > 0) { %>
+                            <% lowStockMedications.forEach(medication => { %>
+                                <tr>
+                                    <td><%= medication.id %></td>
+                                    <td><%= medication.name %></td>
+                                    <td><%= medication.Distributor %></td>
+                                    <td><%= medication.stock_level %></td>
+                                    <td><%= medication.Reorder_Level %></td>
+                                    <td><%= new Date(medication.expiration_date).toLocaleDateString() %></td>
+                                    <td>
+                                        <input type="number" 
+                                               class="order-amount" 
+                                               min="1" 
+                                               value="<%= medication.Reorder_Level %>" 
+                                               data-medication-id="<%= medication.id %>">
+                                    </td>
+                                    <td>
+                                        <button type="button" 
+                                                class="btn-order" 
+                                                data-medication-id="<%= medication.id %>"
+                                                <%= medication.Status === 'Pending' ? 'disabled' : '' %>>
+                                            <%= medication.Status === 'Pending' ? 'Order Pending' : 'Order' %>
+                                        </button>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="8" class="no-data">No medications with low stock levels found.</td>
+                            </tr>
+                        <% } %>
                     </tbody>
                 </table>
-
-                <div class="button-container">
-                    <button class="order-btn">Order</button>
-                </div>
             </div>
         </div>
     </div>
 </div>
 </div>
+
+<style>
+.order-amount {
+    width: 80px;
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.btn-order {
+    background-color: #4CAF50;
+    color: white;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-order:hover {
+    background-color: #45a049;
+}
+
+.btn-order:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.btn-deliver {
+    background-color: #2196F3;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.9em;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-deliver:hover {
+    background-color: #1976D2;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transform: translateY(-1px);
+}
+
+.btn-deliver:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-deliver:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+
+.no-data {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+    margin-bottom: 30px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #f5f5f5;
+    font-weight: bold;
+}
+
+tr:hover {
+    background-color: #f9f9f9;
+}
+
+.section-title-order {
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 1.5em;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.btn-cancel {
+    background-color: #f44336;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.9em;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-cancel:hover {
+    background-color: #d32f2f;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transform: translateY(-1px);
+}
+
+.btn-cancel:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-cancel:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle order creation
+    const orderButtons = document.querySelectorAll('.btn-order:not([disabled])');
+    orderButtons.forEach(button => {
+        button.addEventListener('click', async function() {
+            const medicationId = this.dataset.medicationId;
+            const amountInput = document.querySelector(`.order-amount[data-medication-id="${medicationId}"]`);
+            const amount = amountInput.value;
+            
+            try {
+                const response = await fetch('/api/pharmacy/create-order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        medicationId,
+                        amount: parseInt(amount)
+                    })
+                });
+                
+                if (response.ok) {
+                    alert('Order placed successfully!');
+                    location.reload();
+                } else {
+                    const error = await response.json();
+                    alert(error.message || 'Failed to place order');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while placing the order');
+            }
+        });
+    });
+
+    // Handle order delivery
+    const deliverButtons = document.querySelectorAll('.btn-deliver');
+    deliverButtons.forEach(button => {
+        button.addEventListener('click', async function() {
+            const orderId = this.dataset.orderId;
+            
+            try {
+                const response = await fetch('/api/pharmacy/update-order-status', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        orderId,
+                        status: 'Delivered'
+                    })
+                });
+                
+                if (response.ok) {
+                    alert('Order marked as delivered!');
+                    location.reload();
+                } else {
+                    const error = await response.json();
+                    alert(error.message || 'Failed to update order status');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while updating the order status');
+            }
+        });
+    });
+
+    // Handle order cancellation
+    const cancelButtons = document.querySelectorAll('.btn-cancel');
+    cancelButtons.forEach(button => {
+        button.addEventListener('click', async function() {
+            if (!confirm('Are you sure you want to cancel this order?')) {
+                return;
+            }
+
+            const orderId = this.dataset.orderId;
+            
+            try {
+                const response = await fetch('/api/pharmacy/cancel-order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        orderId
+                    })
+                });
+                
+                if (response.ok) {
+                    alert('Order cancelled successfully!');
+                    location.reload();
+                } else {
+                    const error = await response.json();
+                    alert(error.message || 'Failed to cancel order');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while cancelling the order');
+            }
+        });
+    });
+});
+</script>
