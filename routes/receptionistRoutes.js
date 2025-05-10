@@ -162,11 +162,20 @@ router.get('/update-patient',checkAuthenticated(6) ,async (req, res) => {
     const patient = await selectUserByNationalID(globalPatientNationalId);
     const insurance = await selectInsuranceDetails(globalPatientUserID); // Assuming UserID is available in patient data
     console.log("Patient Data in the update profile:", patient);
+    
+    // Get alert message from session if it exists
+    const alertMessage = req.session.alertMessage;
+    const alertType = req.session.alertType;
+    
+    // Clear the messages after use
+    req.session.alertMessage = null;
+    req.session.alertType = null;
+    
     res.render('reception/updatePatient', { 
       patient: patient[0] || {},
       insurance: insurance || {}, 
-      alertMessage: null,
-      alertType: null
+      alertMessage: alertMessage,
+      alertType: alertType
     });
   } catch (error) {
     console.error(error);
@@ -217,10 +226,15 @@ router.post('/reception-update-patient',checkAuthenticated(6) ,uploadInsurance.s
       await updateInsuranceDetails(nationalId, insuranceUpdateData);
     }
 
+    // Redirect with success message
+    req.session.alertMessage = "Patient information has been updated successfully!";
+    req.session.alertType = "success";
     res.redirect('/update-patient');
   } catch (error) {
     console.error("Error updating patient data:", error);
-    res.status(500).send('Error updating patient data.');
+    req.session.alertMessage = "Failed to update patient information. Please try again.";
+    req.session.alertType = "error";
+    res.redirect('/update-patient');
   }
 });
 
