@@ -2,6 +2,7 @@ import express from "express";
 import {
   renderPatientProfile,
   updatePatientProfile,
+  resetPatientPassword
 } from "../controllers/patientController.js";
 import { cancelAppointment, getPastAppointments } from "../models/appointmentsmodle.js";
 import checkAuthenticated from "../middlewares/checkAuthenticated.js";
@@ -337,5 +338,8 @@ router.get(
 
 router.post("/availability-days", doc.fetchAvailableDays);
 router.get("/doctors-by-time", doc.fetchDoctorsByTime);
+
+// Password reset route
+router.post("/reset-password", checkAuthenticated([6]), resetPatientPassword);
 
 export default router;

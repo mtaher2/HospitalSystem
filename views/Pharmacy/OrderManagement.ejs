@@ -1,0 +1,91 @@
+<%- include('../partials/header', { title: 'Order Management', stylesheetName: 'styles', headerTitle: 'Order Management' }) %>
+<br>
+<br>
+<div class="medication-container">
+<div class="content-body">
+    <div class="order-management-container">
+        <!-- Current Orders Table -->
+        <div class="table-wrapper orders-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Date</th>
+                        <th>expiration dates</th>
+                        <th>Quantity</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>John Doe</td>
+                        <td>mm/dd/yyyy</td>
+                        <td>mm/dd/yyyy</td>
+                        <td>100</td>
+                        <td>available</td>
+                    </tr>
+                    <tr>
+                        <td>Jane Smith</td>
+                        <td>mm/dd/yyyy</td>
+                        <td>mm/dd/yyyy</td>
+                        <td>75</td>
+                        <td>available</td>
+                    </tr>
+                    <tr>
+                        <td>Robert Johnson</td>
+                        <td>mm/dd/yyyy</td>
+                        <td>mm/dd/yyyy</td>
+                        <td>120</td>
+                        <td>available</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Request Additional Stock Section -->
+        <div class="additional-stock-section">
+            <h2 class="section-title-order">Request Additional Stock</h2>
+            <div class="table-wrapper request-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Code</th>
+                            <th>Quantity</th>
+                            <th>Priority</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>John Doe</td>
+                            <td>15sdc6</td>
+                            <td>5566</td>
+                            <td>Highe</td>
+                            <td><button type="button" class="btn-cancel">Cancel</button></td>
+                        </tr>
+                        <tr>
+                            <td>Sarah Wilson</td>
+                            <td>24xfd8</td>
+                            <td>3200</td>
+                            <td>Medium</td>
+                            <td><button type="button" class="btn-cancel">Cancel</button></td>
+                        </tr>
+                        <tr>
+                            <td>Michael Brown</td>
+                            <td>89plm2</td>
+                            <td>1800</td>
+                            <td>Low</td>
+                            <td><button type="button" class="btn-cancel">Cancel</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="button-container">
+                    <button class="order-btn">Order</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>

@@ -1121,6 +1121,88 @@ table td {
   cursor: not-allowed;
 }
 
+/* Back Button Styles */
+.back-btn {
+    /* Basic Layout */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    
+    /* Sizing */
+    padding: 10px 20px;
+    margin: 20px 0;
+    min-width: 160px;
+    
+    /* Typography */
+    font-family: "Inter", sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    text-decoration: none;
+    
+    /* Colors */
+    background-color: #99c65e;
+    color: white;
+    
+    /* Shape */
+    border: none;
+    border-radius: 5px;
+    
+    /* Effects */
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+}
+
+/* Icon Styles */
+.back-btn i {
+    font-size: 14px;
+    transition: transform 0.3s ease;
+}
+
+/* Hover State */
+.back-btn:hover {
+    background-color: #7ea84d;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Active/Click State */
+.back-btn:active {
+    background-color: #5c8a39;
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Focus State for Accessibility */
+.back-btn:focus {
+    outline: 2px solid #99c65e;
+    outline-offset: 2px;
+}
+
+/* Hover Effect for Icon */
+.back-btn:hover i {
+    transform: translateX(-3px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .back-btn {
+        /* Adjust for smaller screens */
+        padding: 8px 16px;
+        font-size: 14px;
+        min-width: 140px;
+    }
+}
+
+@media (max-width: 480px) {
+    .back-btn {
+        /* Further adjustments for mobile */
+        width: 100%;
+        margin: 15px 0;
+    }
+}
+
 @media (max-width: 768px) {
   .appointment-container {
     width: 90%;
@@ -1941,4 +2023,96 @@ table td {
 
 .Prescription-body{
   min-height: 0px;
+}
+
+.section-title-order {
+  margin: 35px 0 20px 0;
+  font-size: 29px;
+  font-weight: 600;
+  color: #2b3aa2;
+}
+
+.button-container {
+margin-top: 20px;
+display: flex;
+justify-content: center;
+padding: 10px 0;
+}
+
+.order-btn {
+  background-color: #8BC34A;
+  color: white;
+  border: none;
+  padding: 10px 40px;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  text-transform: capitalize;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.order-btn:hover {
+  background-color: #7cb342;
+}
+
+.order-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .content-body {
+      padding: 10px;
+  }
+  
+  .table-container {
+      overflow-x: auto;
+  }
+/* Profile Buttons */
+.profile-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+/* Reset Password Modal */
+#resetPasswordModal .modal-content {
+  max-width: 400px;
+}
+
+#resetPasswordModal .modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+#resetPasswordModal .btn-confirm {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+#resetPasswordModal .btn-cancel {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+#resetPasswordModal .btn-confirm:hover {
+  background-color: #45a049;
+}
+
+#resetPasswordModal .btn-cancel:hover {
+  background-color: #d32f2f;
+}
 }
