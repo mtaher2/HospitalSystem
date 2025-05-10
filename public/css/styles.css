@@ -146,25 +146,44 @@ hr {
 }
 
 /* Modal Content */
-.modal-content {
+.modal .modal-content {
   background-color: #fff;
-  border-radius: 12px;
-  width: 450px;
-  padding: 30px;
+  padding: 20px;
+  border-radius: 8px;
   text-align: center;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  transform: scale(0.9);
-  animation: scaleIn 0.3s ease-in-out;
+  min-width: 300px;
+  max-width: 90%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* Scale-in effect */
-@keyframes scaleIn {
-  from {
-    transform: scale(0.9);
-  }
-  to {
-    transform: scale(1);
-  }
+.modal .modal-content h3 {
+  margin-top: 0;
+  color: #333;
+}
+
+.modal .form-group {
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.modal .form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+}
+
+.modal .form-group input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.modal .modal-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
 }
 
 .close-btn {
