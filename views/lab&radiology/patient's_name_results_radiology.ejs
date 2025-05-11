@@ -1,0 +1,259 @@
+<%- include('../partials/header', {
+    title: (patient ? patient.name : 'Patient') + ' Results',
+    stylesheetName: 'styles',
+    headerTitle: (patient ? patient.name : 'Patient') + ' Results'
+  }) %>
+  
+  <div class="results-page">
+    <!-- Container adapts to content -->
+    <div class="outer-container">
+      <div class="inner-card">
+        <!-- Results Table -->
+        <table class="results-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Code</th>
+              <th>Scan Name</th>
+              <th>Reference Range</th>
+              <th>Result</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (results && results.length) { %>
+              <% results.forEach((item, index) => { %>
+                <tr id="row-<%= index %>">
+                  <td><%= item.name %></td>
+                  <td><%= item.code %></td>
+                  <td><%= item.scanName %></td>
+                  <td><%= item.referenceRange %></td>
+                  <td><%= item.value %></td>
+                  <td>
+                    <button class="single-print-btn" onclick="printSingleResult('<%= index %>')">
+                      <i class="fas fa-print"></i> Print
+                    </button>
+                  </td>
+                </tr>
+              <% }) %>
+            <% } else { %>
+              <tr>
+                <td colspan="6" class="no-data">No results available</td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+        <!-- Print All Button under table -->
+        <div class="print-container">
+          <button class="print-btn" onclick="printAllResults()">
+            <i class="fas fa-print"></i> Print All Results
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+
+  
+  <style>
+  /* Base & Typography */
+  .results-page {
+    background-color: #f9fafa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    min-height: calc(100vh - 60px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+
+  /* Outer Container */
+  .outer-container {
+    width: 80%; /* Take 95% of the width instead of 100% */
+    background-color: white;
+    margin: 20px auto; /* Center the container with auto margins */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Optional: adds subtle shadow */
+    border-radius: 8px; /* Optional: rounds the corners */
+  }
+  
+  /* Inner Card */
+  .inner-card {
+    width: 100%;
+    background-color: white;
+    padding: 20px; /* Add some internal padding */
+    border-radius: 8px; /* Match outer container if using rounded corners */
+  }
+  
+  /* Results Table */
+  .results-table {
+    width: 100%;
+    margin: 0;
+    border-collapse: collapse;
+    background-color: white;
+  }
+  .results-table thead {
+    background-color: #f1f8fa;
+    position: sticky;
+    top: 0;
+  }
+  .results-table th,
+  .results-table td {
+    padding: 1rem 1.5rem;
+    text-align: left;
+    vertical-align: middle;
+    font-size: 1rem;
+  }
+  .results-table th {
+    font-weight: 600;
+    color: #1a394d;
+    border-bottom: 2px solid #dcdcdc;
+  }
+  .results-table td {
+    border-top: 1px solid #e6e6e6;
+  }
+  .results-table th + th,
+  .results-table td + td {
+    border-left: 1px solid #dcdcdc;
+  }
+  
+  /* No Data Row */
+  .no-data {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+    font-style: italic;
+    font-size: 1.1rem;
+  }
+  
+  /* Print Button Container */
+  .print-container {
+    padding: 1rem;
+    background-color: white;
+    text-align: center;
+  }
+  .print-btn {
+    background-color: #45a049;
+    color: white;
+    border: none;
+    border-radius: 30px;
+    padding: 1rem 3rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: background-color 0.2s, transform 0.1s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .print-btn:hover {
+    background-color: #45a049;
+    transform: translateY(-2px);
+  }
+
+  /* New styles for the print buttons */
+  .single-print-btn {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .single-print-btn:hover {
+    background-color: #45a049;
+  }
+
+  /* Print styles */
+  @media print {
+    .single-print-btn,
+    .print-container,
+    header {
+      display: none !important;
+    }
+
+    .outer-container,
+    .inner-card {
+      border: none;
+      box-shadow: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Hide all rows by default when printing */
+    tr.hide-for-print {
+      display: none;
+    }
+
+    /* Show only selected row when printing single result */
+    tr.show-for-print {
+      display: table-row;
+    }
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 1200px) {
+    .outer-container {
+      width: 96%;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .outer-container {
+      width: 98%;
+    }
+    
+    .inner-card {
+      padding: 10px;
+    }
+
+    .results-table th,
+    .results-table td {
+      padding: 0.8rem 1rem;
+    }
+  }
+  </style>
+
+  <script>
+  function printSingleResult(index) {
+    // Add print classes to all rows
+    const rows = document.querySelectorAll('.results-table tbody tr');
+    rows.forEach(row => {
+      row.classList.add('hide-for-print');
+    });
+
+    // Show only the selected row
+    const selectedRow = document.getElementById(`row-${index}`);
+    selectedRow.classList.remove('hide-for-print');
+    selectedRow.classList.add('show-for-print');
+
+    // Print the page
+    window.print();
+
+    // Remove print classes after printing
+    rows.forEach(row => {
+      row.classList.remove('hide-for-print');
+    });
+    selectedRow.classList.remove('show-for-print');
+  }
+
+  function printAllResults() {
+    // Remove any print-specific classes
+    const rows = document.querySelectorAll('.results-table tbody tr');
+    rows.forEach(row => {
+      row.classList.remove('hide-for-print', 'show-for-print');
+    });
+
+    // Print the page
+    window.print();
+  }
+  </script>
+  
+

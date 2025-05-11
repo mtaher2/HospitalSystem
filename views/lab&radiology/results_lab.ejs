@@ -1,0 +1,315 @@
+<%- include('../partials/header', {
+  title: 'Results',
+  stylesheetName: 'styles',
+  headerTitle: 'Results'
+}) %>
+
+<div class="results-page">
+  <!-- Search Section -->
+  <div class="search-section">
+    <label for="nationalId">National ID</label>
+    <div class="input-group">
+      <input
+        type="text"
+        id="nationalId"
+        class="search-input"
+        pattern="[34]\\d{13}"
+        placeholder="Enter National ID"
+        title="Please enter a valid National ID"
+      />
+      <button class="search-btn">Search</button>
+    </div>
+  </div>
+
+  <!-- Results Table -->
+  <div class="outer-container">
+    <div class="inner-card">
+      <table class="results-table">
+        <thead>
+          <tr>
+            <th>Patient's Name</th>
+            <th>Test Name</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Results</th>
+            <th>
+              Download
+              <button class="download-all-btn">
+                <i class="fas fa-download"></i> All
+              </button>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>John Doe</td>
+            <td>Blood Test</td>
+            <td>2024-01-25</td>
+            <td><span class="status completed">Completed</span></td>
+            <td>
+              <button class="btn view">View</button>
+              <button class="btn print">Print</button>
+            </td>
+            <td>
+              <button class="btn download">
+                <i class="fas fa-download"></i>
+                <span>Download</span>
+              </button>
+            </td>
+          </tr>
+          <tr>
+            <td>Jane Smith</td>
+            <td>PCR Test</td>
+            <td>2024-01-26</td>
+            <td><span class="status completed">Completed</span></td>
+            <td>
+              <button class="btn view">View</button>
+              <button class="btn print">Print</button>
+            </td>
+            <td>
+              <button class="btn download">
+                <i class="fas fa-download"></i>
+                <span>Download</span>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<style>
+/* Base & Typography */
+.results-page {
+  background-color: #f9fafa;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  padding: 0.5rem 1.5rem; /* Reduced top padding */
+  min-height: 100vh;
+}
+
+/* Search Section */
+.search-section {
+  background: #fff;
+  padding: 1rem 2rem; /* Reduced padding */
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  margin: 0 auto 1rem; /* Reduced bottom margin */
+  max-width: 1200px;
+  margin-top: 20px; /* Added specific top margin */
+}
+
+.search-section label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.5rem; /* Reduced margin */
+  color: #1a394d;
+  font-size: 1.1rem;
+}
+
+.input-group {
+  display: flex;
+  gap: 1rem;
+  max-width: 600px;
+}
+
+.search-input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid #dcdcdc;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.search-btn {
+  background-color: #45a049;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.8rem 1.5rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.search-btn:hover {
+  background-color: #3d8b41;
+}
+
+/* Outer Container */
+.outer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: #fff;
+  padding: 1.5rem; /* Reduced padding */
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* Inner Card */
+.inner-card {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 0;
+}
+
+/* Results Table */
+.results-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 0;
+}
+
+.results-table thead {
+  background-color: #f8f9fa;
+}
+
+.results-table th {
+  padding: 0.8rem 1.5rem; /* Reduced padding */
+  font-weight: 600;
+  color: #1a394d;
+  border-bottom: 2px solid #e9ecef;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+}
+
+.results-table td {
+  padding: 1rem 1.5rem; /* Reduced padding */
+  border-bottom: 1px solid #e9ecef;
+  font-size: 0.95rem;
+}
+
+.results-table th + th,
+.results-table td + td {
+  border-left: 1px solid #dcdcdc;
+}
+
+/* Status */
+.status.completed {
+  background: #e8f5e9;
+  color: #2e7d32;
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  display: inline-block;
+}
+
+/* Buttons */
+.btn {
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  margin: 0.2rem;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.btn.view,
+.btn.print {
+  background-color: #45a049;
+  color: white;
+}
+
+.btn:hover {
+  background-color: #3d8b41;
+  transform: translateY(-1px);
+}
+
+.download-icon {
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+  margin-left: 6px;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .outer-container {
+    margin: 0 1rem 1rem;
+    padding: 1rem;
+  }
+
+  .results-table th,
+  .results-table td {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .search-section {
+    padding: 1rem;
+  }
+
+  .input-group {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .search-btn {
+    width: 100%;
+  }
+}
+
+/* Add these new styles */
+.download-all-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  margin-left: 8px;
+  color: #45a049;
+  transition: color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.download-all-btn:hover {
+  color: #3d8b41;
+}
+
+.btn.download {
+  background-color: #45a049;
+  color: white;
+  padding: 0.6rem 1.2rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px; /* Space between icon and text */
+  white-space: nowrap;
+  flex-direction: row; /* Ensure icon and text are in a row */
+  justify-content: flex-start; /* Align items to the start */
+}
+
+.btn.download .fas.fa-download {
+  font-size: 1rem;
+  margin-right: 8px; /* Additional space between icon and text */
+}
+
+.btn.download span {
+  font-weight: 600;
+}
+
+.btn.download:hover {
+  background-color: #3d8b41;
+  transform: translateY(-1px);
+}
+
+/* Center align the download column */
+.results-table th:last-child,
+.results-table td:last-child {
+  text-align: center;
+}
+
+/* Adjust table layout if needed */
+.results-table th,
+.results-table td {
+  padding: 1rem 1.5rem;
+  text-align: left;
+  vertical-align: middle;
+}
+</style>
+

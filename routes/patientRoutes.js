@@ -370,8 +370,116 @@ router.get(
 router.post("/availability-days", doc.fetchAvailableDays);
 router.get("/doctors-by-time", doc.fetchDoctorsByTime);
 
+
+
+///////////////////////////////////////////////////////////////////////////
+//                  only for test                                    /////
+
+router.get("/labresults_lab", (req , res) => {
+  res.render("lab&radiology/results_lab");
+
+});
+
+
+
+router.get("/labpatientresults_lab", async (req, res) => {
+  try {
+    // Mock data for testing
+    const mockData = {
+      patient: {
+        name: "John Doe",
+        nationalId: "3123456789123",
+        age: 45,
+        gender: "Male"
+      },
+      results: [
+        {
+          name: "Blood Test",
+          code: "BT-001",
+          testName: "Complete Blood Count",
+          referenceRange: "4.5-5.5 million cells/mcL",
+          value: "5.0 million cells/mcL"
+        },
+        {
+          name: "Glucose Test",
+          code: "GT-001",
+          testName: "Fasting Blood Sugar",
+          referenceRange: "70-100 mg/dL",
+          value: "85 mg/dL"
+        }
+      ]
+    };
+
+    res.render("lab&radiology/patient's_name_results_lab", { 
+      patient: mockData.patient,
+      results: mockData.results
+    });
+  } catch (error) {
+    console.error("Error rendering lab results:", error);
+    res.status(500).render("error", {
+      message: "Error loading lab results",
+      error: error
+    });
+  }
+});
+
+
+
+router.get("/labresults_radiology", (req , res) => {
+  res.render("lab&radiology/results_radiology");
+
+});
+
+
+
+
+router.get("/labpatientresultsradiology", async (req, res) => {
+  try {
+    // Mock data for now - replace with actual database query later
+    const mockData = {
+      patient: {
+        name: "John Doe",
+        nationalId: "3123456789123",
+        age: 45,
+        gender: "Male"
+      },
+      results: [
+        {
+          name: "Chest X-Ray",
+          code: "XR-CHEST",
+          scanName: "Thoracic Radiograph",
+          referenceRange: "Normal chest anatomy",
+          value: "Normal"
+        },
+        {
+          name: "CT Scan",
+          code: "CT-HEAD",
+          scanName: "Head CT",
+          referenceRange: "No abnormalities",
+          value: "Requires Attention"
+        }
+      ]
+    };
+
+    res.render("lab&radiology/patient's_name_results_radiology", { 
+      patient: mockData.patient,
+      results: mockData.results
+    });
+  } catch (error) {
+    console.error("Error rendering radiology results:", error);
+    res.status(500).render("error", {
+      message: "Error loading radiology results",
+      error: error
+    });
+  }
+});
+
+
+export default router; // Moved outside the route handler
+
 // Password reset route
 router.post("/reset-password", checkAuthenticated([6]), resetPatientPassword);
+
 
 // Route to get doctor specialty by name
 router.get('/doctor-specialty/:doctorName', async (req, res) => {
@@ -404,3 +512,4 @@ router.get('/doctor-specialty/:doctorName', async (req, res) => {
 });
 
 export default router;
+
