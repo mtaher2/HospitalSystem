@@ -146,4 +146,232 @@
 </script>
 <script src="js/upload.js"></script>
 <script src="js/main.js"></script>
+
+<!-- Chatbot Icon -->
+<button class="chat-icon" id="openChatBtn" title="Chat with Assistant" type="button">
+  <i class="fas fa-comments"></i>
+</button>
+
+<!-- Chat Modal -->
+<div id="chatModal" class="chat-modal">
+  <div class="chat-modal-content">
+    <div class="chat-modal-header">
+      <span><i class="fas fa-robot"></i> Chat Assistant</span>
+      <button class="close-chat" id="closeChatBtn">&times;</button>
+    </div>
+    <div class="chat-modal-messages" id="chatMessages">
+      <!-- Messages will appear here -->
+    </div>
+    <div class="chat-modal-input">
+      <input type="text" id="chatInput" placeholder="Type your message..." autocomplete="off" />
+      <button id="sendChatBtn"><i class="fas fa-paper-plane"></i></button>
+    </div>
+  </div>
+</div>
+
+<!-- Google Fonts: Roboto -->
+<link href="https://fonts.googleapis.com/css?family=Roboto:400,500&display=swap" rel="stylesheet">
+
+<style>
+.chat-modal, .chat-modal * {
+  font-family: 'Roboto', Arial, sans-serif;
+}
+.chat-icon {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 60px;
+  height: 60px;
+  background-color: #29ac54;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  text-decoration: none;
+  box-shadow: 0 4px 16px rgba(44, 62, 80, 0.18);
+  transition: transform 0.3s, background 0.3s;
+  z-index: 1000;
+  border: none;
+  cursor: pointer;
+}
+.chat-icon:hover {
+  transform: scale(1.1);
+  background-color: #208c41;
+}
+.chat-icon i {
+  font-size: 28px;
+}
+
+.chat-modal {
+  display: none;
+  position: fixed;
+  bottom: 100px;
+  right: 30px;
+  width: 370px;
+  max-width: 95vw;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 8px 32px rgba(44, 62, 80, 0.22);
+  z-index: 1100;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1.5px solid #29ac54;
+}
+.chat-modal-content {
+  display: flex;
+  flex-direction: column;
+  height: 440px;
+}
+.chat-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  background: #29ac54;
+  color: #fff;
+  border-top-left-radius: 18px;
+  border-top-right-radius: 18px;
+  font-weight: 500;
+  font-size: 1.1rem;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(44, 62, 80, 0.08);
+}
+.chat-modal-header i {
+  margin-right: 8px;
+}
+.close-chat {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 26px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: color 0.2s;
+}
+.close-chat:hover {
+  color: #e0e0e0;
+}
+.chat-modal-messages {
+  flex: 1;
+  padding: 18px 14px 12px 14px;
+  overflow-y: auto;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.chat-bubble {
+  max-width: 80%;
+  padding: 10px 16px;
+  border-radius: 18px;
+  font-size: 1rem;
+  margin-bottom: 2px;
+  word-break: break-word;
+  box-shadow: 0 2px 8px rgba(44, 62, 80, 0.10);
+  border: 1px solid #e0e0e0;
+}
+.chat-bubble.user {
+  align-self: flex-end;
+  background: #f6fff9;
+  color: #222;
+  border-bottom-right-radius: 6px;
+  border: 1.5px solid #29ac54;
+}
+.chat-bubble.bot {
+  align-self: flex-start;
+  background: #f2f8ff;
+  color: #1a237e;
+  border-bottom-left-radius: 6px;
+  border: 1.5px solid #38b6ff;
+}
+.chat-modal-input {
+  display: flex;
+  border-top: 1px solid #e0e0e0;
+  padding: 10px 10px 10px 14px;
+  background: #f9f9f9;
+}
+.chat-modal-input input {
+  flex: 1;
+  padding: 9px 12px;
+  border: 1.5px solid #bdbdbd;
+  border-radius: 8px;
+  margin-right: 8px;
+  font-size: 1rem;
+  outline: none;
+  transition: border 0.2s, background 0.2s;
+  background: #f6fbff;
+}
+.chat-modal-input input:focus {
+  border: 1.5px solid #43e97b;
+  background: #e0ffe9;
+}
+.chat-modal-input button {
+  background: linear-gradient(90deg, #38b6ff 0%, #43e97b 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0 18px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  box-shadow: 0 2px 8px rgba(44, 62, 80, 0.10);
+}
+.chat-modal-input button:hover {
+  background: linear-gradient(90deg, #43e97b 0%, #38b6ff 100%);
+}
+</style>
+
+<script>
+// Open and close chat modal
+const openChatBtn = document.getElementById('openChatBtn');
+const closeChatBtn = document.getElementById('closeChatBtn');
+const chatModal = document.getElementById('chatModal');
+const chatMessages = document.getElementById('chatMessages');
+const sendChatBtn = document.getElementById('sendChatBtn');
+const chatInput = document.getElementById('chatInput');
+
+openChatBtn.addEventListener('click', () => {
+  chatModal.style.display = 'flex';
+  setTimeout(() => { chatInput.focus(); }, 200);
+});
+closeChatBtn.addEventListener('click', () => {
+  chatModal.style.display = 'none';
+});
+window.addEventListener('click', function(event) {
+  if (event.target === chatModal) {
+    chatModal.style.display = 'none';
+  }
+});
+
+sendChatBtn.addEventListener('click', sendMessage);
+chatInput.addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') sendMessage();
+});
+
+function sendMessage() {
+  const msg = chatInput.value.trim();
+  if (!msg) return;
+  addMessage(msg, 'user');
+  chatInput.value = '';
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+  // Simulate bot reply for demo
+  setTimeout(() => {
+    addMessage('Thank you for your message! How can I assist you today?', 'bot');
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }, 700);
+}
+
+function addMessage(text, sender) {
+  const msgDiv = document.createElement('div');
+  msgDiv.className = 'chat-bubble ' + sender;
+  msgDiv.textContent = text;
+  chatMessages.appendChild(msgDiv);
+}
+</script>
+
 <%- include('../partials/footer') %>
