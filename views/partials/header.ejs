@@ -43,7 +43,7 @@
         
         <% if ((headerTitle === 'Patient Profile' || headerTitle === 'Appointments' || headerTitle === 'Medical Records' || headerTitle === 'Medication' || headerTitle === 'Health statistics') && user && user.Role === 6) { %> <a href="/patient-profile-reception" class="logout-button">Back</a> <% } %>
         <% if ((headerTitle === 'Medical Records' || headerTitle === 'Medication' || headerTitle === 'Health statistics') && user && user.Role === 2) { %> <a href="/doctor-appointment" class="logout-button">Back</a> <% } %>
-        <% if ((headerTitle === 'Medical Records' || headerTitle === 'Medication' || headerTitle === 'Health statistics' || headerTitle === 'Prescription Management' || headerTitle === 'Prescription Pharmacy' || headerTitle === 'Announcement') && user && user.Role === 4) { %> <a href="/pharmacy-home-page" class="logout-button">Back</a> <% } %>
+        <% if ((headerTitle === 'Medical Records' || headerTitle === 'Medication' || headerTitle === 'Health statistics' || headerTitle === 'Prescription Management' || headerTitle === 'Prescription Pharmacy' || headerTitle === 'Announcement' || headerTitle === 'Order Management') && user && user.Role === 4) { %> <a href="/pharmacy-home-page" class="logout-button">Back</a> <% } %>
         <% if (typeof user !== 'undefined' && user) { %>
         <a href="/logout" class="logout-button">Logout</a>
         <% } %>

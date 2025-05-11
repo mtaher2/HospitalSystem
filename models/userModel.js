@@ -229,7 +229,7 @@ export async function updateUserPasswordPlainText(
 
     const updateQuery = `
             UPDATE User 
-            SET Password = ?, Updated_At = NOW() 
+            SET Password = ?, Updated_At = NOW(), need_update = FALSE 
             WHERE National_ID = ?;
         `;
     await db.query(updateQuery, [newPassword, nationalID]);

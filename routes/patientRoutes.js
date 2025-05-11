@@ -2,6 +2,7 @@ import express from "express";
 import {
   renderPatientProfile,
   updatePatientProfile,
+  resetPatientPassword
 } from "../controllers/patientController.js";
 import { cancelAppointment, getPastAppointments } from "../models/appointmentsmodle.js";
 import checkAuthenticated from "../middlewares/checkAuthenticated.js";
@@ -339,6 +340,7 @@ router.post("/availability-days", doc.fetchAvailableDays);
 router.get("/doctors-by-time", doc.fetchDoctorsByTime);
 
 
+
 ///////////////////////////////////////////////////////////////////////////
 //                  only for test                                    /////
 
@@ -442,3 +444,9 @@ router.get("/labpatientresultsradiology", async (req, res) => {
 });
 
 export default router; // Moved outside the route handler
+
+// Password reset route
+router.post("/reset-password", checkAuthenticated([6]), resetPatientPassword);
+
+
+
