@@ -227,7 +227,7 @@ export async function getFilteredBills(filters) {
   }
 
   if (patient) {
-    query += ` AND (u.FName LIKE ? OR u.LName LIKE ?)`;
+    query += ` AND (CONCAT(u.FName, ' ', u.LName) LIKE ? OR CONCAT(u.LName, ' ', u.FName) LIKE ?)`;
     queryParams.push(`%${patient}%`, `%${patient}%`);
   }
 

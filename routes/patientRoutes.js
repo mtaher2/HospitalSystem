@@ -4,7 +4,7 @@ import {
   updatePatientProfile,
   resetPatientPassword
 } from "../controllers/patientController.js";
-import { cancelAppointment, getPastAppointments } from "../models/appointmentsmodle.js";
+import { cancelAppointment, getPastAppointments, rescheduleAppointment } from "../models/appointmentsmodle.js";
 import checkAuthenticated from "../middlewares/checkAuthenticated.js";
 import { upload } from "../utils/multerConfig.js";
 import { uploadProfilePhoto } from "../controllers/patientController.js";
@@ -17,6 +17,7 @@ import {
 } from "../controllers/appointmentController.js";
 import { showPatientBills } from "../controllers/billingController.js";
 import { globalDoctorUserID, globalPatientUserID, setGlobalPatientUserID } from "../globalVariables.js";
+import { db } from "../db.js";
 
 const router = express.Router();
 router.use(express.json());
@@ -259,6 +260,36 @@ router.post('/appointments/:id/cancel', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+router.post('/appointments/:id/reschedule', async (req, res) => {
+  try {
+    const appointmentId = req.params.id;
+    const { New_Appointment_Date, New_Appointment_Time } = req.body;
+    
+    if (!New_Appointment_Date || !New_Appointment_Time) {
+      return res.status(400).json({ error: 'Date and time are required' });
+    }
+    
+    // Convert time to database format if needed
+    const appointmentData = {
+      Appointment_ID: appointmentId,
+      New_Appointment_Date,
+      New_Appointment_Time
+    };
+    
+    const result = await rescheduleAppointment(appointmentData);
+    
+    if (result) {
+      return res.status(200).json({ message: 'Appointment rescheduled successfully' });
+    } else {
+      return res.status(400).json({ error: 'Failed to reschedule appointment' });
+    }
+  } catch (error) {
+    console.error('Error rescheduling appointment:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 router.get(
   '/medication',
   checkAuthenticated([2, 7, 6,4]),
@@ -448,4 +479,37 @@ export default router; // Moved outside the route handler
 
 // Password reset route
 router.post("/reset-password", checkAuthenticated([6]), resetPatientPassword);
+
+
+// Route to get doctor specialty by name
+router.get('/doctor-specialty/:doctorName', async (req, res) => {
+  try {
+    const doctorName = req.params.doctorName;
+    const [firstName, lastName] = doctorName.split(' ');
+    
+    if (!firstName || !lastName) {
+      return res.status(400).json({ error: 'Invalid doctor name format' });
+    }
+    
+    const query = `
+      SELECT d.Specialty 
+      FROM Doctor d 
+      JOIN User u ON d.Doctor_ID = u.User_ID
+      WHERE u.FName = ? AND u.LName = ?
+    `;
+    
+    const [rows] = await db.execute(query, [firstName, lastName]);
+    
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Doctor not found' });
+    }
+    
+    return res.status(200).json({ specialty: rows[0].Specialty });
+  } catch (error) {
+    console.error('Error fetching doctor specialty:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+export default router;
 

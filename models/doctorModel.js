@@ -231,21 +231,33 @@ export async function filterDoctorAppointments(doctorID, filters = {}) {
         Room r ON a.Room_ID = r.Room_ID
     WHERE 
         a.Doctor_ID = ? 
-        AND a.Appointment_Date >= NOW()
-        AND a.Status = 'Scheduled'`;
+        AND a.Status = 'Scheduled'
+        AND a.Appointment_Date >= NOW()`;
 
   const queryParams = [doctorID];
 
   console.log("Filter Parameters: Doctor ID =", doctorID, "Filters:", filters);
 
   if (filters.appointmentDate) {
-    query += ` AND a.Appointment_Date = ?`;
-    queryParams.push(filters.appointmentDate);
+    // Convert the input date to UTC date string for comparison
+    const utcDate = new Date(filters.appointmentDate + 'T21:00:00.000Z');
+    query += ` AND DATE(a.Appointment_Date) = DATE(?)`;
+    queryParams.push(utcDate);
   }
 
   if (filters.patientName) {
-    query += ` AND (u.FName LIKE ? OR u.LName LIKE ?)`;
-    queryParams.push(`%${filters.patientName}%`, `%${filters.patientName}%`);
+    // Split the search term into parts to search first and last names separately
+    const nameParts = filters.patientName.trim().split(/\s+/);
+    const conditions = [];
+    const params = [];
+
+    nameParts.forEach(part => {
+      conditions.push(`(u.FName LIKE ? OR u.LName LIKE ?)`);
+      params.push(`%${part}%`, `%${part}%`);
+    });
+
+    query += ` AND (${conditions.join(' AND ')})`;
+    queryParams.push(...params);
   }
 
   query += ` ORDER BY a.Appointment_Date ASC, a.Appointment_Time ASC`;
