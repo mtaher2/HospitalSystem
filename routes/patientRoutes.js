@@ -443,10 +443,9 @@ router.get("/labpatientresultsradiology", async (req, res) => {
   }
 });
 
+
 export default router; // Moved outside the route handler
 
 // Password reset route
 router.post("/reset-password", checkAuthenticated([6]), resetPatientPassword);
-
-
 
