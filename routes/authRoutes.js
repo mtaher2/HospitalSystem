@@ -23,6 +23,10 @@ router.get('/update-password', (req, res) => {
     });
 });
 
+router.get('/test', (req, res) => {
+    res.render('Lab/availableTests');
+});
+
 router.post('/update-password', handleUpdatePassword);
 
 

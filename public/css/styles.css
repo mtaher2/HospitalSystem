@@ -271,7 +271,7 @@ hr {
 }
 
 .appointment-btn:hover {
-  opacity: 0.9;
+    background-color: #8dbf5a;
 }
 
 .details {
