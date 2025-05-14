@@ -9,7 +9,7 @@ import {
 import * as labOrderModel from "../models/doctorModel.js";
 import * as billing from "../models/billingModle.js";
 import { createAnnouncement, fetchAnnouncements } from '../controllers/announcementController.js';
-import { insertPrescription,getMedicationSuggestions, validateMedication, addPrescription, } from "../models/doctorModel.js";
+import { insertPrescription,getMedicationSuggestions, validateMedication, addPrescription, getPrescriptions, updatePrescription } from "../models/doctorModel.js";
 import { db } from "../db.js";
 const router = express.Router();
 router.use(express.json());
@@ -238,5 +238,82 @@ router.post("/prescriptions", async (req, res) => {
   }
 });
 
+// API endpoint for getting prescriptions
+router.get("/api/prescriptions", checkAuthenticated([2]), async (req, res) => {
+  const { patientId } = req.query;
+  const doctorId = req.session.user?.User_ID;
+
+  try {
+    const prescriptions = await getPrescriptions({ patientId, doctorId });
+    res.json({ success: true, prescriptions });
+  } catch (error) {
+    console.error("Error fetching prescriptions:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// API endpoint for adding/updating prescriptions
+router.post("/api/prescriptions", checkAuthenticated([2]), async (req, res) => {
+  const {
+    prescriptionId,
+    medicationName,
+    dosage,
+    frequency,
+    startDate,
+    endDate,
+    refillTimes,
+    patientId
+  } = req.body;
+
+  const doctorId = req.session.user?.User_ID;
+
+  try {
+    if (prescriptionId) {
+      // Update existing prescription
+      await updatePrescription(prescriptionId, {
+        Medication_Name: medicationName,
+        Dosage: dosage,
+        Frequency: frequency,
+        Start_Date: startDate,
+        End_Date: endDate,
+        Refill_Times: refillTimes,
+        Status: 'Active'
+      });
+    } else {
+      // Add new prescription
+      await addPrescription({
+        patientId,
+        doctorId,
+        name: medicationName,
+        dosage,
+        frequency,
+        startDate,
+        endDate,
+        refillTimes
+      });
+    }
+
+    res.json({ success: true, message: 'Prescription saved successfully' });
+  } catch (error) {
+    console.error("Error saving prescription:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// API endpoint for deleting prescriptions
+router.delete("/api/prescriptions/:id", checkAuthenticated([2]), async (req, res) => {
+  const prescriptionId = req.params.id;
+
+  try {
+    await db.execute(
+      'UPDATE Prescription SET Status = ? WHERE Prescription_ID = ?',
+      ['Cancelled', prescriptionId]
+    );
+    res.json({ success: true, message: 'Prescription deleted successfully' });
+  } catch (error) {
+    console.error("Error deleting prescription:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
 
 export default router;

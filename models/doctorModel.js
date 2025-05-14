@@ -420,3 +420,74 @@ export async function addPrescription(prescription) {
     throw new Error("Error adding prescription: " + error.message);
   }
 }
+
+export async function getPrescriptions(filters) {
+  const { patientId, doctorId, status } = filters;
+  
+  let query = `
+    SELECT 
+      Prescription_ID,
+      Medication_Name,
+      Dosage,
+      Frequency,
+      Start_Date,
+      End_Date,
+      Status,
+      Refill_Times
+    FROM Prescription
+    WHERE Patient_ID = ? AND Doctor_ID = ?
+  `;
+  
+  const params = [patientId, doctorId];
+  
+  if (status) {
+    query += ' AND Status = ?';
+    params.push(status);
+  }
+  
+  query += ' ORDER BY Start_Date DESC';
+  
+  try {
+    const [rows] = await db.execute(query, params);
+    return rows;
+  } catch (error) {
+    console.error('Error fetching prescriptions:', error);
+    throw error;
+  }
+}
+
+export async function updatePrescription(prescriptionId, updates) {
+  const fields = [];
+  const values = [];
+  
+  // Build the SET clause dynamically based on provided updates
+  Object.entries(updates).forEach(([key, value]) => {
+    if (value !== undefined) {
+      fields.push(`${key} = ?`);
+      values.push(value);
+    }
+  });
+  
+  if (fields.length === 0) {
+    throw new Error('No fields to update');
+  }
+  
+  const query = `
+    UPDATE Prescription 
+    SET ${fields.join(', ')}
+    WHERE Prescription_ID = ?
+  `;
+  
+  values.push(prescriptionId);
+  
+  try {
+    const [result] = await db.execute(query, values);
+    if (result.affectedRows === 0) {
+      throw new Error('Prescription not found');
+    }
+    return true;
+  } catch (error) {
+    console.error('Error updating prescription:', error);
+    throw error;
+  }
+}
